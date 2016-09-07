@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+const validators = require('app-modules/utils/validators');
 const errors = require('app-modules/errors');
 const quizTypes = require('app-modules/constants/quiz-types');
 
@@ -9,6 +10,8 @@ const schema = new mongoose.Schema({
   data: { type: mongoose.Schema.Types.Mixed, required: true }
 }, { timestamps: true });
 
+require('./methods')(schema);
+
 function requireDataStringArray(answer) {
   if(!_.isArray(answer.data) || typeof answer.data[0] !== 'string' || answer.data[0].length === 0) {
     return Promise.reject(new errors.InvalidRequestError('data is invalid'));
@@ -17,29 +20,43 @@ function requireDataStringArray(answer) {
   }
 }
 
-const validateByType = (answer, type) => {
+const validateDataByType = (data, type) => {
   const validateWith = (answer, validator) => {
-    if(!validator(answer)) {
+    if(!validator(data)) {
       return Promise.reject(new errors.InvalidRequestError('data is invalid'));
     } else {
       return Promise.resolve();
     }
   }
-  const notEmptyString = answer => answer.data && typeof answer.data === 'string' && answer.data.length > 0
+  
+  const notEmptyString = data => data && typeof data === 'string' && data.length > 0
 
   const validators = {
-    [quizTypes.MULTIPLE_CHOICE](answer) {
-      return validateWith(answer, notEmptyString);
+    [quizTypes.MULTIPLE_CHOICE](data) {
+      return validateWith(data, notEmptyString);
     },
-    [quizTypes.ESSAY](answer) {
-      return validateWith(answer, notEmptyString);
+    [quizTypes.ESSAY](data) {
+      return validateWith(data, notEmptyString);
+    },
+    [quizTypes.PEER_REVIEW](data) {
+      const schema = {
+        chosen: { presence: true },
+        rejected: { presence: true },
+        review: { presence: true }
+      }
+
+      return validators.validate(data, schema)
+        .then(
+          success => Promise.resolve(),
+          error => Promise.reject('data is invalid')
+        );
     }
   }
 
   if(!validators[type]) {
-    return Promise.reject(new errors.InvalidRequestError('Quiz type is invalid'));
+    return Promise.resolve();
   } else {
-    return validators[type](answer);
+    return validators[type](data);
   }
 }
 
@@ -54,7 +71,7 @@ schema.pre('save', function(next) {
         if(!quiz.type) {
           return Promise.resolve();
         } else {
-          return validateByType(this, quiz.type);
+          return validateDataByType(this.data, quiz.type);
         }
       })
       .then(() => next())

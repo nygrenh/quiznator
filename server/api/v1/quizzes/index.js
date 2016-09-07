@@ -4,6 +4,7 @@ const authenticationMiddlewares = require('app-modules/middlewares/authenticatio
 const middlewares = require('./middlewares');
 
 router.use('/:id/answers', require('./answers-for-quiz'));
+router.use('/:id/peer-reviews', require('./peer-reviews-for-quiz'));
 
 router.get('/',
   authenticationMiddlewares.authorize(),

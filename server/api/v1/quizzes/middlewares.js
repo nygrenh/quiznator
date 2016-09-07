@@ -47,7 +47,7 @@ function updateQuiz(options) {
 
 function createQuiz(options) {
   return (req, res, next) => {
-    const userId = options.getUserId();
+    const userId = options.getUserId(req);
 
     const allowedAttributes = pick(options.getAttributes(req), ['type', 'title', 'data']);
     const attributes = Object.assign({}, allowedAttributes, { userId });

@@ -27,7 +27,7 @@ function apiErrorHandler() {
 
     console.log(err);
 
-    res.status(statusCode).json({ message, properties: err.properties || properties });
+    res.status(statusCode).json({ message, properties: err.properties || properties, status: statusCode });
   }
 }
 
