@@ -1,0 +1,10 @@
+.quiz-container__content {
+  padding: 1.25rem;
+  padding-bottom: 0rem;
+
+  .alert {
+    &:last-child {
+      margin-bottom: 0rem;
+    }
+  }
+}

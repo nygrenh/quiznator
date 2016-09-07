@@ -6,6 +6,7 @@
 var app = require('../app');
 var debug = require('debug')('quiznator:server');
 var http = require('http');
+var mongoose = require('mongoose');
 
 /**
  * Get port from environment and store in Express.
@@ -23,8 +24,14 @@ var server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
+mongoose.connect(process.env.MONGO_URI, err => {
+  if(err) {
+    console.log(err);
+  } else {
+    server.listen(port);
+  }
+});
 
-server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 

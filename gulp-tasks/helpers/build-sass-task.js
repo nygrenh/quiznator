@@ -4,6 +4,7 @@ const cleanCSS = require('gulp-clean-css');
 const rename = require('gulp-rename');
 const sassGlob = require('gulp-sass-glob');
 const autoprefixer = require('gulp-autoprefixer');
+const classPrefix = require('gulp-class-prefix');
 
 module.exports = options => () => {
   const pipeline = gulp.src(options.src)
@@ -11,6 +12,11 @@ module.exports = options => () => {
     .pipe(sass())
     .pipe(autoprefixer())
     .pipe(rename(options.fileName));
+
+  if(options.classPrefix) {
+    pipeline
+      .pipe(classPrefix(options.classPrefix));
+  }
 
   if(options.uglify === true) {
     pipeline

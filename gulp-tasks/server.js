@@ -9,7 +9,10 @@ module.exports = () => {
     ext: 'js',
     watch: constants.NODEMON_PATHS,
     env: {
-      NODE_ENV: 'development'
+      NODE_ENV: 'development',
+      MONGO_URI: 'mongodb://localhost/quiznator',
+      CLIENT_ID: 'quiznatorApp',
+      CLIENT_SECRET: 'Qb4FIoEsStq9dAKilsvJ3l2pP1QYYZsU'
     }
   });
 };

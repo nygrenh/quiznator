@@ -47,7 +47,8 @@ module.exports = options => {
     const sassTaskOptions = {
       src: sassOptions.entry,
       dest: sassOptions.output,
-      fileName: sassOptions.fileName
+      fileName: sassOptions.fileName,
+      classPrefix: sassOptions.classPrefix
     }
 
     gulp.task(`styles.${bundleName}`, sassTaskBuilder(Object.assign({}, sassTaskOptions)));

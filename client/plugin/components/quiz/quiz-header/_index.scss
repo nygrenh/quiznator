@@ -1,0 +1,38 @@
+.quiz-container__header {
+  padding: 0.8rem 1.25rem;
+  border: 1px solid $light-grey-border;
+  margin: -1px -1px 0px -1px;
+  border-radius: 4px 4px 0px 0px;
+  background-color: white;
+
+  .quiz-answered-label {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: white;
+    background-color: transparent;
+    display: inline-block;
+    padding: 0.3rem;
+    border: 1px solid white;
+    border-radius: 2px;
+  }
+
+  &--active {
+    color: white;
+    background-color: $primary-color;
+    border-color: darken($primary-color, 5%);
+
+    &:active {
+      background-color: darken($primary-color, 5%) !important;
+    }
+  }
+
+  &:active {
+    background-color: darken(white, 5%);
+  }
+
+  h1 {
+    font-size: 1.2rem;
+    margin: 0px;
+  }
+
+}
