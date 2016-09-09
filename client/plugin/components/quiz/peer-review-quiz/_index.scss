@@ -1,0 +1,18 @@
+.peer-review-wrapper {
+  h4 {
+    margin-top: 0rem;
+  }
+
+  .peer-review-container {
+    display: flex;
+    margin-bottom: $spacing;
+
+    &__answer {
+      flex: 1;
+
+      &:first-child {
+        padding-right: $spacing;
+      }
+    }
+  }
+}

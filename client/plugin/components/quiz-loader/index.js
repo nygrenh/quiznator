@@ -13,20 +13,20 @@ import withClassPrefix from 'utils/class-prefix';
 
 class QuizLoader extends React.Component {
   componentDidMount() {
-    this.props.fetchQuiz();
+    this.props.loadQuiz();
 
     this.fetchAnswer();
   }
 
   componentDidUpdate(nextProps) {
-    if(nextProps.user && nextProps.user !== this.props.user) {
+    if(nextProps.user && (!this.props.user || nextProps.user.id !== this.props.user.id)) {
       this.fetchAnswer();
     }
   }
 
   fetchAnswer() {
     if(this.props.user) {
-      this.props.fetchAnswer();
+      this.props.loadAnswer();
     }
   }
 
@@ -36,7 +36,11 @@ class QuizLoader extends React.Component {
 
   renderError() {
     return (
-      <div>Error</div>
+      <div className={withClassPrefix('loading-error-container')}>
+        <Alert type="danger">
+          Couldn't load the quiz
+        </Alert>
+      </div>
     );
   }
 
@@ -66,10 +70,8 @@ class QuizLoader extends React.Component {
   }
 
   renderQuiz() {
-    console.log(this.props.user);
-
     return (
-      <Quiz quiz={this.props.quiz} onData={this.onQuizData.bind(this)} answer={this.props.answer} onSubmit={this.props.submitQuiz} disabled={!this.userIsSignedIn()}>
+      <Quiz quiz={this.props.quiz} user={this.props.user} onData={this.onQuizData.bind(this)} answer={this.props.answer} onSubmit={this.props.submitQuiz} disabled={!this.userIsSignedIn()} quizId={this.props.id}>
         {this.renderNotSignInAlert()}
         <QuizAlerts quizId={this.props.id}/>
       </Quiz>
@@ -104,7 +106,6 @@ QuizLoader.defaultProps = {
 }
 
 const mapStateToProps = (state, props) => {
-  console.log(state.user);
   return {
     quiz: state.quizzes[props.id.toString()],
     answer: state.quizAnswers[props.id.toString()],
@@ -112,12 +113,12 @@ const mapStateToProps = (state, props) => {
   }
 }
 
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    fetchQuiz: () => dispatch(fetchQuiz(props.id)),
-    fetchAnswer: () => dispatch(getQuizAnswer({ quizId: props.id })),
+    loadQuiz: () => dispatch(fetchQuiz(ownProps.id)),
+    loadAnswer: () => dispatch(getQuizAnswer({ quizId: ownProps.id })),
     updateQuizAnswer: ({ quizId, data }) => dispatch(updateQuizAnswer({ quizId, data })),
-    submitQuiz: () => dispatch(submitQuiz(props.id))
+    submitQuiz: () => dispatch(submitQuiz(ownProps.id))
   }
 }
 

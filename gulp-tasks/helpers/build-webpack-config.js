@@ -21,6 +21,10 @@ module.exports = options => {
           query: {
             presets
           }
+        },
+        {
+            test: /\.json$/,
+            loader: 'json'
         }
       ]
     },

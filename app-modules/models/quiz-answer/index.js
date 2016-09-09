@@ -28,10 +28,10 @@ const validateDataByType = (data, type) => {
       return Promise.resolve();
     }
   }
-  
+
   const notEmptyString = data => data && typeof data === 'string' && data.length > 0
 
-  const validators = {
+  const typeValidators = {
     [quizTypes.MULTIPLE_CHOICE](data) {
       return validateWith(data, notEmptyString);
     },
@@ -53,10 +53,10 @@ const validateDataByType = (data, type) => {
     }
   }
 
-  if(!validators[type]) {
+  if(!typeValidators[type]) {
     return Promise.resolve();
   } else {
-    return validators[type](data);
+    return typeValidators[type](data);
   }
 }
 

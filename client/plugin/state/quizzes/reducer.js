@@ -22,7 +22,5 @@ export default createReducer({}, {
   },
   [FETCH_QUIZ_SUCCESS](state, action) {
     return updateQuiz(state, action.payload.data._id, { loading: false, error: false, data: action.payload.data });
-
-    return state;
   }
 });

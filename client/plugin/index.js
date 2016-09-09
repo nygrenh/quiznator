@@ -13,20 +13,14 @@ import syncQuiznatorWithStore from 'utils/sync-quiznator-with-store';
 
 window.Quiznator = syncQuiznatorWithStore(store);
 
-/*store.subscribe(() => {
-  console.log(store.getState())
-});*/
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.quiznator.quiz')
-    .forEach(quiz => {
-      render(
-        <Provider store={store}>
-          <Inview onInview={() => {}}>
-            <QuizLoader id={quiz.getAttribute('quiz-id')}/>
-          </Inview>
-        </Provider>,
-        quiz
-      );
-    });
-});
+document.querySelectorAll('.quiznator.quiz')
+  .forEach(quiz => {
+    render(
+      <Provider store={store}>
+        <Inview onInview={() => {}}>
+          <QuizLoader id={quiz.getAttribute('quiz-id')}/>
+        </Inview>
+      </Provider>,
+      quiz
+    );
+  });
