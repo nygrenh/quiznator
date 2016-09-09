@@ -36,10 +36,16 @@ function getPeerReviewsForQuiz(options) {
         .then(chosenByAnswerer => {
           const query = { quizId: mongoose.Types.ObjectId(targetQuizId), answererId: { $ne: answererId }, _id: { $nin: chosenByAnswerer.map(mongoose.Types.ObjectId) } };
 
-          return QuizAnswer.findDistinctlyByAnswerer(query, { limit: 2, skip: 0 });
+          return Promise.all([
+            QuizAnswer.findDistinctlyByAnswerer(query, { limit: 2, skip: 0 }),
+            Quiz.findOne({ _id: targetQuizId })
+          ]);
         })
-        .then(peerReviews => {
-          req.peerReviews = peerReviews;
+        .spread((peerReviews, quiz) => {
+          req.peerReviews = {
+            quiz,
+            peerReviews
+          };
 
           return next();
         })

@@ -11,6 +11,7 @@ router.use('/api', require('./api'));
 router.use('/sign-in', require('./sign-in'));
 router.use('/sign-up', require('./sign-up'));
 router.use('/dashboard', require('./dashboard'));
+router.use('/plugin', require('./plugin-script'));
 
 router.get('/', (req, res, next) => res.redirect('/dashboard'));
 
