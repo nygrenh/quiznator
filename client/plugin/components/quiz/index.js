@@ -9,7 +9,7 @@ import EssayQuiz from './essay-quiz';
 import MultipleChoiceQuiz from './multiple-choice-quiz';
 import PeerReviewQuiz from './peer-review-quiz';
 
-import { ESSAY, MULTIPLE_CHOICE, PEER_REVIEW } from 'constants/quiz-types';
+import { ESSAY, MULTIPLE_CHOICE, PEER_REVIEW } from 'common-constants/quiz-types';
 import withClassPrefix from 'utils/class-prefix';
 
 const mapQuizTypeToComponent = {

@@ -16,7 +16,7 @@ schema.statics.removeExpired = function() {
 }
 
 schema.statics.saveAccessToken = function(token, clientId, expires, user, callback) {
-  this.create({ accessToken: token, clientId, expires, userId: user.id }, callback);
+  this.update({ userId: user.id, clientId }, { accessToken: token, clientId, expires, userId: user.id }, { upsert: true }, callback);
 }
 
 module.exports = mongoose.model('OAuthAccessToken', schema);

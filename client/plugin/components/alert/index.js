@@ -21,7 +21,7 @@ class Alert extends React.Component {
     const classes = withClassPrefix(className(`alert alert-${this.props.type}`, { 'alert-dismissible': this.props.dismissible }));
 
     return (
-      <div className={classes}>
+      <div className={`${classes} ${this.props.className || ''}`}>
         {this.props.children}
         {this.renderCloseButton()}
       </div>

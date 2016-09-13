@@ -5,6 +5,7 @@ const middlewares = require('./middlewares');
 
 router.use('/:id/answers', require('./answers-for-quiz'));
 router.use('/:id/peer-reviews', require('./peer-reviews-for-quiz'));
+router.use('/:id/peer-reviews-received', require('./peer-reviews-received-for-quiz'));
 
 router.get('/',
   authenticationMiddlewares.authorize(),

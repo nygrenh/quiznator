@@ -5,9 +5,11 @@ const rename = require('gulp-rename');
 const sassGlob = require('gulp-sass-glob');
 const autoprefixer = require('gulp-autoprefixer');
 const classPrefix = require('gulp-class-prefix');
+const plumber = require('gulp-plumber');
 
 module.exports = options => () => {
   const pipeline = gulp.src(options.src)
+    .pipe(plumber())
     .pipe(sassGlob())
     .pipe(sass())
     .pipe(autoprefixer())

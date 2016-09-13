@@ -1,6 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Navbar, NavbarBrand, Nav, NavItem, NavLink, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Link } from 'react-router';
+
+import { signOut } from 'state/tokens';
+
+import Icon from 'components/icon';
 
 class Navigation extends React.Component {
   constructor(props) {
@@ -23,11 +28,11 @@ class Navigation extends React.Component {
     if(this.props.user && this.props.user.name) {
       return (
         <Dropdown isOpen={this.state.userMenuIsOpen} toggle={this.toggleUserMenu.bind(this)}>
-          <DropdownToggle caret>
-            {this.props.user.name}
+          <DropdownToggle caret color="primary">
+            <Icon name="user"/> {this.props.user.name}
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem>Sign out</DropdownItem>
+            <DropdownItem onClick={this.props.onSignOut}>Sign out</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       )
@@ -39,7 +44,9 @@ class Navigation extends React.Component {
   renderLinks() {
     return (
       <NavItem>
-        <NavLink href="/">Quizzes</NavLink>
+        <Link to={'/dashboard/quizzes'} className={'nav-link'}>
+          Quizzes
+        </Link>
       </NavItem>
     )
   }
@@ -49,7 +56,7 @@ class Navigation extends React.Component {
       <div>
          <Navbar color="faded" light>
           <div className="container">
-             <NavbarBrand href="/">Quiznator</NavbarBrand>
+             <Link to={'/dashboard'} className="navbar-brand">Quiznator</Link>
 
              <Nav navbar>
               {this.renderLinks()}
@@ -71,6 +78,11 @@ const mapStateToProps = state => ({
   user: state.user
 });
 
+const mapDispatchToProps = dispatch => ({
+  onSignOut: () => dispatch(signOut())
+});
+
 export default connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(Navigation);

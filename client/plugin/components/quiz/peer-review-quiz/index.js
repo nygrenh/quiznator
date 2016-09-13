@@ -60,8 +60,12 @@ class PeerReviewQuiz extends React.Component {
     return get(this.props.answer, 'data.chosen');
   }
 
+  reviewIsDisplayed(reviewId) {
+    return !!this.props.peerReviews.data.peerReviews.find(review => review._id !== reviewId)._id;
+  }
+
   validate() {
-    return get(this.props.answer, 'data.chosen') && get(this.props.answer, 'data.review');
+    return get(this.props.answer, 'data.chosen') && this.reviewIsDisplayed(get(this.props.answer, 'data.chosen')) && get(this.props.answer, 'data.review') && !!this.props.answer.isTouched;
   }
 
   onSubmit(e) {

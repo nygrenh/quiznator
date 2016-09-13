@@ -17,7 +17,7 @@ class QuizAlerts extends React.Component {
     if(this.props.alerts && this.props.alerts.length > 0) {
       const alerts = this.props.alerts.map(alert => {
         return (
-          <Alert type={alert.type} key={alert.id} dismissible={true} onClose={this.onCloseAlert(alert.id)}>
+          <Alert type={alert.type} key={alert.id} dismissible={true} onClose={this.onCloseAlert(alert.id)} className={withClassPrefix('quiz-alerts-container__alert')}>
             {alert.content}
           </Alert>
         );

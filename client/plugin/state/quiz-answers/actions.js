@@ -10,7 +10,11 @@ export const FETCH_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER_SUCCESS
 function validateAnswerData(data, quiz) {
   const rightAnswer = get(quiz, 'data.meta.rightAnswer');
 
-  if(rightAnswer && data !== rightAnswer) {
+  const isRightAnswer = typeof rightAnswer === 'object'
+    ? rightAnswer.indexOf(data) >= 0
+    : data !== rightAnswer;
+
+  if(rightAnswer && !isRightAnswer) {
     return get(quiz, `data.meta.errors.${data}`) || 'Wrong answer';
   }
 }

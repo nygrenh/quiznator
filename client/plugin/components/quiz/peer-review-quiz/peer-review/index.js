@@ -1,7 +1,7 @@
 import React from 'react';
 import className from 'classnames';
 
-import { ESSAY, MULTIPLE_CHOICE } from 'constants/quiz-types';
+import { ESSAY, MULTIPLE_CHOICE } from 'common-constants/quiz-types';
 
 import withClassPrefix from 'utils/class-prefix';
 

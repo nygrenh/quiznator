@@ -12,7 +12,7 @@ function updateQuizAnswer(state, id, update) {
 
 export default createReducer({}, {
   [UPDATE_QUIZ_ANSWER](state, action) {
-    return updateQuizAnswer(state, action.quizId, { data: action.data });
+    return updateQuizAnswer(state, action.quizId, { data: action.data, isTouched: true });
   },
   [FETCH_QUIZ_ANSWER_SUCCESS](state, action) {
     if(get(action, 'payload.data[0]')) {

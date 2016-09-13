@@ -6,7 +6,9 @@ const Quiz = require('app-modules/models/quiz');
 function getUsersQuizzes(getUserId) {
   return (req, res, next) => {
 
-    Quiz.find({ userId: getUserId(req) })
+    Quiz
+      .find({ userId: getUserId(req) })
+      .sort({ createdAt: -1 })
       .then(quizzes => {
         req.quizzes = quizzes;
 

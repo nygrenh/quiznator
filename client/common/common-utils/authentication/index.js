@@ -9,6 +9,12 @@ export function setTokens({ accessToken, refreshToken, expiresIn, tokenType }) {
   });
 }
 
+export function updateTokens(update) {
+  const tokens = store.get('tokens') || {};
+
+  store.set('tokens', Object.assign({}, tokens, update));
+}
+
 export function getTokens() {
   return store.get('tokens');
 }

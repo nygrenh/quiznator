@@ -6,7 +6,7 @@ import { render } from 'react-dom';
 import { syncHistoryWithStore } from 'react-router-redux'
 import { browserHistory } from 'react-router'
 
-import App from 'components/app';
+import Routes from 'routes';
 
 import store from 'state/store';
 
@@ -21,7 +21,7 @@ function allSet() {
 
   render(
     <Provider store={store}>
-      <App history={history}/>
+      <Routes history={history}/>
     </Provider>,
     document.getElementById('root')
   );
