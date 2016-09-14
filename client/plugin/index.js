@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import Inview from 'react-inview';
 
-import QuizLoader from 'components/quiz-Loader';
+import QuizLoader from 'components/quiz-loader';
 import store from 'state/store';
 
 import syncQuiznatorWithStore from 'utils/sync-quiznator-with-store';
