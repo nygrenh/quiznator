@@ -1,28 +1,14 @@
-export const SET_EDITING_QUIZ = 'EDIT_QUIZ_SET_EDITING_QUIZ';
-export const SET_EDIT_QUIZ_MODAL_DISPLAY = 'EDIT_QUIZ_SET_EDIT_QUIZ_MODAL_DISPLAY';
 export const UPDATE_QUIZ = 'EDIT_QUIZ_UPDATE_QUIZ';
+export const FETCH_QUIZ = 'EDIT_QUIZ_FETCH_QUIZ';
+export const FETCH_QUIZ_SUCCESS = 'EDIT_QUIZ_FETCH_QUIZ_SUCCESS';
 export const ADD_DATA_ITEM = 'EDIT_QUIZ_ADD_DATA_ITEM';
 export const REMOVE_DATA_ITEM ='EDIT_QUIZ_REMOVE_DATA_ITEM';
 export const UPDATE_DATA_ITEM = 'EDIT_QUIZ_UPDATE_DATA_ITEM';
 export const UPDATE_DATA_META = 'EDIT_QUIZ_UPDATE_DATA_META';
-export const UPDATE_DATA_FIELD = 'EDIT_QUIZ_UPDATA_DATA_FIELD';
+export const UPDATE_DATA = 'EDIT_QUIZ_UPDATA_DATA';
 
 function id() {
   return (new Date().getTime()).toString(36) + Math.floor(Math.random() * 100).toString(36);
-}
-
-export function startEditingQuiz(quiz) {
-  return (dispatch, getState) => {
-    dispatch(setEditingQuiz(quiz));
-    dispatch(setEditQuizModalDisplay(true));
-  }
-}
-
-export function setEditingQuiz(quiz) {
-  return {
-    type: SET_EDITING_QUIZ,
-    quiz
-  }
 }
 
 export function updateQuiz(update) {
@@ -32,11 +18,25 @@ export function updateQuiz(update) {
   }
 }
 
+export function fetchQuiz(quizId) {
+  return {
+    type: FETCH_QUIZ,
+    payload: {
+      request: {
+        url: `/quizzes/${quizId}`,
+        method: 'GET'
+      }
+    }
+  }
+}
+
 export function addDataItem(item) {
+  const newId = id();
+
   return {
     type: ADD_DATA_ITEM,
-    itemId: id(),
-    item
+    itemId: newId,
+    item: Object.assign({}, item, { id: newId })
   }
 }
 
@@ -62,25 +62,9 @@ export function updateDataMeta(update) {
   }
 }
 
-export function updateDataField(field, update) {
+export function updateData(update) {
   return {
-    type: UPDATE_DATA_FIELD,
-    field,
+    type: UPDATE_DATA,
     update
-  }
-}
-
-export function toggleEditQuizModal() {
-  return (dispatch, getState) => {
-    const { editQuiz } = getState();
-
-    dispatch(setEditQuizModalDisplay(!editQuiz.modalIsOpen));
-  }
-}
-
-export function setEditQuizModalDisplay(isOpen) {
-  return {
-    type: SET_EDIT_QUIZ_MODAL_DISPLAY,
-    isOpen
   }
 }

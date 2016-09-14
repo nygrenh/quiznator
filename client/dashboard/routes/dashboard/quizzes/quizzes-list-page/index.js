@@ -1,16 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
-import { Button } from 'reactstrap';
 
+import Paginator from 'components/paginator';
 import Loader from 'components/loader';
-import Icon from 'components/icon';
 import CreateQuizDropdown from './create-quiz-dropdown';
 import CreateQuizModal from './create-quiz-modal';
 import QuizzesTable from './quizzes-table';
-import EditQuizModal from './edit-quiz-modal';
 
-import { fetchQuizzesList } from 'state/quizzes-list';
+import { getQuizzesList, updatePage } from 'state/quizzes-list';
+import { selectQuizzes, selectCurrentPage, selectTotalPages } from 'selectors/quizzes-list';
 
 class QuizzesListPage extends React.Component {
   componentDidMount() {
@@ -32,8 +30,8 @@ class QuizzesListPage extends React.Component {
       <div>
         {this.renderHeader()}
         <QuizzesTable quizzes={this.props.quizzes}/>
+        <Paginator activePage={this.props.currentPage} totalPages={this.props.totalPages} onChange={this.props.onUpdatePage}/>
         <CreateQuizModal/>
-        <EditQuizModal/>
       </div>
     )
   }
@@ -50,12 +48,15 @@ class QuizzesListPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  quizzes: state.quizzesList.data,
+  quizzes: selectQuizzes(state),
+  totalPages: selectTotalPages(state),
+  currentPage: selectCurrentPage(state),
   loading: !!state.quizzesList.loading
 });
 
 const mapDispatchToProps = dispatch => ({
-  loadQuizzes: () => dispatch(fetchQuizzesList())
+  loadQuizzes: () => dispatch(getQuizzesList()),
+  onUpdatePage: page => dispatch(updatePage(page))
 });
 
 export default connect(

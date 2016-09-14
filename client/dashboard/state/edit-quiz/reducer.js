@@ -1,15 +1,69 @@
 import { createReducer } from 'redux-create-reducer';
+import { normalize } from 'normalizr';
+import scour from 'scourjs';
 
-import { SET_EDITING_QUIZ, SET_EDIT_QUIZ_MODAL_DISPLAY, UPDATE_QUIZ } from './actions';
+import quizSchema from 'schemas/quiz';
+
+import { FETCH_QUIZ, FETCH_QUIZ_SUCCESS, UPDATE_QUIZ, ADD_DATA_ITEM, UPDATE_DATA_ITEM, REMOVE_DATA_ITEM, UPDATE_DATA } from './actions';
 
 export default createReducer({}, {
-  [SET_EDIT_QUIZ_MODAL_DISPLAY](state, action) {
-    return Object.assign({}, state, { modalIsOpen: action.isOpen });
-  },
-  [SET_EDITING_QUIZ](state, action) {
-    return Object.assign({}, state, { quiz: action.quiz });
+  [FETCH_QUIZ](state, action) {
+    return Object.assign({}, state, { loading: true });
   },
   [UPDATE_QUIZ](state, action) {
-    return Object.assign({}, state, { quiz: Object.assign({}, state.quiz || {}, action.update) });
+    const scourState = scour(state);
+
+    const quizId = scourState.get('result');
+
+    return scourState
+      .go('entities', 'quizzes', quizId)
+      .extend(action.update)
+      .root
+      .value;
+  },
+  [FETCH_QUIZ_SUCCESS](state, action) {
+    return Object.assign({}, state, normalize(action.payload.data, quizSchema), { loading: false });
+  },
+  [UPDATE_DATA](state, action) {
+    const scourState = scour(state);
+
+    const quizId = scourState.get('result');
+
+    return scourState
+      .go('entities', 'quizzes', quizId, 'data')
+      .extend(action.update)
+      .root
+      .value;
+  },
+  [ADD_DATA_ITEM](state, action) {
+    const scourState = scour(state);
+
+    const quizId = scourState.get('result');
+    const items = scourState.get('entities', 'quizzes', quizId, 'data', 'items') || [];
+
+    return scourState
+      .set(['entities', 'items', action.itemId], action.item)
+      .set(['entities', 'quizzes', quizId, 'data', 'items'], [...items, action.itemId])
+      .value;
+  },
+  [UPDATE_DATA_ITEM](state, action) {
+    const scourState = scour(state);
+
+    return scourState
+      .go('entities', 'items', action.itemId)
+      .extend(action.update)
+      .root
+      .value;
+  },
+  [REMOVE_DATA_ITEM](state, action) {
+    const scourState = scour(state);
+
+    const quizId = scourState.get('result');
+    const items = scourState.get('entities', 'quizzes', quizId, 'data', 'items') || [];
+
+    return scourState
+      .set(['entities', 'quizzes', quizId, 'data', 'items'], [...items.reject(id => id === action.itemId)])
+      .del('entities', 'items', action.itemId)
+      .value;
   }
 });

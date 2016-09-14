@@ -1,4 +1,5 @@
 import { change, untouch } from 'redux-form';
+import { push } from 'react-router-redux';
 import get from 'lodash.get';
 
 import { ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
@@ -77,10 +78,10 @@ export function createQuiz() {
     const newQuiz = createEmptyQuiz({ title, type });
 
     return dispatch(postCreateQuiz(newQuiz))
-      .then(() => dispatch(fetchQuizzesList()))
-      .then(() => {
+      .then(response => {
         dispatch(toggleCreateQuizModal());
         dispatch(resetForm());
+        dispatch(push(`/dashboard/quizzes/${response.payload.data._id}`));
       });
   }
 }

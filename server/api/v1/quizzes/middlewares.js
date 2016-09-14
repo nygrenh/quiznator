@@ -1,16 +1,30 @@
 const pick = require('lodash.pick');
+const Promise = require('bluebird');
 
 const errors = require('app-modules/errors');
 const Quiz = require('app-modules/models/quiz');
 
 function getUsersQuizzes(getUserId) {
   return (req, res, next) => {
+    const PAGE_SIZE = 50;
+    const page = +(req.query.page || 1);
 
-    Quiz
-      .find({ userId: getUserId(req) })
+    const query = { userId: getUserId(req) };
+
+    const findCount = Quiz.count(query);
+    const findQuizzes = Quiz
+      .find(query)
       .sort({ createdAt: -1 })
-      .then(quizzes => {
-        req.quizzes = quizzes;
+      .limit(PAGE_SIZE)
+      .skip((page - 1) * PAGE_SIZE);
+
+    Promise.all([findCount, findQuizzes])
+      .spread((count, quizzes) => {
+        req.quizzes = {
+          page,
+          totalPages: Math.floor(count / PAGE_SIZE) + 1,
+          data: quizzes
+        };
 
         next();
       })

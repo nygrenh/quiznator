@@ -1,5 +1,6 @@
 import QuizzesListPage from './quizzes-list-page';
 import QuizPage from './quiz-page';
+import EditQuizPage from './quiz-page/edit-quiz-page';
 
 const routes = {
   path: 'quizzes',
@@ -8,7 +9,10 @@ const routes = {
   },
   childRoutes: [{
     path: ':id',
-    component: QuizPage
+    component: QuizPage,
+    indexRoute: {
+      component: EditQuizPage
+    }
   }]
 };
 

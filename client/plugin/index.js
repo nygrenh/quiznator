@@ -13,7 +13,7 @@ import syncQuiznatorWithStore from 'utils/sync-quiznator-with-store';
 
 window.Quiznator = syncQuiznatorWithStore(store);
 
-document.querySelectorAll('.quiznator.quiz')
+document.querySelectorAll('.quiznator-plugin')
   .forEach(quiz => {
     render(
       <Provider store={store}>

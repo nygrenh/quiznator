@@ -1,4 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
+import { routerMiddleware } from 'react-router-redux';
+import { browserHistory } from 'react-router';
 
 import thunk from 'redux-thunk';
 import axiosMiddleware from 'redux-axios-middleware';
@@ -14,5 +16,5 @@ export default createStore(
   {
     tokens: getTokens()
   },
-  applyMiddleware(thunk, axiosMiddleware(axiosClient, { interceptors: { request: [includeAccessToken], response: [accessTokenErrorHandler] } }))
+  applyMiddleware(thunk, routerMiddleware(browserHistory), axiosMiddleware(axiosClient, { interceptors: { request: [includeAccessToken], response: [accessTokenErrorHandler] } }))
 );
