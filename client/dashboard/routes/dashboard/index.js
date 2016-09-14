@@ -8,7 +8,7 @@ class Dashboard extends React.Component {
       <div className="main-wrapper">
         <Navigation/>
 
-        <div className="container m-t-1">
+        <div className="container p-t-1 p-b-1">
           {this.props.children}
         </div>
       </div>

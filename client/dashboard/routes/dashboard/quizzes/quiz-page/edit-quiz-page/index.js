@@ -1,8 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import omit from 'lodash.omit';
 
-import { fetchQuiz, updateQuiz, addDataItem } from 'state/edit-quiz';
-import { targetQuizSelector } from 'selectors/edit-quiz';
+import { saveQuiz, fetchQuiz, updateQuiz, addDataItem, updateDataItem, removeDataItem, updateDataMeta, setDataMetaPath } from 'state/edit-quiz';
+import { quizSelector, quizItemsSelector } from 'selectors/edit-quiz';
 
 import Loader from 'components/loader';
 import QuizEditor from 'components/quiz-editor';
@@ -16,7 +17,7 @@ class EditQuizPage extends React.Component {
     if(this.props.loading) {
       return <Loader/>;
     } else if(this.props.quiz) {
-      return <QuizEditor quiz={this.props.quiz} onTitleChange={this.props.onTitleChange} onBodyChange={this.props.onBodyChange}/>
+      return <QuizEditor {...omit(this.props, ['loading', 'loadQuiz'])}/>
     } else {
       return null;
     }
@@ -24,17 +25,21 @@ class EditQuizPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  quiz: targetQuizSelector(state),
+  quiz: quizSelector(state),
+  items: quizItemsSelector(state),
   loading: !!state.editQuiz.loading
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   loadQuiz: () => dispatch(fetchQuiz(ownProps.params.id)),
   onTitleChange: title => dispatch(updateQuiz({ title })),
-  onBodyChange: body => {
-    dispatch(updateQuiz({ body }))
-    dispatch(addDataItem({ value: 1 }))
-  }
+  onBodyChange: body => dispatch(updateQuiz({ body })),
+  onDataItemChange: (id, update) => dispatch(updateDataItem(id, update)),
+  onRemoveDataItem: id => dispatch(removeDataItem(id)),
+  onAddDataItem: item => dispatch(addDataItem(item)),
+  onDataMetaChange: update => dispatch(updateDataMeta(update)),
+  onDataMetaPathChange: (path, value) => dispatch(setDataMetaPath(path, value)),
+  onSave: () => dispatch(saveQuiz())
 });
 
 export default connect(

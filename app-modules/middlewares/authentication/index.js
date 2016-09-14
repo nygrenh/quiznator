@@ -2,6 +2,8 @@ const flow = require('middleware-flow');
 const Promise = require('bluebird');
 
 const User = require('app-modules/models/user');
+const Quiz = require('app-modules/models/quiz');
+
 const errors = require('app-modules/errors');
 
 const oauthServer = require('app-modules/utils/oauth-server');

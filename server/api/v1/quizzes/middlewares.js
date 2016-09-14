@@ -49,7 +49,7 @@ function getQuizById(getId) {
 
 function updateQuiz(options) {
   return (req, res, next) => {
-    const allowedAttributes = pick(options.getAttributes(req), ['title', 'data']);
+    const allowedAttributes = pick(options.getAttributes(req), ['title', 'data', 'body']);
 
     Quiz.updateWithValidation(options.getQuery(req), allowedAttributes)
       .then(updatedQuiz => {

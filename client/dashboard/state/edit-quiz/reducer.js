@@ -4,7 +4,7 @@ import scour from 'scourjs';
 
 import quizSchema from 'schemas/quiz';
 
-import { FETCH_QUIZ, FETCH_QUIZ_SUCCESS, UPDATE_QUIZ, ADD_DATA_ITEM, UPDATE_DATA_ITEM, REMOVE_DATA_ITEM, UPDATE_DATA } from './actions';
+import { FETCH_QUIZ, FETCH_QUIZ_SUCCESS, UPDATE_QUIZ, ADD_DATA_ITEM, UPDATE_DATA_ITEM, REMOVE_DATA_ITEM, UPDATE_DATA, UPDATE_DATA_META, SET_DATA_META_PATH } from './actions';
 
 export default createReducer({}, {
   [FETCH_QUIZ](state, action) {
@@ -62,8 +62,28 @@ export default createReducer({}, {
     const items = scourState.get('entities', 'quizzes', quizId, 'data', 'items') || [];
 
     return scourState
-      .set(['entities', 'quizzes', quizId, 'data', 'items'], [...items.reject(id => id === action.itemId)])
-      .del('entities', 'items', action.itemId)
+      .set(['entities', 'quizzes', quizId, 'data', 'items'], [...items.filter(id => id !== action.itemId)])
+      .del(['entities', 'items', action.itemId])
+      .value;
+  },
+  [UPDATE_DATA_META](state, action) {
+    const scourState = scour(state);
+
+    const quizId = scourState.get('result');
+
+    return scourState
+      .go('entities', 'quizzes', quizId, 'data', 'meta')
+      .extend(action.update)
+      .root
+      .value;
+  },
+  [SET_DATA_META_PATH](state, action) {
+    const scourState = scour(state);
+
+    const quizId = scourState.get('result');
+
+    return scourState
+      .set(['entities', 'quizzes', quizId, 'data', 'meta', ...action.path], action.value)
       .value;
   }
 });

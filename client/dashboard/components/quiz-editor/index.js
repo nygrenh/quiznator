@@ -34,9 +34,13 @@ class QuizEditor extends React.Component {
     this.props.onBodyChange(this.refs.body.value);
   }
 
-  render() {
-    console.log(this.props.quiz);
+  onSave(e) {
+    e.preventDefault();
 
+    this.props.onSave();
+  }
+
+  render() {
     return (
       <Form>
         <FormGroup>
@@ -51,11 +55,9 @@ class QuizEditor extends React.Component {
 
         {this.renderEditorContent()}
 
-        <FormGroup>
-          <Button color="primary">
-            Save
-          </Button>
-        </FormGroup>
+        <Button color="primary" className="m-t-1 pull-xs-right" onClick={this.onSave.bind(this)}>
+          Save
+        </Button>
       </Form>
     );
   }

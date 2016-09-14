@@ -16,7 +16,7 @@ function extendSchema(schema) {
 
           return object.save();
         })
-        .then(() => {
+        .then(object => {
           return object;
         });
   }
