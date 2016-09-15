@@ -1,4 +1,6 @@
 const oauthServer = require('oauth2-server');
+const ObjectId = require('bson-objectid');
+const randomString = require('randomstring');
 
 const oauthModels = require('app-modules/models/oauth');
 const User = require('app-modules/models/user');
@@ -8,6 +10,13 @@ const ONE_HOUR = 1000 * 60 * 60;
 function removeExpiredTokens() {
   oauthModels.AccessToken.removeExpired();
   oauthModels.RefreshToken.removeExpired();
+}
+
+function generateToken(type, req, callback) {
+  const uniquePart = ObjectId().toHexString();
+  const randomPart = randomString.generate({ length: 32 });
+
+  callback(null, `${uniquePart}${randomPart}`);
 }
 
 setTimeout(removeExpiredTokens, ONE_HOUR);
@@ -30,7 +39,8 @@ module.exports = oauthServer({
         .catch(err => {
           callback(false, null);
         });
-    }
+    },
+    generateToken
   },
   grants: ['password', 'refresh_token'],
   debug: true

@@ -9,7 +9,13 @@ function getUsersQuizzes(getUserId) {
     const PAGE_SIZE = 50;
     const page = +(req.query.page || 1);
 
-    const query = { userId: getUserId(req) };
+    let query = { userId: getUserId(req) };
+
+    if(req.query.title) {
+      const titleRegExp = new RegExp(`^${decodeURIComponent(req.query.title)}`, 'i');
+
+      query = Object.assign({}, { title: titleRegExp });
+    }
 
     const findCount = Quiz.count(query);
     const findQuizzes = Quiz

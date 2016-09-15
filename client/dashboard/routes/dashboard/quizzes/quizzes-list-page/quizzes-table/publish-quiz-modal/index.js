@@ -6,6 +6,7 @@ import delay from 'lodash.delay';
 
 import { togglePublishQuizModal } from 'state/publish-quiz';
 
+import Icon from 'components/icon';
 import Alert from 'common-components/alert';
 
 class PublishQuizModal extends React.Component {
@@ -39,31 +40,31 @@ class PublishQuizModal extends React.Component {
     return (
       <div>
         <FormGroup>
-          <Label>Place the quiz using this snippet</Label>
+          <Label>Place the quiz by adding this snippet</Label>
 
           <Input type="text" value={placementSnippet} readOnly/>
 
           <Button color="secondary" className="m-t-1" size="sm" onClick={this.copySnippet.bind(this, placementSnippet, 'placementSnippet')}>
-            {this.state.placementSnippetCopied ? 'Copied' : 'Copy to clipboard'}
+            <Icon name="clipboard"/> {this.state.placementSnippetCopied ? 'Copied' : 'Copy to clipboard'}
           </Button>
         </FormGroup>
 
         <FormGroup>
-          <Label>Set up quiznator by adding this snippet to the end of your <code>body</code> tag</Label>
+          <Label>Set up Quiznator by adding this snippet to the end of your <code>body</code> tag</Label>
 
           <Input type="text" value={quiznatorSnippet} readOnly/>
 
           <Button color="secondary" className="m-t-1" size="sm" onClick={this.copySnippet.bind(this, quiznatorSnippet, 'quiznatorSnippet')}>
-            {this.state.quiznatorSnippetCopied ? 'Copied' : 'Copy to clipboard'}
+            <Icon name="clipboard"/> {this.state.quiznatorSnippetCopied ? 'Copied' : 'Copy to clipboard'}
           </Button>
         </FormGroup>
 
         <Alert type="warning">
-          You only need one quiznator snippet (above) for each page
+          You only need one Quiznator snippet (above) for each page
         </Alert>
 
         <p>
-          You can read more about quiznator's API in the <a href="https://github.com/rage/quiznator/wiki" target="_blank">wiki</a>.
+          You can read more about Quiznator's API in the <a href="https://github.com/rage/quiznator/wiki" target="_blank">wiki</a>.
         </p>
       </div>
     )
@@ -86,8 +87,7 @@ class PublishQuizModal extends React.Component {
 
 const mapStateToProps = state => ({
   isOpen: !!state.publishQuiz.modalIsOpen,
-  quiz: state.publishQuiz.quiz,
-  quiznatorSnippet: state.publishQuiz.quiznatorSnippet
+  quiz: state.publishQuiz.quiz
 });
 
 const mapDispatchToProps = dispatch => ({

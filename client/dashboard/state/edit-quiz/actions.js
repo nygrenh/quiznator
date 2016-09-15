@@ -1,5 +1,7 @@
 import scour from 'scourjs';
 
+import { createToast } from 'state/toaster';
+
 export const UPDATE_QUIZ = 'EDIT_QUIZ_UPDATE_QUIZ';
 export const PUT_SAVE_QUIZ = 'EDIT_QUIZ_PUT_SAVE_QUIZ';
 export const FETCH_QUIZ = 'EDIT_QUIZ_FETCH_QUIZ';
@@ -64,7 +66,13 @@ export function saveQuiz() {
 
     const quizId = newQuiz.value._id;
 
-    return dispatch(putSaveQuiz(quizId, newQuiz.value));
+    return dispatch(putSaveQuiz(quizId, newQuiz.value))
+      .then(() => {
+        dispatch(createToast({
+          type: 'success',
+          content: 'Quiz has been saved'
+        }));
+      })
   }
 }
 

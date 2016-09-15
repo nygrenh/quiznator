@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import omit from 'lodash.omit';
 
-import { saveQuiz, fetchQuiz, updateQuiz, addDataItem, updateDataItem, removeDataItem, updateDataMeta, setDataMetaPath } from 'state/edit-quiz';
+import { saveQuiz, fetchQuiz, updateQuiz, updateData, addDataItem, updateDataItem, removeDataItem, updateDataMeta, setDataMetaPath } from 'state/edit-quiz';
 import { quizSelector, quizItemsSelector } from 'selectors/edit-quiz';
 
 import Loader from 'components/loader';
@@ -36,6 +36,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   onBodyChange: body => dispatch(updateQuiz({ body })),
   onDataItemChange: (id, update) => dispatch(updateDataItem(id, update)),
   onRemoveDataItem: id => dispatch(removeDataItem(id)),
+  onDataChange: update => dispatch(updateData(update)),
   onAddDataItem: item => dispatch(addDataItem(item)),
   onDataMetaChange: update => dispatch(updateDataMeta(update)),
   onDataMetaPathChange: (path, value) => dispatch(setDataMetaPath(path, value)),

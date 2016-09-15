@@ -10,11 +10,6 @@ class QuizPageTabs extends React.Component {
             Edit
           </NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink>
-            Results
-          </NavLink>
-        </NavItem>
       </Nav>
     )
   }

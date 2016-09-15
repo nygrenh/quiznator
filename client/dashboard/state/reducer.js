@@ -8,6 +8,7 @@ import quizzesList from './quizzes-list';
 import createQuiz from './create-quiz';
 import editQuiz from './edit-quiz';
 import publishQuiz from './publish-quiz';
+import toaster from './toaster';
 
 export default combineReducers({
   form: formReducer,
@@ -17,5 +18,6 @@ export default combineReducers({
   quizzesList,
   createQuiz,
   editQuiz,
-  publishQuiz
+  publishQuiz,
+  toaster
 });
