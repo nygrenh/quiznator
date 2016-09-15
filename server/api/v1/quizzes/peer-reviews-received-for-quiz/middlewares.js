@@ -1,29 +1,17 @@
 const Promise = require('bluebird');
 
-const QuizAnswer = require('app-modules/models/quiz-answer');
+const PeerReview = require('app-modules/models/peer-review');
 const Quiz = require('app-modules/models/quiz');
 
 function getPeerReviewsReceivedForQuiz(options) {
   return (req, res, next) => {
+    const MAX_SAMPLE_SIZE = 10;
+    const sampleSize = Math.min(+(options.getSampleSize(req) || MAX_SAMPLE_SIZE), MAX_SAMPLE_SIZE);
+
     const quizId = options.getQuizId(req);
     const answererId = options.getAnswererId(req);
 
-    const findPeerReviews = QuizAnswer
-      .findOne({ quizId, answererId })
-      .sort({ createdAt: -1 })
-      .exec()
-      .then(latestAnswer => {
-        if(!latestAnswer) {
-          return [];
-        } else {
-          return QuizAnswer
-            .find({ 'data.chosen': latestAnswer._id.toString() })
-            .sort({ createAt: -1 })
-            .limit(5)
-            .exec();
-        }
-      });
-
+    const findPeerReviews = PeerReview.findPeerReviewsGivenToAnswerer({ quizId, answererId, skip: 0, limit: sampleSize })
     const findQuiz = Quiz.findOne({ _id: quizId });
 
     Promise.all([findPeerReviews, findQuiz])
@@ -34,7 +22,8 @@ function getPeerReviewsReceivedForQuiz(options) {
         };
 
         return next();
-      });
+      })
+      .catch(err => next(err));
   }
 }
 

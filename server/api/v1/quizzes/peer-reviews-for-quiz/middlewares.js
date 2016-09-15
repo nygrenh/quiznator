@@ -1,56 +1,44 @@
-const _ = require('lodash');
+const Promise = require('bluebird');
 
-const mongoose = require('mongoose');
-const errors = require('app-modules/errors');
-const quizTypes = require('app-modules/constants/quiz-types');
-
-const QuizAnswer = require('app-modules/models/quiz-answer');
+const PeerReview = require('app-modules/models/peer-review');
 const Quiz = require('app-modules/models/quiz');
+
+function createPeerReviewForQuiz(options) {
+  return (req, res, next) => {
+    const quizId = options.getQuizId(req);
+    const attributes = Object.assign({}, options.getAttributes(req), { quizId });
+
+    const newPeerReview = new PeerReview(attributes);
+
+    newPeerReview.save()
+      .then(() => {
+        req.peerReview = newPeerReview;
+
+        return next();
+      })
+      .catch(err => next(err));
+  }
+}
 
 function getPeerReviewsForQuiz(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
     const answererId = options.getAnswererId(req);
 
-    let targetQuizId;
+    const findPeerReviews = PeerReview.findPeerReviewsForAnswerer({ quizId, answererId, limit: 2, skip: 0 })
+    const findQuiz = Quiz.findOne({ _id: quizId });
 
-    errors.withExistsOrError(new errors.NotFoundError(`Couldn't find quiz with id ${quizId}`))
-      (Quiz.findOne({ _id: quizId }))
-        .then(quiz => {
-          targetQuizId = _.get(quiz, 'data.quizId');
+    Promise.all([findPeerReviews, findQuiz])
+      .spread((peerReviews, quiz) => {
+        req.peerReviews = {
+          quiz,
+          peerReviews
+        };
 
-          if(quiz.type !== quizTypes.PEER_REVIEW) {
-            return Promise.reject(new errors.InvalidRequestError('Quiz is not a peer review quiz'));
-          }
-
-          return targetQuizId
-            ? targetQuizId
-            : Promise.reject(new errors.NotFoundError(`Couldn't find target quiz for the peer review`));
-        })
-        .then(peerReviewTarget => {
-          return QuizAnswer.find({ quizId, answererId }, { 'data': 1, _id: -1 })
-        })
-        .then(answersOfAnswerer => {
-          return answersOfAnswerer.map(answer => answer.data.chosen);
-        })
-        .then(chosenByAnswerer => {
-          const query = { quizId: mongoose.Types.ObjectId(targetQuizId), answererId: { $ne: answererId }, _id: { $nin: chosenByAnswerer.map(mongoose.Types.ObjectId) } };
-
-          return Promise.all([
-            QuizAnswer.findDistinctlyByAnswerer(query, { limit: 2, skip: 0 }),
-            Quiz.findOne({ _id: targetQuizId })
-          ]);
-        })
-        .spread((peerReviews, quiz) => {
-          req.peerReviews = {
-            quiz,
-            peerReviews
-          };
-
-          return next();
-        })
-        .catch(err => next(err));
+        return next();
+      })
+      .catch(err => next(err));
   }
 }
 
-module.exports = { getPeerReviewsForQuiz };
+module.exports = { getPeerReviewsForQuiz, createPeerReviewForQuiz };
