@@ -19,7 +19,7 @@ class EssayQuiz extends React.Component {
   }
 
   onEssayChange() {
-    this.props.onData(this.refs.essay.value);
+    this.props.onDataChange([], this.refs.essay.value);
   }
 
   render() {

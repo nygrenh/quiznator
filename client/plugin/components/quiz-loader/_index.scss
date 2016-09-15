@@ -18,6 +18,14 @@
     float: left;
   }
 
+  .m-t-0 {
+    margin-top: 0px !important;
+  }
+
+  .m-t-1 {
+    margin-top: $spacing !important;
+  }
+
   .not-sign-in-alert-container {
     padding: $spacing $spacing 0rem $spacing;
   }

@@ -7,8 +7,6 @@ const buildBundleTasks = require('gulp-tasks/helpers/build-bundle-tasks');
 
 const DEST_SCRIPTS = path.resolve('./dist/javascripts');
 const DEST_STYLESHEETS = path.resolve('./dist/stylesheets');
-const PRODUCTION_API_URL = 'http://quiznator.herokuapp.com';
-const DEVELOPMENT_API_URL = 'http://localhost:3000';
 
 gulp.task('server', require('./gulp-tasks/server'));
 
@@ -28,7 +26,7 @@ function createScriptBundle({ entryPath, react = true, name, modulesDirectories 
     output: DEST_SCRIPTS,
     getEnv: isDevelopment => {
       return {
-        API_URL: isDevelopment ? DEVELOPMENT_API_URL : PRODUCTION_API_URL
+        API_URL: isDevelopment ? 'http://localhost:3000' : 'http://quiznator.herokuapp.com'
       }
     },
     fileName: `${name}.min.js`
@@ -67,6 +65,11 @@ buildBundleTasks({
   name: 'plugin',
   scripts: createScriptBundle({ entryPath: './client/plugin', name: 'plugin', modulesDirectories: [path.join('./client/common')] }),
   sass: createSassBundle({ entryPath: './client/plugin', name: 'plugin', classPrefix: 'quiznator-' })
+});
+
+buildBundleTasks({
+  name: 'pluginLoader',
+  scripts: createScriptBundle({ entryPath: './client/plugin-loader', name: 'plugin-loader', modulesDirectories: [] })
 });
 
 gulp.task('default', () => {

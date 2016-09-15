@@ -6,7 +6,10 @@ import { Button, Table, Tag } from 'reactstrap';
 
 import { typeToLabel } from 'common-constants/quiz-types';
 import { startEditingQuiz } from 'state/edit-quiz';
+import { selectQuizzes } from 'selectors/quizzes-list';
+import { chooseQuizToPublish } from 'state/publish-quiz';
 
+import PublishQuizModal from './publish-quiz-modal';
 import Icon from 'components/icon';
 
 class QuizzesTable extends React.Component {
@@ -24,7 +27,7 @@ class QuizzesTable extends React.Component {
           </td>
           <td>{moment(quiz.createdAt).format('D. MMMM YYYY')}</td>
           <td>
-            <Button color="secondary" size="sm">
+            <Button color="secondary" size="sm" onClick={() => this.props.onPublishQuiz(quiz)}>
               <Icon name="code"/> Code
             </Button>
           </td>
@@ -33,19 +36,23 @@ class QuizzesTable extends React.Component {
     });
 
     return (
-      <Table striped>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Type</th>
-            <th>Created at</th>
-            <th>Publish</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows}
-        </tbody>
-      </Table>
+      <div>
+        <Table striped>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Created at</th>
+              <th>Publish</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows}
+          </tbody>
+        </Table>
+
+        <PublishQuizModal/>
+      </div>
     )
   }
 }
@@ -54,5 +61,15 @@ QuizzesTable.propTypes = {
   quizzes: React.PropTypes.array.isRequired
 }
 
+const mapStateToProps = state => ({
+  quizzes: selectQuizzes(state)
+});
 
-export default QuizzesTable;
+const mapDispatchToProps = dispatch => ({
+  onPublishQuiz: quiz => dispatch(chooseQuizToPublish(quiz))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(QuizzesTable);

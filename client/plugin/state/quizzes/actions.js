@@ -4,15 +4,24 @@ export const FETCH_QUIZ_FAIL = 'QUIZES_FETCH_QUIZ_FAIL';
 export const SET_QUIZ_AS_SUBMITTED = 'QUIZES_SET_QUIZ_AS_SUBMITTED';
 
 import { createQuizAnswer } from 'state/quiz-answers';
+import { createPeerReview } from 'state/peer-reviews';
+
 import { createTemporalAlert } from 'state/quiz-alerts';
+import { PEER_REVIEW } from 'common-constants/quiz-types';
 
 export function submitQuiz(id) {
   return (dispatch, getState) => {
-    const { quizAnswers } = getState();
+    const { quizAnswers, quizzes } = getState();
+
+    const quiz = quizzes[id].data;
 
     dispatch(setQuizAsSubmitted(id));
 
-    return dispatch(createQuizAnswer({ quizId: id, data: quizAnswers[id].data }))
+    const createPromise = quiz.type === PEER_REVIEW
+      ? dispatch(createPeerReview({ quizId: quiz.data.quizId, sourceQuizId: id }))
+      : dispatch(createQuizAnswer({ quizId: id, data: quizAnswers[id].data }));
+
+    createPromise
       .then(() => {
         return dispatch(createTemporalAlert({ quizId: id, type: 'success', content: 'Your answer has been saved' }));
       });

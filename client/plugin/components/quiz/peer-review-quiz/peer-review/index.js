@@ -1,5 +1,6 @@
 import React from 'react';
 import className from 'classnames';
+import moment from 'moment';
 
 import { ESSAY, MULTIPLE_CHOICE } from 'common-constants/quiz-types';
 
@@ -23,6 +24,10 @@ class PeerReview extends React.Component {
       <div className={withClassPrefix('peer-review')}>
         <div className={withClassPrefix('peer-review__body')}>
           {this.renderContentByType()}
+
+          <div className={withClassPrefix('text-muted m-t-1')}>
+            {moment(this.props.answer.createdAt).format('D. MMMM YYYY')}
+          </div>
         </div>
 
         <div className={withClassPrefix('peer_review__footer')}>

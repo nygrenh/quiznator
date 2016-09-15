@@ -1,0 +1,13 @@
+.peer-review-received {
+  padding: $spacing 0rem;
+  border-bottom: 1px solid $light-grey-border;
+
+  &:last-child {
+    padding-bottom: 0rem !important;
+    border: 0px none;
+  }
+
+  &:first-child {
+    padding-top: 0rem !important;
+  }
+}

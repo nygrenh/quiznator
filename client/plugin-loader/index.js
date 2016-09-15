@@ -1,4 +1,4 @@
-<script>
+(function() {
   document.addEventListener('DOMContentLoaded', function() {
     var bodyTag = document.getElementsByTagName('body')[0];
     var headTag = document.getElementsByTagName('head')[0];
@@ -26,10 +26,10 @@
     bodyTag.appendChild(scriptTag);
     headTag.appendChild(styleTag);
 
-    scriptTag.src = '{{pluginScriptUrl}}';
+    scriptTag.src = `${process.env.API_URL}/javascripts/plugin-loader.min.js`;
 
     styleTag.setAttribute('rel', 'stylesheet');
 
-    styleTag.href = '{{pluginStyleUrl}}';
+    styleTag.href = `${process.env.API_URL}/stylesheets/plugin-loader.min.css`;
   });
-</script>
+})();

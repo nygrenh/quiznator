@@ -5,7 +5,6 @@ import get from 'lodash.get';
 import { ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
 import { fetchQuizzesList } from 'state/quizzes-list';
 
-export const TOGGLE_CREATE_QUIZ_MODAL = 'CREATE_QUIZ_TOGGLE_CREATE_QUIZ_MODAL';
 export const CHOOSE_QUIZ_TYPE = 'CREATE_QUIZ_CHOOSE_QUIZ_TYPE';
 export const SET_CREATE_QUIZ_MODAL_DISPLAY = 'CREATE_QUIZ_SET_CREATE_QUIZ_MODAL_DISPLAY';
 export const POST_CREATE_QUIZ = 'CREATE_QUIZ_POST_CREATE_QUIZ';

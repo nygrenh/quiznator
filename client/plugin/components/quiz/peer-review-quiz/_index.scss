@@ -4,14 +4,19 @@
   }
 
   .peer-review-container {
-    display: flex;
     margin-bottom: $spacing;
 
     &__answer {
-      flex: 1;
+      padding: $spacing 0rem;
+      border-bottom: 1px solid $light-grey-border;
+
+      &:last-child {
+        padding-bottom: 0rem !important;
+        border: 0px none;
+      }
 
       &:first-child {
-        padding-right: $spacing;
+        padding-top: 0rem !important;
       }
     }
   }

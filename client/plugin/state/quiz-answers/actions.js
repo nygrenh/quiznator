@@ -1,8 +1,9 @@
 import get from 'lodash.get';
 
 import { createTemporalAlert } from 'state/quiz-alerts';
+import { PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
 
-export const UPDATE_QUIZ_ANSWER = 'QUIZ_ANSWERS_UPDATE_QUIZ_ANSWER';
+export const SET_QUIZ_ANSWER_DATA_PATH = 'QUIZ_ANSWERS_SET_QUIZ_ANSWERS_DATA_PATH';
 export const POST_QUIZ_ANSWER = 'QUIZ_ANSWERS_POST_QUIZ_ANSWER';
 export const FETCH_QUIZ_ANSWER = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER';
 export const FETCH_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER_SUCCESS';
@@ -31,11 +32,12 @@ export function createQuizAnswer({ quizId, data }) {
     }
 
     const errorMessage = validateAnswerData(data, quiz);
+    const successMessage = get(quiz, `data.meta.successes.${data}`) || 'Right answer';
 
     if(hasRightAnswer && errorMessage) {
       dispatch(createTemporalAlert({ content: errorMessage, quizId, type: 'danger', removeDelay: 15000 }));
     } else if(hasRightAnswer && !errorMessage) {
-      dispatch(createTemporalAlert({ content: 'Right answer', quizId, type: 'success' }));
+      dispatch(createTemporalAlert({ content: successMessage, quizId, type: 'success', removeDelay: 15000 }));
     }
 
     return dispatch(postQuizAnswer({ quizId, data, answererId: user.id }));
@@ -44,9 +46,11 @@ export function createQuizAnswer({ quizId, data }) {
 
 export function getQuizAnswer({ quizId }) {
   return (dispatch, getState) => {
-    const { user } = getState();
+    const { user, quizzes } = getState();
 
-    if(user.id) {
+    const quiz = quizzes[quizId].data;
+
+    if(user.id && ![PEER_REVIEW, PEER_REVIEWS_RECEIVED].includes(quiz.type)) {
       return dispatch(fetchQuizAnswer({ quizId, answererId: user.id }));
     } else {
       return Promise.resolve();
@@ -82,10 +86,11 @@ export function fetchQuizAnswer({ quizId, answererId }) {
   }
 }
 
-export function updateQuizAnswer({ quizId, data }) {
+export function setQuizAnswerDataPath(quizId, path, value) {
   return {
-    type: UPDATE_QUIZ_ANSWER,
+    type: SET_QUIZ_ANSWER_DATA_PATH,
     quizId,
-    data
+    path,
+    value
   }
 }

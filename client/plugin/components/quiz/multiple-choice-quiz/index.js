@@ -27,7 +27,7 @@ class MultipleChoiceQuiz extends React.Component {
 
   onRadioChange(id) {
     return e => {
-      this.props.onData(id);
+      this.props.onMultipleChoiceChange(id);
     }
   }
 
@@ -60,20 +60,8 @@ class MultipleChoiceQuiz extends React.Component {
   }
 }
 
-MultipleChoiceQuiz.propTypes = Object.assign({},
-  quizPropsTypes,
-  {
-    submitted: React.PropTypes.bool,
-    feedback: React.PropTypes.bool
-  }
-);
+MultipleChoiceQuiz.propTypes = Object.assign({}, quizPropsTypes);
 
-MultipleChoiceQuiz.defaultProps = Object.assign({},
-  quizDefaultProps,
-  {
-    submitted: false,
-    feedback: true
-  }
-);
+MultipleChoiceQuiz.defaultProps = Object.assign({}, quizDefaultProps);
 
 export default MultipleChoiceQuiz;

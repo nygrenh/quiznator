@@ -29,7 +29,7 @@ class QuizzesListPage extends React.Component {
     return (
       <div>
         {this.renderHeader()}
-        <QuizzesTable quizzes={this.props.quizzes}/>
+        <QuizzesTable/>
         <Paginator activePage={this.props.currentPage} totalPages={this.props.totalPages} onChange={this.props.onUpdatePage}/>
         <CreateQuizModal/>
       </div>
