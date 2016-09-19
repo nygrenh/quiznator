@@ -3,8 +3,7 @@ import get from 'lodash.get';
 import { Button } from 'reactstrap';
 
 import Icon from 'components/icon';
-import Selector from 'components/selector';
-import MultipleChoiceQuizEditorItem from './multiple-choice-quiz-editor-item';
+import ItemEditor from 'components/quiz-editor/item-editor';
 import MultipleChoiceQuizEditorMetaEditor from './multiple-choice-quiz-editor-meta-editor';
 
 class MultipleChoiceQuizEditor extends React.Component {
@@ -16,25 +15,16 @@ class MultipleChoiceQuizEditor extends React.Component {
     }
   }
 
-  onDataItemChange(id) {
-    return value => {
-      this.props.onDataItemChange(id, { title: value });
-    }
+  onDataItemChange(id, value) {
+    this.props.onDataItemChange(id, { title: value });
   }
 
-  onAddDataItem(e) {
-    e.preventDefault();
+  onAddDataItem() {
     this.props.onAddDataItem({ title: '' });
   }
 
   onRemoveDataItem(id) {
-    return () => this.props.onRemoveDataItem(id);
-  }
-
-  renderItems() {
-    return this.props.items.map(item => {
-      return <MultipleChoiceQuizEditorItem title={item.title} key={item.id} onChange={this.onDataItemChange(item.id)} onRemove={this.onRemoveDataItem(item.id)}/>
-    });
+    this.props.onRemoveDataItem(id);
   }
 
   onRightAnswersChange(value) {
@@ -76,13 +66,8 @@ class MultipleChoiceQuizEditor extends React.Component {
       <div>
         <div className="m-b-1">
           <label>Items</label>
-          {this.renderItems()}
 
-          <div>
-            <Button color="success" onClick={this.onAddDataItem.bind(this)}>
-              <Icon name="plus"/> Add an item
-            </Button>
-          </div>
+          <ItemEditor items={this.props.items} onAddDataItem={this.onAddDataItem.bind(this)} onDataItemChange={this.onDataItemChange.bind(this)} onRemoveDataItem={this.onRemoveDataItem.bind(this)}/>
         </div>
 
         <div>

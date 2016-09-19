@@ -3,7 +3,7 @@ import { Button } from 'reactstrap';
 
 import Icon from 'components/icon';
 
-class MultipleChoiceQuizEditorItem extends React.Component {
+class ItemEditorItem extends React.Component {
   onTitleChange() {
     this.props.onChange(this.refs.title.value);
   }
@@ -30,4 +30,4 @@ class MultipleChoiceQuizEditorItem extends React.Component {
   }
 }
 
-export default MultipleChoiceQuizEditorItem;
+export default ItemEditorItem;

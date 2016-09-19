@@ -1,18 +1,22 @@
 import React from 'react';
 import { Form, FormGroup, Input, Button } from 'reactstrap';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
 
-import { ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
+import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
 
 import EssayQuizEditor from './essay-quiz-editor';
 import MultipleChoiceQuizEditor from './multiple-choice-quiz-editor';
 import PeerReviewQuizEditor from './peer-review-quiz-editor';
 import PeerReviewsReceivedQuizEditor from './peer-reviews-received-quiz-editor';
+import CheckboxQuizEditor from './checkbox-quiz-editor';
 
 const mapQuizTypeToEditor = {
   [ESSAY]: EssayQuizEditor,
   [MULTIPLE_CHOICE]: MultipleChoiceQuizEditor,
   [PEER_REVIEW]: PeerReviewQuizEditor,
-  [PEER_REVIEWS_RECEIVED]: PeerReviewsReceivedQuizEditor
+  [PEER_REVIEWS_RECEIVED]: PeerReviewsReceivedQuizEditor,
+  [CHECKBOX]: CheckboxQuizEditor
 }
 
 class QuizEditor extends React.Component {
@@ -34,6 +38,20 @@ class QuizEditor extends React.Component {
     this.props.onBodyChange(this.refs.body.value);
   }
 
+  onExpiresAtChange(expiresAt) {
+    const toUTC = expiresAt
+      ? moment(expiresAt).utc().toDate()
+      : expiresAt;
+
+    this.props.onExpiresAtChange(toUTC);
+  }
+
+  getExpiresAt() {
+    return this.props.quiz.expiresAt
+      ? moment(this.props.quiz.expiresAt).utc()
+      : null;
+  }
+
   onSave(e) {
     e.preventDefault();
 
@@ -51,6 +69,11 @@ class QuizEditor extends React.Component {
         <FormGroup>
           <label>Body</label>
           <textarea placeholder="Body" ref="body" value={this.props.quiz.body} rows={4} className="form-control" onChange={this.onBodyChange.bind(this)}></textarea>
+        </FormGroup>
+
+        <FormGroup>
+          <label>Expires at</label>
+          <DatePicker dateFormat="DD.MM.YYYY" className="form-control" selected={this.getExpiresAt()} onChange={this.onExpiresAtChange.bind(this)}/>
         </FormGroup>
 
         {this.renderEditorContent()}

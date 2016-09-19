@@ -7,10 +7,17 @@ import { ESSAY, MULTIPLE_CHOICE } from 'common-constants/quiz-types';
 import withClassPrefix from 'utils/class-prefix';
 
 class PeerReview extends React.Component {
+  getTitle(id) {
+    return ((this.props.quiz.data.items || []).find(item => item.id === id) || {}).title;
+  }
+
   renderContentByType() {
     switch(this.props.quiz.type) {
       case ESSAY:
         return this.props.answer.data;
+        break;
+      case MULTIPLE_CHOICE:
+        return this.getTitle(this.props.answer.data) || '';
         break;
       default:
         return '';

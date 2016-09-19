@@ -8,7 +8,8 @@ const schema = new mongoose.Schema({
   title: { type: String, minlength: 3, maxlength: 100, required: true },
   body: { type: String, maxlength: 300 },
   data: { type: mongoose.Schema.Types.Mixed },
-  userId: { type: mongoose.Schema.Types.ObjectId, required: true }
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  expiresAt: { type: Date }
 }, { timestamps: true });
 
 modelUtils.extendSchema(schema);

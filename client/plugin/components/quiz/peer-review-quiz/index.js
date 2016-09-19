@@ -55,7 +55,7 @@ class PeerReviewQuiz extends React.Component {
         </div>
 
         <div className={withClassPrefix('form-group')}>
-          <button type="submit" disabled={!isValid} className={withClassPrefix('btn btn-primary')}>Submit</button>
+          <button type="submit" disabled={!isValid || !!this.props.disabled} className={withClassPrefix('btn btn-primary')}>Submit</button>
         </div>
       </form>
     );

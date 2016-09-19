@@ -2,6 +2,8 @@ import React from 'react';
 
 import UsersQuizzesSelector from 'components/users-quizzes-selector';
 
+import { ESSAY, MULTIPLE_CHOICE } from 'common-constants/quiz-types';
+
 class PeerReviewsReceivedQuizEditor extends React.Component {
   onQuizChange(value) {
     this.props.onDataChange({ quizId: value.value });
@@ -13,7 +15,7 @@ class PeerReviewsReceivedQuizEditor extends React.Component {
     return (
       <div>
         <label>Quiz</label>
-        <UsersQuizzesSelector name="peer-review-quiz" value={value} onChange={this.onQuizChange.bind(this)}/>
+        <UsersQuizzesSelector name="peer-review-quiz" value={value} types={[ESSAY, MULTIPLE_CHOICE]} onChange={this.onQuizChange.bind(this)}/>
       </div>
     )
   }

@@ -13,6 +13,16 @@ class UsersQuizzesSelector extends React.Component {
     }
   }
 
+  getQuery({ title }) {
+    let query = { title: title };
+
+    if(this.props.types) {
+      query = Object.assign({}, query, { types: this.props.types });
+    }
+
+    return query;
+  }
+
   loadOptions(text, callback) {
     if(!text && this.props.value) {
       this.props.loadQuiz(this.props.value)
@@ -27,7 +37,7 @@ class UsersQuizzesSelector extends React.Component {
           }
         });
     } else {
-      this.props.loadQuizzes(text)
+      this.props.loadQuizzes(this.getQuery({ title: text }))
         .then(response => {
           if(response.error) {
             callback(response.error);
@@ -44,7 +54,7 @@ class UsersQuizzesSelector extends React.Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  loadQuizzes: title => dispatch(fetchQuizzes({ title })),
+  loadQuizzes: query => dispatch(fetchQuizzes(query)),
   loadQuiz: id => dispatch(fetchQuiz(id))
 });
 

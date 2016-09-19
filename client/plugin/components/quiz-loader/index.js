@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import moment from 'moment';
 
 import Quiz from 'components/quiz';
 import QuizAlerts from 'components/quiz-alerts';
@@ -49,17 +50,39 @@ class QuizLoader extends React.Component {
   }
 
   renderNotSignInAlert() {
-    if(!this.userIsSignedIn()) {
-      return (
-        <div className={withClassPrefix('not-sign-in-alert-container')}>
+    return !this.userIsSignedIn()
+      ? (
+        <div className={withClassPrefix('quiz-alert')}>
           <Alert type="info">
             Sign in before answering
           </Alert>
         </div>
-      );
-    } else {
-      return null;
-    }
+      )
+      : null;
+  }
+
+  renderExpireDateAlert() {
+    return this.props.quiz.data.expiresAt && !this.isExpired()
+      ? (
+        <div className={withClassPrefix('quiz-alert')}>
+          <Alert type="info">
+            This quiz will expire at {moment(this.props.quiz.data.expiresAt).format('D. MMMM HH:mm')}
+          </Alert>
+        </div>
+      )
+      : null;
+  }
+
+  renderExpiredAlert() {
+    return this.isExpired()
+      ? (
+        <div className={withClassPrefix('quiz-alert')}>
+          <Alert type="info">
+            Quiz has expired
+          </Alert>
+        </div>
+      )
+      : null;
   }
 
   onEssayChange(essay) {
@@ -68,6 +91,10 @@ class QuizLoader extends React.Component {
 
   onMultipleChoiceChange(choice) {
     this.props.onDataChange([], choice);
+  }
+
+  onCheckboxChange(checked) {
+    this.props.onDataChange([], checked);
   }
 
   onPeerReviewChosenReviewChange({ chosenQuizAnswerId, rejectedQuizAnswerId }) {
@@ -79,6 +106,12 @@ class QuizLoader extends React.Component {
     this.props.onDataChange(['review'], review);
   }
 
+  isExpired() {
+    const expiresAt = this.props.quiz.data.expiresAt;
+
+    return expiresAt !== null && +new Date(expiresAt) <= +new Date();
+  }
+
   getQuizProperties() {
     return {
       quiz: this.props.quiz,
@@ -86,11 +119,12 @@ class QuizLoader extends React.Component {
       onDataChange: this.props.onDataChange,
       onEssayChange: this.onEssayChange.bind(this),
       onMultipleChoiceChange: this.onMultipleChoiceChange.bind(this),
+      onCheckboxChange: this.onCheckboxChange.bind(this),
       onPeerReviewReviewChange: this.onPeerReviewReviewChange.bind(this),
       onPeerReviewChosenReviewChange: this.onPeerReviewChosenReviewChange.bind(this),
       answer: this.props.answer,
       onSubmit: this.props.onSubmit,
-      disabled: !this.userIsSignedIn(),
+      disabled: !this.userIsSignedIn() || this.isExpired(),
       quizId: this.props.id
     }
   }
@@ -99,6 +133,8 @@ class QuizLoader extends React.Component {
     return (
       <Quiz {...this.getQuizProperties()}>
         {this.renderNotSignInAlert()}
+        {this.renderExpiredAlert()}
+        {this.renderExpireDateAlert()}
         <QuizAlerts quizId={this.props.id}/>
       </Quiz>
     );

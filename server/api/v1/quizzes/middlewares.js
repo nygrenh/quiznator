@@ -12,9 +12,11 @@ function getUsersQuizzes(getUserId) {
     let query = { userId: getUserId(req) };
 
     if(req.query.title) {
-      const titleRegExp = new RegExp(`^${decodeURIComponent(req.query.title)}`, 'i');
+      query = Object.assign({}, query, { title: new RegExp(`^${decodeURIComponent(req.query.title)}`, 'i') });
+    }
 
-      query = Object.assign({}, { title: titleRegExp });
+    if(req.query.types) {
+      query = Object.assign({}, query, { type: { $in: req.query.types.split(',') } });
     }
 
     const findCount = Quiz.count(query);
@@ -55,7 +57,7 @@ function getQuizById(getId) {
 
 function updateQuiz(options) {
   return (req, res, next) => {
-    const allowedAttributes = pick(options.getAttributes(req), ['title', 'data', 'body']);
+    const allowedAttributes = pick(options.getAttributes(req), ['title', 'data', 'body', 'expiresAt']);
 
     Quiz.updateWithValidation(options.getQuery(req), allowedAttributes)
       .then(updatedQuiz => {
@@ -71,7 +73,7 @@ function createQuiz(options) {
   return (req, res, next) => {
     const userId = options.getUserId(req);
 
-    const allowedAttributes = pick(options.getAttributes(req), ['type', 'title', 'data']);
+    const allowedAttributes = pick(options.getAttributes(req), ['type', 'title', 'data', 'expiresAt']);
     const attributes = Object.assign({}, allowedAttributes, { userId });
 
     const newQuiz = new Quiz(attributes)
