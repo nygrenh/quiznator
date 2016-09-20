@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import SignInFrom from 'components/sign-in-form';
+import SignInForm from 'components/sign-in-form';
 import Alert from 'common-components/alert';
 
 import { signIn } from 'state/sign-in';
@@ -25,10 +25,10 @@ class App extends React.Component {
 
           {this.renderError()}
 
-          <SignInFrom onSignIn={this.props.onSignIn.bind(this)}/>
+          <SignInForm onSignIn={this.props.onSignIn.bind(this)}/>
 
           <div className="text-xs-center m-t-1">
-            Or <a href="/sign-up">sign up</a>.
+            Haven't signed up yet? <a href="/sign-up">Sign up</a>.
           </div>
         </div>
       </div>

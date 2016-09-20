@@ -66,6 +66,23 @@ function authorize() {
   );
 }
 
+function generateAuthCode({ getUserId, getClientId }) {
+  return (req, res, next) => {
+    const getDefaultClientId = () => process.env.CLIENT_ID;
+
+    const userId = getUserId(req);
+    const clientId = (getClientId || getDefaultClientId)(req);
+
+    oauthModels.AuthorizationCode.generateAuthCode({ userId, clientId })
+      .then(authCode => {
+        req.authCode = authCode;
+
+        return next();
+      })
+      .catch(err => next(err));
+  }
+}
+
 function canAccessQuiz(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
@@ -89,4 +106,4 @@ function canAccessQuiz(options) {
   }
 }
 
-module.exports = { oauthGrant, quiznatorGrant, authorize, canAccessQuiz, removeUsersTokens };
+module.exports = { oauthGrant, quiznatorGrant, authorize, canAccessQuiz, removeUsersTokens, generateAuthCode };
