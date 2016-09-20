@@ -4,6 +4,7 @@ import get from 'lodash.get';
 
 import Loader from 'components/loader';
 import PeerReview from './peer-review';
+import SubmitButton from 'components/quiz/submit-button';
 
 import { quizPropsTypes, quizDefaultProps } from 'components/quiz';
 import { loadPeerReviews } from 'state/peer-reviews';
@@ -46,6 +47,7 @@ class PeerReviewQuiz extends React.Component {
 
   renderForm() {
     const isValid = this.validate();
+    const submitDisabled = !isValid || !!this.props.disabled || !!this.props.submitting;
 
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
@@ -55,7 +57,7 @@ class PeerReviewQuiz extends React.Component {
         </div>
 
         <div className={withClassPrefix('form-group')}>
-          <button type="submit" disabled={!isValid || !!this.props.disabled} className={withClassPrefix('btn btn-primary')}>Submit</button>
+          <SubmitButton disabled={submitDisabled} submitting={this.props.submitting}/>
         </div>
       </form>
     );

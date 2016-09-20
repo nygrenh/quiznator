@@ -3,6 +3,8 @@ import get from 'lodash.get';
 
 import withClassPrefix from 'utils/class-prefix';
 
+import SubmitButton from 'components/quiz/submit-button';
+
 class CheckboxQuiz extends React.Component {
   getAnswer() {
     return get(this.props.answer, 'data') || [];
@@ -38,13 +40,14 @@ class CheckboxQuiz extends React.Component {
   onSubmit() {
     return e => {
       e.preventDefault();
-      
+
       this.props.onSubmit();
     }
   }
 
   render() {
     const isValid = this.getAnswer().length > 0;
+    const submitDisabled = !isValid || !!this.props.disabled || !!this.props.submitting;
 
     return (
       <form onSubmit={this.onSubmit()}>
@@ -53,7 +56,7 @@ class CheckboxQuiz extends React.Component {
         </div>
 
         <div className={withClassPrefix('form-group')}>
-          <button type="submit" className={withClassPrefix('btn btn-primary')} disabled={!isValid || !!this.props.disabled}>Submit</button>
+          <SubmitButton disabled={submitDisabled} submitting={this.props.submitting}/>
         </div>
       </form>
     )

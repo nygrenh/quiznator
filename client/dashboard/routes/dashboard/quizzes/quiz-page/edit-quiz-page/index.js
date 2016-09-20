@@ -39,6 +39,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   onRemoveDataItem: id => dispatch(removeDataItem(id)),
   onDataChange: update => dispatch(updateData(update)),
   onAddDataItem: item => dispatch(addDataItem(item)),
+  onDataItemOrderChange: order => dispatch(updateData({ items: order })),
   onDataMetaChange: update => dispatch(updateDataMeta(update)),
   onDataMetaPathChange: (path, value) => dispatch(setDataMetaPath(path, value)),
   onSave: () => dispatch(saveQuiz())

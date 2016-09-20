@@ -5,6 +5,8 @@ import { quizPropsTypes, quizDefaultProps } from 'components/quiz';
 
 import withClassPrefix from 'utils/class-prefix';
 
+import SubmitButton from 'components/quiz/submit-button';
+
 class MultipleChoiceQuiz extends React.Component {
   constructor(props) {
     super(props);
@@ -45,6 +47,7 @@ class MultipleChoiceQuiz extends React.Component {
 
   render() {
     const isValid = !!this.getAnswer();
+    const submitDisabled = !isValid || !!this.props.disabled || !!this.props.submitting;
 
     return (
       <form onSubmit={this.onSubmit()}>
@@ -53,7 +56,7 @@ class MultipleChoiceQuiz extends React.Component {
         </div>
 
         <div className={withClassPrefix('form-group')}>
-          <button type="submit" className={withClassPrefix('btn btn-primary')} disabled={!isValid || !!this.props.disabled}>Submit</button>
+          <SubmitButton disabled={submitDisabled} submitting={this.props.submitting}/>
         </div>
       </form>
     )

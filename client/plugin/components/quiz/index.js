@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import omit from 'lodash.omit';
 
 import QuizBody from './quiz-body';
 import ReactMarkdown from 'react-markdown';
@@ -24,25 +23,21 @@ const mapQuizTypeToComponent = {
 }
 
 class Quiz extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   renderBody() {
-    if(this.props.quiz.data.type && mapQuizTypeToComponent[this.props.quiz.data.type]) {
-      const Component = mapQuizTypeToComponent[this.props.quiz.data.type];
+    if(this.props.quiz.type && mapQuizTypeToComponent[this.props.quiz.type]) {
+      const Component = mapQuizTypeToComponent[this.props.quiz.type];
 
-      return <Component {...omit(this.props, ['quiz'])} quiz={this.props.quiz.data}/>
+      return <Component {...this.props}/>
     } else {
       return null;
     }
   }
 
   renderHelper() {
-    if(this.props.quiz.data.body) {
+    if(this.props.quiz.body) {
       return (
         <div className={withClassPrefix('quiz-container__helper')}>
-          <ReactMarkdown source={this.props.quiz.data.body}/>
+          <ReactMarkdown source={this.props.quiz.body}/>
         </div>
       );
     } else {
@@ -53,8 +48,8 @@ class Quiz extends React.Component {
   render() {
     return (
       <div className={withClassPrefix('quiz-container')}>
-        <QuizHeader isActive={this.props.answer !== undefined && (this.props.quiz.submitted || this.props.answer.isOld)}>
-          {this.props.quiz.data.title}
+        <QuizHeader isActive={this.props.answer !== undefined && (this.props.submitted || this.props.answer.isOld)}>
+          {this.props.quiz.title}
         </QuizHeader>
 
         {this.props.children}
@@ -75,9 +70,12 @@ export const quizPropsTypes = {
   answer: React.PropTypes.object,
   onEssayChange: React.PropTypes.func,
   onMultipleChoiceChange: React.PropTypes.func,
+  onCheckboxChange: React.PropTypes.func,
   onPeerReviewReviewChange: React.PropTypes.func,
   onPeerReviewChosenReviewChange: React.PropTypes.func,
   disabled: React.PropTypes.bool,
+  submitted: React.PropTypes.bool,
+  submitting: React.PropTypes.bool,
   user: React.PropTypes.object,
   onSubmit: React.PropTypes.func
 }
@@ -86,10 +84,13 @@ Quiz.propTypes = quizPropsTypes
 
 export const quizDefaultProps = {
   disabled: false,
+  sumitted: false,
+  submitting: false,
   onEssayChange: () => {},
   onMultipleChoiceChange: () => {},
   onPeerReviewReviewChange: () => {},
   onPeerReviewChosenReviewChange: () => {},
+  onCheckboxChange: () => {},
   onSubmit: () => {}
 }
 

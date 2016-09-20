@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FormGroup, Input, Button } from 'reactstrap';
+import { Form, FormGroup, Input, Button, FormText } from 'reactstrap';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
@@ -10,6 +10,8 @@ import MultipleChoiceQuizEditor from './multiple-choice-quiz-editor';
 import PeerReviewQuizEditor from './peer-review-quiz-editor';
 import PeerReviewsReceivedQuizEditor from './peer-reviews-received-quiz-editor';
 import CheckboxQuizEditor from './checkbox-quiz-editor';
+
+import Alert from 'common-components/alert';
 
 const mapQuizTypeToEditor = {
   [ESSAY]: EssayQuizEditor,
@@ -40,7 +42,7 @@ class QuizEditor extends React.Component {
 
   onExpiresAtChange(expiresAt) {
     const toUTC = expiresAt
-      ? moment(expiresAt).utc().toDate()
+      ? moment(expiresAt).utc().endOf('day').toDate()
       : expiresAt;
 
     this.props.onExpiresAtChange(toUTC);
@@ -58,6 +60,16 @@ class QuizEditor extends React.Component {
     this.props.onSave();
   }
 
+  renderExpiresAtAlert() {
+    return this.props.quiz.expiresAt
+      ? (
+        <Alert type="info">
+          The quiz will expire at {moment(this.props.quiz.expiresAt).format('D. MMMM HH:mm')}
+        </Alert>
+      )
+      : null;
+  }
+
   render() {
     return (
       <Form>
@@ -68,13 +80,19 @@ class QuizEditor extends React.Component {
 
         <FormGroup>
           <label>Body</label>
-          <textarea placeholder="Body" ref="body" value={this.props.quiz.body} rows={4} className="form-control" onChange={this.onBodyChange.bind(this)}></textarea>
+          <textarea placeholder="Body" ref="body" value={this.props.quiz.body} rows={6} className="form-control" onChange={this.onBodyChange.bind(this)}></textarea>
+
+          <FormText color="muted">
+            This field supports <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">markup</a>.
+          </FormText>
         </FormGroup>
 
         <FormGroup>
           <label>Expires at</label>
           <DatePicker dateFormat="DD.MM.YYYY" className="form-control" selected={this.getExpiresAt()} onChange={this.onExpiresAtChange.bind(this)}/>
         </FormGroup>
+
+        {this.renderExpiresAtAlert()}
 
         {this.renderEditorContent()}
 

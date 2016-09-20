@@ -13,22 +13,39 @@ import { setQuizAnswerDataPath, getQuizAnswer } from 'state/quiz-answers';
 import withClassPrefix from 'utils/class-prefix';
 
 class QuizLoader extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      notSignedInAlertIsShowing: true,
+      expiresAtAlertIsShowing: true,
+      isExpiredAlertIsShowing: true
+    }
+  }
+
   componentDidMount() {
     this.props.loadQuiz();
-
-    this.fetchAnswer();
   }
 
   componentDidUpdate(nextProps) {
-    if(nextProps.user && (!this.props.user || nextProps.user.id !== this.props.user.id)) {
-      this.fetchAnswer();
+    const hasNewUser = nextProps.user && (!this.props.user || nextProps.user.id !== this.props.user.id);
+    const hasUser = this.props.user;
+    const hasQuiz = this.props.quiz.data;
+    const noAnswer = !this.props.answer;
+
+    if(hasNewUser && hasQuiz || (hasUser && hasQuiz && noAnswer)) {
+      this.props.loadAnswer();
     }
   }
 
-  fetchAnswer() {
-    if(this.props.user) {
-      this.props.loadAnswer();
-    }
+  onCloseAlert(name) {
+    this.setState({
+      [`${name}IsShowing`]: false
+    });
+  }
+
+  isSubmitting() {
+    return this.props.answer && this.props.answer.submitting;
   }
 
   renderLoader() {
@@ -50,10 +67,10 @@ class QuizLoader extends React.Component {
   }
 
   renderNotSignInAlert() {
-    return !this.userIsSignedIn()
+    return !this.userIsSignedIn() && this.state.notSignedInAlertIsShowing
       ? (
         <div className={withClassPrefix('quiz-alert')}>
-          <Alert type="info">
+          <Alert type="info" dismissible={true} onClose={this.onCloseAlert.bind(this, 'notSignedInAlert')}>
             Sign in before answering
           </Alert>
         </div>
@@ -62,10 +79,10 @@ class QuizLoader extends React.Component {
   }
 
   renderExpireDateAlert() {
-    return this.props.quiz.data.expiresAt && !this.isExpired()
+    return this.props.quiz.data.expiresAt && !this.isExpired() && this.state.expiresAtAlertIsShowing
       ? (
         <div className={withClassPrefix('quiz-alert')}>
-          <Alert type="info">
+          <Alert type="info" dismissible={true} onClose={this.onCloseAlert.bind(this, 'expiresAtAlert')}>
             This quiz will expire at {moment(this.props.quiz.data.expiresAt).format('D. MMMM HH:mm')}
           </Alert>
         </div>
@@ -74,10 +91,10 @@ class QuizLoader extends React.Component {
   }
 
   renderExpiredAlert() {
-    return this.isExpired()
+    return this.isExpired() && this.state.isExpiredAlertIsShowing
       ? (
         <div className={withClassPrefix('quiz-alert')}>
-          <Alert type="info">
+          <Alert type="info" dismissible={true} onClose={this.onCloseAlert.bind(this, 'isExpiredAlert')}>
             Quiz has expired
           </Alert>
         </div>
@@ -114,7 +131,7 @@ class QuizLoader extends React.Component {
 
   getQuizProperties() {
     return {
-      quiz: this.props.quiz,
+      quiz: this.props.quiz.data,
       user: this.props.user,
       onDataChange: this.props.onDataChange,
       onEssayChange: this.onEssayChange.bind(this),
@@ -123,6 +140,8 @@ class QuizLoader extends React.Component {
       onPeerReviewReviewChange: this.onPeerReviewReviewChange.bind(this),
       onPeerReviewChosenReviewChange: this.onPeerReviewChosenReviewChange.bind(this),
       answer: this.props.answer,
+      submitting: this.isSubmitting(),
+      submitted: this.props.quiz.submitted,
       onSubmit: this.props.onSubmit,
       disabled: !this.userIsSignedIn() || this.isExpired(),
       quizId: this.props.id

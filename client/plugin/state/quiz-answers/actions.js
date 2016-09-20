@@ -5,6 +5,7 @@ import { PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types'
 
 export const SET_QUIZ_ANSWER_DATA_PATH = 'QUIZ_ANSWERS_SET_QUIZ_ANSWERS_DATA_PATH';
 export const POST_QUIZ_ANSWER = 'QUIZ_ANSWERS_POST_QUIZ_ANSWER';
+export const POST_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS_POST_QUIZ_ANSWER_SUCCESS';
 export const FETCH_QUIZ_ANSWER = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER';
 export const FETCH_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER_SUCCESS';
 
@@ -61,6 +62,7 @@ export function getQuizAnswer({ quizId }) {
 export function postQuizAnswer({ quizId, data, answererId }) {
   return {
     type: POST_QUIZ_ANSWER,
+    quizId,
     payload: {
       request: {
         url: `/quizzes/${quizId}/answers`,

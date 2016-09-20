@@ -3,6 +3,8 @@ import get from 'lodash.get';
 
 import { quizPropsTypes, quizDefaultProps } from 'components/quiz';
 
+import SubmitButton from 'components/quiz/submit-button';
+
 import withClassPrefix from 'utils/class-prefix';
 
 class EssayQuiz extends React.Component {
@@ -25,6 +27,7 @@ class EssayQuiz extends React.Component {
   render() {
     const answerData = get(this.props, 'answer.data') || '';
     const isValid = answerData.length > 0;
+    const submitDisabled = !isValid || !!this.props.disabled || !!this.props.submitting;
 
     return (
       <form onSubmit={this.onSubmit()}>
@@ -34,7 +37,7 @@ class EssayQuiz extends React.Component {
         </div>
 
         <div className={withClassPrefix('form-group')}>
-          <button type="submit" className={withClassPrefix('btn btn-primary')} disabled={!isValid || !!this.props.disabled}>Submit</button>
+          <SubmitButton disabled={submitDisabled} submitting={this.props.submitting}/>
         </div>
       </form>
     )
