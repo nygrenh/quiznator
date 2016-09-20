@@ -25,9 +25,10 @@ You only need one of these for each page.
 ### Set user
 
 ```
+// Wait for Quiznator to be ready and then set the user
 document.addEventListener('quiznatorLoaded', function() {
   window.Quiznator.setUser({
-    id: 'myUserId'
+    id: 'myUserId' // id is required for user
   });
 });
 ```
