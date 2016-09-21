@@ -9,10 +9,10 @@ const quizAnswerFetchLogic = store => next => action => {
     const quizIsLoaded = quizzes[quizId] && quizzes[quizId].data;
 
     if(!answerIsBeingLoaded && quizIsLoaded) {
-      next(action);
+      return next(action);
     }
   } else {
-    next(action);
+    return next(action);
   }
 }
 
