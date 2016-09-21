@@ -5,18 +5,14 @@ import omit from 'lodash.omit';
 const userResourceLoader = ({ dispatcher }) => Component => {
   class UserResourceLoaderComponent extends React.Component {
     componentDidMount() {
-      this.load();
+      this.props.user && this.props.load();
     }
 
-    load() {
-      if(this.props.user && this.props.user.id) {
+    componentWillReceiveProps(nextProps) {
+      const hasNewUser = nextProps.user && (!this.props.user || nextProps.user.id !== this.props.user.id);
+
+      if(hasNewUser) {
         this.props.load();
-      }
-    }
-
-    componentDidUpdate(nextProps) {
-      if(this.props.user && nextProps.user && nextProps.user.id !== this.props.user.id) {
-        this.load();
       }
     }
 

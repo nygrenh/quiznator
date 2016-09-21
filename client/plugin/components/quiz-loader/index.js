@@ -27,15 +27,8 @@ class QuizLoader extends React.Component {
     this.props.loadQuiz();
   }
 
-  componentDidUpdate(nextProps) {
-    const hasNewUser = nextProps.user && (!this.props.user || nextProps.user.id !== this.props.user.id);
-    const hasUser = this.props.user;
-    const hasQuiz = this.props.quiz.data;
-    const noAnswer = !this.props.answer;
-
-    if(hasNewUser && hasQuiz || (hasUser && hasQuiz && noAnswer)) {
-      this.props.loadAnswer();
-    }
+  componentWillReceiveProps(nextProps) {
+    this.props.loadAnswer();
   }
 
   onCloseAlert(name) {

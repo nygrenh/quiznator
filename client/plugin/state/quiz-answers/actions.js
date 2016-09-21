@@ -51,7 +51,7 @@ export function getQuizAnswer({ quizId }) {
 
     const quiz = quizzes[quizId].data;
 
-    if(user.id && ![PEER_REVIEW, PEER_REVIEWS_RECEIVED].includes(quiz.type)) {
+    if(quiz && user.id && ![PEER_REVIEW, PEER_REVIEWS_RECEIVED].includes(quiz.type)) {
       return dispatch(fetchQuizAnswer({ quizId, answererId: user.id }));
     } else {
       return Promise.resolve();
@@ -79,6 +79,8 @@ export function postQuizAnswer({ quizId, data, answererId }) {
 export function fetchQuizAnswer({ quizId, answererId }) {
   return {
     type: FETCH_QUIZ_ANSWER,
+    quizId,
+    answererId,
     payload: {
       request: {
         url: `/quizzes/${quizId}/answers/${answererId}?limit=1`,

@@ -3,7 +3,7 @@ import get from 'lodash.get';
 
 import { createReducer } from 'redux-create-reducer';
 
-import { SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER_SUCCESS, POST_QUIZ_ANSWER, POST_QUIZ_ANSWER_SUCCESS } from './actions';
+import { SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER, FETCH_QUIZ_ANSWER_SUCCESS, POST_QUIZ_ANSWER, POST_QUIZ_ANSWER_SUCCESS } from './actions';
 
 export default createReducer({}, {
   [SET_QUIZ_ANSWER_DATA_PATH](state, action) {
@@ -12,13 +12,20 @@ export default createReducer({}, {
       .set([action.quizId, 'isTouched'], true)
       .value;
   },
+  [FETCH_QUIZ_ANSWER](state, action) {
+    return scour(state)
+      .go(action.quizId)
+      .extend({ loading: true, answererId: action.answererId })
+      .root
+      .value;
+  },
   [FETCH_QUIZ_ANSWER_SUCCESS](state, action) {
     if(get(action, 'payload.data[0]')) {
       const answer = action.payload.data[0];
 
       return scour(state)
         .go(answer.quizId)
-        .extend({ data: answer.data, isOld: true })
+        .extend({ data: answer.data, isOld: true, loading: false })
         .root
         .value;
     } else {
