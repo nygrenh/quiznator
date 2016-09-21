@@ -64,6 +64,7 @@
     "react-dom": "^15.3.2",
     "react-inview": "0.0.6",
     "react-js-pagination": "^2.0.0",
+    "react-lazyload": "^2.1.5",
     "react-markdown": "^2.4.2",
     "react-paginate": "^2.2.3",
     "react-redux": "^4.4.5",
