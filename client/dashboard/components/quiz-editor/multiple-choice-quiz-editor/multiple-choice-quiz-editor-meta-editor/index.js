@@ -1,5 +1,4 @@
 import React from 'react';
-import get from 'lodash.get';
 import { Row, Col } from 'reactstrap';
 
 import Selector from 'components/selector';

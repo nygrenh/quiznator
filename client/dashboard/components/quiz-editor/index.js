@@ -40,34 +40,10 @@ class QuizEditor extends React.Component {
     this.props.onBodyChange(this.refs.body.value);
   }
 
-  onExpiresAtChange(expiresAt) {
-    const toUTC = expiresAt
-      ? moment(expiresAt).utc().endOf('day').toDate()
-      : expiresAt;
-
-    this.props.onExpiresAtChange(toUTC);
-  }
-
-  getExpiresAt() {
-    return this.props.quiz.expiresAt
-      ? moment(this.props.quiz.expiresAt).utc()
-      : null;
-  }
-
   onSave(e) {
     e.preventDefault();
 
     this.props.onSave();
-  }
-
-  renderExpiresAtAlert() {
-    return this.props.quiz.expiresAt
-      ? (
-        <Alert type="info">
-          The quiz will expire at {moment(this.props.quiz.expiresAt).format('D. MMMM HH:mm')}
-        </Alert>
-      )
-      : null;
   }
 
   render() {
@@ -86,13 +62,6 @@ class QuizEditor extends React.Component {
             This field supports <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">markup</a>.
           </FormText>
         </FormGroup>
-
-        <FormGroup>
-          <label>Expires at</label>
-          <DatePicker dateFormat="DD.MM.YYYY" className="form-control" selected={this.getExpiresAt()} onChange={this.onExpiresAtChange.bind(this)}/>
-        </FormGroup>
-
-        {this.renderExpiresAtAlert()}
 
         {this.renderEditorContent()}
 

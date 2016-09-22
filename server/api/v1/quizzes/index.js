@@ -34,6 +34,19 @@ router.put('/:id',
     res.json(req.updatedQuiz);
   });
 
+router.delete('/:id',
+  authenticationMiddlewares.authorize(),
+  authenticationMiddlewares.canAccessQuiz({
+    getUserId: req => req.userId,
+    getQuizId: req => req.params.id
+  }),
+  middlewares.removeQuiz({
+    getId: req => req.params.id
+  }),
+  (req, res, next) => {
+    res.sendStatus(200);
+  });
+
 router.post('/',
   authenticationMiddlewares.authorize(),
   middlewares.createQuiz({

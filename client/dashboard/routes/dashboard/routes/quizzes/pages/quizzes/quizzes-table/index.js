@@ -17,7 +17,7 @@ class QuizzesTable extends React.Component {
       return (
         <tr key={quiz._id}>
           <td>
-            <Link to={`/dashboard/quizzes/${quiz._id}`}>
+            <Link to={`/dashboard/quizzes/${quiz._id}/edit`}>
               {quiz.title}
             </Link>
           </td>

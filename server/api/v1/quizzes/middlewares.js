@@ -69,6 +69,20 @@ function updateQuiz(options) {
   }
 }
 
+function removeQuiz(options) {
+  return (req, res, next) => {
+    const id = options.getId(req);
+
+    errors.withExistsOrError(new errors.NotFoundError(`Couldn't find quiz with id ${id}`))
+      (Quiz.findOne({ _id: id }))
+        .then(quiz => {
+          return quiz.remove();
+        })
+        .then(() => next())
+        .catch(err => next(err));
+  }
+}
+
 function createQuiz(options) {
   return (req, res, next) => {
     const userId = options.getUserId(req);
@@ -89,4 +103,4 @@ function createQuiz(options) {
   }
 }
 
-module.exports = { getUsersQuizzes, getQuizById, createQuiz, updateQuiz };
+module.exports = { getUsersQuizzes, getQuizById, createQuiz, updateQuiz, removeQuiz };

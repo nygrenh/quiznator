@@ -1,5 +1,5 @@
 import React from 'react';
-import get from 'lodash.get';
+import _get from 'lodash.get';
 import { Button } from 'reactstrap';
 
 import Icon from 'components/icon';
@@ -53,7 +53,7 @@ class MultipleChoiceQuizEditor extends React.Component {
     if(this.state.editMetaData) {
       return (
         <div className="m-t-1">
-          <MultipleChoiceQuizEditorMetaEditor meta={get(this.props.quiz, 'data.meta')} items={this.props.items} rightAnswer={get(this.props.quiz, 'data.meta.rightAnswer') || []} onRightAnswersChange={this.onRightAnswersChange.bind(this)} onSuccessMessageChange={this.onSuccessMessageChange.bind(this)} onErrorMessageChange={this.onErrorMessageChange.bind(this)}/>
+          <MultipleChoiceQuizEditorMetaEditor meta={_get(this.props.quiz, 'data.meta')} items={this.props.items} rightAnswer={_get(this.props.quiz, 'data.meta.rightAnswer') || []} onRightAnswersChange={this.onRightAnswersChange.bind(this)} onSuccessMessageChange={this.onSuccessMessageChange.bind(this)} onErrorMessageChange={this.onErrorMessageChange.bind(this)}/>
         </div>
       );
     } else {

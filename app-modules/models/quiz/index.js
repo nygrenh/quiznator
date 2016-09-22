@@ -12,6 +12,8 @@ const schema = new mongoose.Schema({
   expiresAt: { type: Date }
 }, { timestamps: true });
 
+require('./methods')(schema);
+
 modelUtils.extendSchema(schema);
 
 module.exports = mongoose.model('Quiz', schema);

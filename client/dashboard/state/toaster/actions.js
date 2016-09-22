@@ -1,7 +1,7 @@
 import delay from 'lodash.delay';
 
-export const ADD_TOAST = 'TOASTER_ADD_TOAST';
-export const REMOVE_TOAST = 'TOASTER_REMOVE_TOAST';
+export const ADD_TOAST = 'TOASTER::ADD_TOAST';
+export const REMOVE_TOAST = 'TOASTER::REMOVE_TOAST';
 
 let id = 0;
 

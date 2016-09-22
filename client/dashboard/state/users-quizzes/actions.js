@@ -1,5 +1,5 @@
-export const FETCH_QUIZZES = 'USERS_QUIZZES_FETCH_QUIZZES';
-export const FETCH_QUIZ = 'USERS_QUIZZES_FETCH_QUIZ';
+export const FETCH_QUIZZES = 'USERS_QUIZZES::FETCH_QUIZZES';
+export const FETCH_QUIZ = 'USERS_QUIZZES::FETCH_QUIZ';
 
 export function fetchQuizzes({ title, types }) {
   let params = {};

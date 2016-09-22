@@ -1,17 +1,19 @@
 import scour from 'scourjs';
+import { push } from 'react-router-redux';
 
 import { createToast } from 'state/toaster';
 
-export const UPDATE_QUIZ = 'EDIT_QUIZ_UPDATE_QUIZ';
-export const PUT_SAVE_QUIZ = 'EDIT_QUIZ_PUT_SAVE_QUIZ';
-export const FETCH_QUIZ = 'EDIT_QUIZ_FETCH_QUIZ';
-export const FETCH_QUIZ_SUCCESS = 'EDIT_QUIZ_FETCH_QUIZ_SUCCESS';
-export const ADD_DATA_ITEM = 'EDIT_QUIZ_ADD_DATA_ITEM';
-export const REMOVE_DATA_ITEM ='EDIT_QUIZ_REMOVE_DATA_ITEM';
-export const UPDATE_DATA_ITEM = 'EDIT_QUIZ_UPDATE_DATA_ITEM';
-export const UPDATE_DATA_META = 'EDIT_QUIZ_UPDATE_DATA_META';
-export const UPDATE_DATA = 'EDIT_QUIZ_UPDATA_DATA';
-export const SET_DATA_META_PATH = 'SET_DATA_META_PATH';
+export const UPDATE_QUIZ = 'EDIT_QUIZ::UPDATE_QUIZ';
+export const REMOVE_QUIZ = 'EDIT_QUIZ::REMOVE_QUIZ';
+export const PUT_SAVE_QUIZ = 'EDIT_QUIZ::PUT_SAVE_QUIZ';
+export const FETCH_QUIZ = 'EDIT_QUIZ::FETCH_QUIZ';
+export const FETCH_QUIZ_SUCCESS = 'EDIT_QUIZ::FETCH_QUIZ_SUCCESS';
+export const ADD_DATA_ITEM = 'EDIT_QUIZ::ADD_DATA_ITEM';
+export const REMOVE_DATA_ITEM ='EDIT_QUIZ::REMOVE_DATA_ITEM';
+export const UPDATE_DATA_ITEM = 'EDIT_QUIZ::UPDATE_DATA_ITEM';
+export const UPDATE_DATA_META = 'EDIT_QUIZ::UPDATE_DATA_META';
+export const UPDATE_DATA = 'EDIT_QUIZ::UPDATA_DATA';
+export const SET_DATA_META_PATH = 'EDIT_QUIZ::SET_DATA_META_PATH';
 
 function id() {
   return (new Date().getTime()).toString(36) + Math.floor(Math.random() * 100).toString(36);
@@ -38,7 +40,7 @@ export function fetchQuiz(quizId) {
   }
 }
 
-export function putSaveQuiz(quizId, update) {
+export function saveQuizRequest(quizId, update) {
   return {
     type: PUT_SAVE_QUIZ,
     payload: {
@@ -46,6 +48,32 @@ export function putSaveQuiz(quizId, update) {
         url: `/quizzes/${quizId}`,
         method: 'PUT',
         data: update
+      }
+    }
+  }
+}
+
+export function removeQuiz(quizId) {
+  return dispatch => {
+    dispatch(removeQuizRequest(quizId))
+      .then(response => {
+        dispatch(push('/dashboard/quizzes'));
+        
+        dispatch(createToast({
+          type: 'success',
+          content: 'Quiz has been removed'
+        }));
+      });
+  }
+}
+
+export function removeQuizRequest(quizId) {
+  return {
+    type: REMOVE_QUIZ,
+    payload: {
+      request: {
+        url: `/quizzes/${quizId}`,
+        method: 'DELETE'
       }
     }
   }
@@ -65,8 +93,8 @@ export function saveQuiz(quizId) {
       newQuiz = newQuiz.set(['data', 'items'], quizItems.map(id => items[id]));
     }
 
-    return dispatch(putSaveQuiz(quizId, newQuiz.value))
-      .then(() => {
+    return dispatch(saveQuizRequest(quizId, newQuiz.value))
+      .then(response => {
         dispatch(createToast({
           type: 'success',
           content: 'Quiz has been saved'

@@ -7,8 +7,14 @@ class QuizTabs extends React.Component {
     return (
       <Nav tabs>
         <NavItem>
-          <Link to={`/dashboard/quizzes/${this.props.quizId}`} className="nav-link" activeClassName="active">
+          <Link to={`/dashboard/quizzes/${this.props.quizId}/edit`} className="nav-link" activeClassName="active">
             Edit
+          </Link>
+        </NavItem>
+
+        <NavItem>
+          <Link to={`/dashboard/quizzes/${this.props.quizId}/settings`} className="nav-link" activeClassName="active">
+            Settings
           </Link>
         </NavItem>
       </Nav>

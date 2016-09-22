@@ -1,8 +1,8 @@
 import * as authentication from 'common-utils/authentication';
 
-export const UPDATE_TOKENS = 'TOKENS_UPDATE_TOKENS';
-export const POST_REFRESH_TOKENS = 'TOKENS_POST_REFRESH_TOKENS';
-export const DELETE_TOKENS = 'TOKENS_DELETE_TOKENS';
+export const UPDATE_TOKENS = 'TOKENS::UPDATE_TOKENS';
+export const POST_REFRESH_TOKENS = 'TOKENS::POST_REFRESH_TOKENS';
+export const DELETE_TOKENS = 'TOKENS::DELETE_TOKENS';
 
 export function updateTokens(update) {
   return {

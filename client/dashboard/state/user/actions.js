@@ -1,5 +1,5 @@
-export const FETCH_PROFILE = 'USER_FETCH_PROFILE';
-export const FETCH_PROFILE_SUCCESS = 'USER_FETCH_PROFILE_SUCCESS';
+export const FETCH_PROFILE = 'USER::FETCH_PROFILE';
+export const FETCH_PROFILE_SUCCESS = 'USER::FETCH_PROFILE_SUCCESS';
 
 export function fetchProfile() {
   return {
