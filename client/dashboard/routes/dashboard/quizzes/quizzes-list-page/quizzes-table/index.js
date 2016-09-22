@@ -5,7 +5,6 @@ import { Link } from 'react-router';
 import { Button, Table, Tag } from 'reactstrap';
 
 import { typeToLabel } from 'common-constants/quiz-types';
-import { startEditingQuiz } from 'state/edit-quiz';
 import { selectQuizzes } from 'selectors/quizzes-list';
 import { chooseQuizToPublish } from 'state/publish-quiz';
 
