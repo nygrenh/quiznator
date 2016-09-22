@@ -8,7 +8,7 @@ import { quizSelector, quizItemsSelector, quizMetaSelector } from 'selectors/qui
 import Loader from 'components/loader';
 import QuizEditor from 'components/quiz-editor';
 
-class EditQuizPage extends React.Component {
+class EditQuiz extends React.Component {
   componentDidMount() {
     this.props.loadQuiz();
   }
@@ -62,4 +62,4 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(EditQuizPage);
+)(EditQuiz);

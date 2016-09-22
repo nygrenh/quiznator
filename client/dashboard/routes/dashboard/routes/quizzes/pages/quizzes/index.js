@@ -10,7 +10,7 @@ import QuizzesTable from './quizzes-table';
 import { getQuizzesList, updatePage } from 'state/quizzes-list';
 import { selectQuizzes, selectCurrentPage, selectTotalPages } from 'selectors/quizzes-list';
 
-class QuizzesListPage extends React.Component {
+class Quizzes extends React.Component {
   componentDidMount() {
     this.props.loadQuizzes();
   }
@@ -62,4 +62,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(QuizzesListPage);
+)(Quizzes);

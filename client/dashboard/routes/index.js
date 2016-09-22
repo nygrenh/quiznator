@@ -1,12 +1,17 @@
-import React from 'react';
-import { Router, Route } from 'react-router';
+import quizRoutes from './dashboard/routes/quizzes';
 
-import routes from './routes';
+import Home from './dashboard/pages/home';
+import Dashboard from './dashboard/pages/dashboard';
 
-class Routes extends React.Component {
-  render() {
-    return <Router history={this.props.history} routes={routes}></Router>;
-  }
-}
+const routes = {
+  path: '/dashboard',
+  component: Dashboard,
+  indexRoute: {
+    component: Home
+  },
+  childRoutes: [
+    quizRoutes
+  ]
+};
 
-export default Routes;
+export default routes;

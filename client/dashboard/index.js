@@ -4,7 +4,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { render } from 'react-dom';
 import { syncHistoryWithStore } from 'react-router-redux'
-import { browserHistory } from 'react-router'
+import { browserHistory, Router } from 'react-router'
 
 import Routes from 'routes';
 
@@ -14,6 +14,8 @@ import { hideMainLoader } from 'common-utils/main-loader';
 import { userHasTokens } from 'common-utils/authentication';
 import { fetchProfile } from 'state/user';
 
+import routes from 'routes';
+
 const history = syncHistoryWithStore(browserHistory, store);
 
 function allSet() {
@@ -21,7 +23,7 @@ function allSet() {
 
   render(
     <Provider store={store}>
-      <Routes history={history}/>
+      <Router history={history} routes={routes}></Router>
     </Provider>,
     document.getElementById('root')
   );

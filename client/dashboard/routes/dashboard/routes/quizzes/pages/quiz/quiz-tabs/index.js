@@ -2,7 +2,7 @@ import React from 'react';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router';
 
-class QuizPageTabs extends React.Component {
+class QuizTabs extends React.Component {
   render() {
     return (
       <Nav tabs>
@@ -16,4 +16,4 @@ class QuizPageTabs extends React.Component {
   }
 }
 
-export default QuizPageTabs;
+export default QuizTabs;

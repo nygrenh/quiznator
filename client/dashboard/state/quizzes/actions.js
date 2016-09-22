@@ -57,14 +57,12 @@ export function saveQuiz(quizId) {
 
     const items = state.quizzes.entities.items;
 
-    const quiz = scour(state.quizzes.entities.quizzes[quizId])
+    let newQuiz = scour(state.quizzes.entities.quizzes[quizId])
 
-    const quizItems = quiz.get('data', 'items');
-
-    let newQuiz = quiz;
+    const quizItems = newQuiz.get('data', 'items');
 
     if(quizItems) {
-      newQuiz = quiz.set(['data', 'items'], quizItems.map(id => items[id]));
+      newQuiz = newQuiz.set(['data', 'items'], quizItems.map(id => items[id]));
     }
 
     return dispatch(putSaveQuiz(quizId, newQuiz.value))
