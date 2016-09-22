@@ -1,7 +1,7 @@
 import get from 'lodash.get';
 
 export const selectQuizzes = state => {
-  return get(state, 'quizzesList.data.data') || [];
+  return get(state, 'quizzesList.data.data');
 }
 
 export const selectTotalPages = state => {

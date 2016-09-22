@@ -1,14 +1,15 @@
 import React from 'react';
 import { Nav, NavItem, NavLink } from 'reactstrap';
+import { Link } from 'react-router';
 
 class QuizPageTabs extends React.Component {
   render() {
     return (
       <Nav tabs>
         <NavItem>
-          <NavLink className="active">
+          <Link to={`/dashboard/quizzes/${this.props.quizId}`} className="nav-link" activeClassName="active">
             Edit
-          </NavLink>
+          </Link>
         </NavItem>
       </Nav>
     )

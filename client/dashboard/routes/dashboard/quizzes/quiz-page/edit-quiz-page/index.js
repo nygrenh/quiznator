@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import omit from 'lodash.omit';
 
-import { saveQuiz, fetchQuiz, updateQuiz, updateData, addDataItem, updateDataItem, removeDataItem, updateDataMeta, setDataMetaPath } from 'state/edit-quiz';
-import { quizSelector, quizItemsSelector } from 'selectors/edit-quiz';
+import { saveQuiz, fetchQuiz, updateQuiz, updateData, addDataItem, updateDataItem, removeDataItem, updateDataMeta, setDataMetaPath } from 'state/quizzes';
+import { quizSelector, quizItemsSelector, quizMetaSelector } from 'selectors/quizzes';
 
 import Loader from 'components/loader';
 import QuizEditor from 'components/quiz-editor';
@@ -11,6 +11,12 @@ import QuizEditor from 'components/quiz-editor';
 class EditQuizPage extends React.Component {
   componentDidMount() {
     this.props.loadQuiz();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.params.id !== this.props.params.id) {
+      this.props.loadQuiz();
+    }
   }
 
   render() {
@@ -24,26 +30,34 @@ class EditQuizPage extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  quiz: quizSelector(state),
-  items: quizItemsSelector(state),
-  loading: !!state.editQuiz.loading
-});
+const mapStateToProps = (state, ownProps) => {
+  const quizId = ownProps.params.id;
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  loadQuiz: () => dispatch(fetchQuiz(ownProps.params.id)),
-  onTitleChange: title => dispatch(updateQuiz({ title })),
-  onBodyChange: body => dispatch(updateQuiz({ body })),
-  onExpiresAtChange: expiresAt => dispatch(updateQuiz({ expiresAt })),
-  onDataItemChange: (id, update) => dispatch(updateDataItem(id, update)),
-  onRemoveDataItem: id => dispatch(removeDataItem(id)),
-  onDataChange: update => dispatch(updateData(update)),
-  onAddDataItem: item => dispatch(addDataItem(item)),
-  onDataItemOrderChange: order => dispatch(updateData({ items: order })),
-  onDataMetaChange: update => dispatch(updateDataMeta(update)),
-  onDataMetaPathChange: (path, value) => dispatch(setDataMetaPath(path, value)),
-  onSave: () => dispatch(saveQuiz())
-});
+  const quiz = quizSelector(state, quizId);
+  const loading = !!(quizMetaSelector(state, quizId) || {}).loading;
+  const items = quizItemsSelector(state, quizId);
+
+  return { quiz, items, loading }
+}
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const quizId = ownProps.params.id;
+
+  return {
+    loadQuiz: () => dispatch(fetchQuiz(quizId)),
+    onTitleChange: title => dispatch(updateQuiz(quizId, { title })),
+    onBodyChange: body => dispatch(updateQuiz(quizId, { body })),
+    onExpiresAtChange: expiresAt => dispatch(updateQuiz(quizIdd, { expiresAt })),
+    onDataItemChange: (itemId, update) => dispatch(updateDataItem(quizId, itemId, update)),
+    onRemoveDataItem: itemId => dispatch(removeDataItem(quizId, itemId)),
+    onDataChange: update => dispatch(updateData(quizId, update)),
+    onAddDataItem: item => dispatch(addDataItem(quizId, item)),
+    onDataItemOrderChange: order => dispatch(updateData(quizId, { items: order })),
+    onDataMetaChange: update => dispatch(updateDataMeta(quizId, update)),
+    onDataMetaPathChange: (path, value) => dispatch(setDataMetaPath(quizId, path, value)),
+    onSave: () => dispatch(saveQuiz(quizId))
+  }
+}
 
 export default connect(
   mapStateToProps,

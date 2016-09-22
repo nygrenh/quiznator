@@ -8,7 +8,7 @@ class Dashboard extends React.Component {
     return (
       <div className="main-wrapper">
         <Toaster/>
-        <Navigation/>
+        <Navigation location={this.props.location}/>
 
         <div className="container p-t-1 p-b-1">
           {this.props.children}

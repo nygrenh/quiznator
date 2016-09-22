@@ -44,7 +44,7 @@ class Navigation extends React.Component {
   renderLinks() {
     return (
       <NavItem>
-        <Link to={'/dashboard/quizzes'} className={'nav-link'}>
+        <Link to={'/dashboard/quizzes'} className={'nav-link'} activeClassName="active">
           Quizzes
         </Link>
       </NavItem>

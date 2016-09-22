@@ -6,7 +6,7 @@ class QuizPage extends React.Component {
   render() {
     return (
       <div>
-        <QuizPageTabs/>
+        <QuizPageTabs quizId={this.props.params.id} location={this.props.location}/>
 
         <div className="m-t-1">
           {this.props.children}
