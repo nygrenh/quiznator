@@ -81,7 +81,7 @@ export function createQuiz() {
       .then(response => {
         dispatch(toggleCreateQuizModal());
         dispatch(resetForm());
-        dispatch(push(`/dashboard/quizzes/${response.payload.data._id}`));
+        dispatch(push(`/dashboard/quizzes/${response.payload.data._id}/edit`));
       });
   }
 }
