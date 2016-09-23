@@ -71,7 +71,7 @@ class MultipleChoiceQuizEditor extends React.Component {
         </div>
 
         <div>
-          <Button color="secondary" onClick={this.toggleEditMetaData.bind(this)}>
+          <Button color="secondary" onClick={this.toggleEditMetaData.bind(this)} active={this.state.editMetaData}>
             <Icon name="pencil"/> Edit meta data
           </Button>
 

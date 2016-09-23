@@ -1,4 +1,4 @@
-import quizRoutes from './dashboard/routes/quizzes';
+import quizzesRoutes from './dashboard/routes/quizzes';
 
 import Home from './dashboard/pages/home';
 import Dashboard from './dashboard/pages/dashboard';
@@ -10,7 +10,7 @@ const routes = {
     component: Home
   },
   childRoutes: [
-    quizRoutes
+    quizzesRoutes
   ]
 };
 

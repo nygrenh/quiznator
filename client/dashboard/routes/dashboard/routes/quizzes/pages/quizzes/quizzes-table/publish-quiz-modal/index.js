@@ -64,7 +64,7 @@ class PublishQuizModal extends React.Component {
         </Alert>
 
         <p>
-          You can read more about Quiznator's API in the <a href="https://github.com/rage/quiznator/wiki" target="_blank">wiki</a>.
+          You can read more about Quiznator's API in the <a href="https://github.com/rage/quiznator#quiznator" target="_blank">readme</a>.
         </p>
       </div>
     )

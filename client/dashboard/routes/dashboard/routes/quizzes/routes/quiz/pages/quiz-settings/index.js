@@ -1,12 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { FormGroup, Button } from 'reactstrap';
+import { FormGroup, Button, FormText } from 'reactstrap';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
 import { quizSelector, quizMetaSelector } from 'selectors/quizzes';
 import { fetchQuiz, saveQuiz, updateQuiz, removeQuiz } from 'state/quizzes';
 
+import confirmation from 'components/confirmation';
 import Loader from 'components/loader';
 import Alert from 'common-components/alert';
 import Icon from 'components/icon';
@@ -58,6 +59,10 @@ class QuizSettings extends React.Component {
         <FormGroup>
           <label>Expires at</label>
           <DatePicker dateFormat="DD.MM.YYYY" className="form-control" selected={this.getExpiresAt()} onChange={this.onExpiresAtChange.bind(this)}/>
+
+          <FormText color="muted" className="m-b-1">
+            The quiz will expire at 00:00 UTC on the chosen date. After the quiz has expired, it can be no longer answered to.
+          </FormText>
         </FormGroup>
 
         {this.renderExpiresAtAlert()}
@@ -69,6 +74,16 @@ class QuizSettings extends React.Component {
     )
   }
 
+  renderRemoveButton() {
+    const ButtonWithConfirmation = confirmation()(Button);
+
+    return (
+      <ButtonWithConfirmation type="submit" color="danger" id="remove-quiz-button" onConfirm={this.props.onRemove}>
+        <Icon name="trash"/> Remove quiz
+      </ButtonWithConfirmation>
+    );
+  }
+
   renderContent() {
     return (
       <div>
@@ -76,9 +91,7 @@ class QuizSettings extends React.Component {
 
         <hr/>
 
-        <Button color="danger" onClick={this.props.onRemove}>
-          <Icon name="trash"/> Remove quiz
-        </Button>
+        {this.renderRemoveButton()}
       </div>
     )
   }
