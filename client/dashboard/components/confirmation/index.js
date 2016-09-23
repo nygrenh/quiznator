@@ -32,9 +32,17 @@ const confirmation = options => Component => class extends React.Component {
     this.props.onConfirm();
   }
 
+  togglePopover() {
+    const popoverIsOpen = !this.state.popoverIsOpen;
+
+    this.setState({
+      popoverIsOpen
+    });
+  }
+
   renderPopover() {
     return (
-      <Popover placement="bottom" isOpen={this.state.popoverIsOpen} target={this.props.id} toggle={() => {}}>
+      <Popover placement="bottom" isOpen={this.state.popoverIsOpen} target={this.props.id} toggle={this.togglePopover.bind(this)}>
         <PopoverTitle>Are you sure about that?</PopoverTitle>
         <PopoverContent>
           <div className="text-xs-center">
