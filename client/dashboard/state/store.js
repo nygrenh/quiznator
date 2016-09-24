@@ -11,10 +11,17 @@ import { getTokens } from 'common-utils/authentication';
 import axiosClient from 'common-utils/axios-client';
 import { includeAccessToken, accessTokenErrorHandler } from 'utils/authentication-interceptors';
 
+const axiosOptions = {
+  interceptors: {
+    request: [includeAccessToken],
+    response: [accessTokenErrorHandler]
+  }
+}
+
 export default createStore(
   reducer,
   {
     tokens: getTokens()
   },
-  applyMiddleware(thunk, routerMiddleware(browserHistory), axiosMiddleware(axiosClient, { interceptors: { request: [includeAccessToken], response: [accessTokenErrorHandler] } }))
+  applyMiddleware(thunk, routerMiddleware(browserHistory), axiosMiddleware(axiosClient, axiosOptions))
 );

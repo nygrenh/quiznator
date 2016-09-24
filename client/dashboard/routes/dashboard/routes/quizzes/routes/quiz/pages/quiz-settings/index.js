@@ -41,7 +41,7 @@ class QuizSettings extends React.Component {
     return this.props.quiz.expiresAt
       ? (
         <Alert type="info">
-          The quiz will expire at {moment(this.props.quiz.expiresAt).format('D. MMMM HH:mm')}
+          The quiz will expire at {moment(this.props.quiz.expiresAt).utc().format('D. MMMM HH:mm')} UTC
         </Alert>
       )
       : null;

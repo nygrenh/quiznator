@@ -1,4 +1,4 @@
-import get from 'lodash.get';
+import _get from 'lodash.get';
 
 import { createTemporalAlert } from 'state/quiz-alerts';
 import { PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
@@ -10,14 +10,14 @@ export const FETCH_QUIZ_ANSWER = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER';
 export const FETCH_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER_SUCCESS';
 
 function validateAnswerData(data, quiz) {
-  const rightAnswer = get(quiz, 'data.meta.rightAnswer');
+  const rightAnswer = _get(quiz, 'data.meta.rightAnswer');
 
   const isRightAnswer = typeof rightAnswer === 'object'
     ? rightAnswer.indexOf(data) >= 0
     : data !== rightAnswer;
 
   if(rightAnswer && !isRightAnswer) {
-    return get(quiz, `data.meta.errors.${data}`) || 'Wrong answer';
+    return _get(quiz, `data.meta.errors.${data}`) || 'Wrong answer';
   }
 }
 
@@ -26,14 +26,14 @@ export function createQuizAnswer({ quizId, data }) {
     const { user, quizzes } = getState();
 
     const quiz = quizzes[quizId].data;
-    const hasRightAnswer = !!get(quiz, 'data.meta.rightAnswer');
+    const hasRightAnswer = !!_get(quiz, 'data.meta.rightAnswer');
 
     if(!user.id || !quiz) {
       return Promise.resolve();
     }
 
     const errorMessage = validateAnswerData(data, quiz);
-    const successMessage = get(quiz, `data.meta.successes.${data}`) || 'Right answer';
+    const successMessage = _get(quiz, `data.meta.successes.${data}`) || 'Right answer';
 
     if(hasRightAnswer && errorMessage) {
       dispatch(createTemporalAlert({ content: errorMessage, quizId, type: 'danger', removeDelay: 15000 }));
@@ -41,7 +41,7 @@ export function createQuizAnswer({ quizId, data }) {
       dispatch(createTemporalAlert({ content: successMessage, quizId, type: 'success', removeDelay: 15000 }));
     }
 
-    return dispatch(postQuizAnswer({ quizId, data, answererId: user.id }));
+    return dispatch(createQuizAnswerRequest({ quizId, data }));
   }
 }
 
@@ -59,7 +59,7 @@ export function getQuizAnswer({ quizId }) {
   }
 }
 
-export function postQuizAnswer({ quizId, data, answererId }) {
+export function createQuizAnswerRequest({ quizId, data }) {
   return {
     type: POST_QUIZ_ANSWER,
     quizId,
@@ -68,8 +68,7 @@ export function postQuizAnswer({ quizId, data, answererId }) {
         url: `/quizzes/${quizId}/answers`,
         method: 'POST',
         data: {
-          data,
-          answererId
+          data
         }
       }
     }

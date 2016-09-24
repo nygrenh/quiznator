@@ -16,7 +16,7 @@ function oauthGrant() {
 function quiznatorGrant() {
   return flow.series(
     (req, res, next) => {
-      const clientCredentials = new Buffer(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString('base64');
+      const clientCredentials = new Buffer(`${process.env.QUIZNATOR_CLIENT_ID}:${process.env.QUIZNATOR_CLIENT_SECRET}`).toString('base64');
 
       req.headers['authorization'] = `Basic ${clientCredentials}`;
 
@@ -38,8 +38,6 @@ function removeUsersTokens(getUserId) {
           if(token.clientId) {
             query = Object.assign({}, query, { clientId: token.clientId });
           }
-
-          console.log(query);
 
           return Promise.all([
             oauthModels.AccessToken.remove(query),

@@ -6,7 +6,7 @@ const Quiz = require('app-modules/models/quiz');
 function createPeerReviewForQuiz(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
-    const attributes = Object.assign({}, options.getAttributes(req), { quizId });
+    const attributes = Object.assign({}, options.getAttributes(req), { quizId, giverAnswererId: options.getGiverAnswererId(req) });
 
     const newPeerReview = new PeerReview(attributes);
 

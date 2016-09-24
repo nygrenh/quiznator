@@ -9,6 +9,8 @@ export function loadPeerReviews(quizId) {
 
     if(user.id) {
       return dispatch(fetchPeerReviews({ quizId, answererId: user.id }));
+    } else {
+      return Promise.resolve();
     }
   }
 }
@@ -24,15 +26,18 @@ export function createPeerReview({ quizId, sourceQuizId }) {
       sourceQuizId,
       review,
       chosenQuizAnswerId,
-      rejectedQuizAnswerId,
-      giverAnswererId: state.user.id
+      rejectedQuizAnswerId
     }
 
-    return dispatch(postPeerReviews(peerReview));
+    if(user.id) {
+      return dispatch(createPeerReviewRequest(peerReview));
+    } else {
+      return Promise.resolve();
+    }
   }
 }
 
-export function postPeerReviews(peerReview) {
+export function createPeerReviewRequest(peerReview) {
   return {
     type: POST_PEER_REVIEWS,
     peerReview,

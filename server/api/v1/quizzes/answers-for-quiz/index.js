@@ -1,6 +1,7 @@
 const router = require('express').Router({ mergeParams: true });
 
 const authenticationMiddlewares = require('app-modules/middlewares/authentication');
+const TMCMiddlewares = require('app-modules/middlewares/tmc');
 const middlewares = require('./middlewares');
 
 function getDefaultSearchFilters(filters) {
@@ -37,9 +38,10 @@ router.get('/:answererId',
   });
 
 router.post('/',
+  TMCMiddlewares.getProfile(),
   middlewares.createQuizAnswer({
     getAttributes: req => req.body,
-    getAnswererId: req => req.body.answererId,
+    getAnswererId: req => req.TMCProfile.username,
     getQuizId: req => req.params.id
   }),
   (req, res, next) => {

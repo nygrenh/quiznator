@@ -1,3 +1,5 @@
 node_modules
 dist
 .DS_Store
+tmc-client.config.js
+quiznator-client.config.js
