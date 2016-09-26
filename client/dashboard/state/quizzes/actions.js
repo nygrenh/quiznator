@@ -58,7 +58,7 @@ export function removeQuiz(quizId) {
     dispatch(removeQuizRequest(quizId))
       .then(response => {
         dispatch(push('/dashboard/quizzes'));
-        
+
         dispatch(createToast({
           type: 'success',
           content: 'Quiz has been removed'
@@ -95,11 +95,18 @@ export function saveQuiz(quizId) {
 
     return dispatch(saveQuizRequest(quizId, newQuiz.value))
       .then(response => {
-        dispatch(createToast({
-          type: 'success',
-          content: 'Quiz has been saved'
-        }));
-      })
+        if(response.error) {
+          dispatch(createToast({
+            type: 'danger',
+            content: 'Couldn\'t save the quiz'
+          }));
+        } else {
+          dispatch(createToast({
+            type: 'success',
+            content: 'Quiz has been saved'
+          }));
+        }
+      });
   }
 }
 

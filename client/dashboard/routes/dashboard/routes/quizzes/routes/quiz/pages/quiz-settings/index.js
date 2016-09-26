@@ -61,7 +61,7 @@ class QuizSettings extends React.Component {
           <DatePicker dateFormat="DD.MM.YYYY" className="form-control" selected={this.getExpiresAt()} onChange={this.onExpiresAtChange.bind(this)}/>
 
           <FormText color="muted" className="m-b-1">
-            The quiz will expire at 00:00 UTC on the chosen date. After the quiz has expired, it can be no longer answered to.
+            The quiz will expire at 23:59 UTC on the chosen date. After the quiz has expired, it can be no longer answered to.
           </FormText>
         </FormGroup>
 
