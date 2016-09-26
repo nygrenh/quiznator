@@ -1,9 +1,15 @@
 import scour from 'scourjs';
-import get from 'lodash.get';
+import _get from 'lodash.get';
 
 import { createReducer } from 'redux-create-reducer';
 
-import { SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER, FETCH_QUIZ_ANSWER_SUCCESS, POST_QUIZ_ANSWER, POST_QUIZ_ANSWER_SUCCESS } from './actions';
+import { SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER, FETCH_QUIZ_ANSWER_SUCCESS, POST_QUIZ_ANSWER, POST_QUIZ_ANSWER_FAIL, POST_QUIZ_ANSWER_SUCCESS } from './actions';
+
+function setNotSubmitting(state, quizId) {
+  return scour(state)
+    .go(quizId)
+    .extend({ submitting: false });
+}
 
 export default createReducer({}, {
   [SET_QUIZ_ANSWER_DATA_PATH](state, action) {
@@ -20,7 +26,7 @@ export default createReducer({}, {
       .value;
   },
   [FETCH_QUIZ_ANSWER_SUCCESS](state, action) {
-    if(get(action, 'payload.data[0]')) {
+    if(_get(action, 'payload.data[0]')) {
       const answer = action.payload.data[0];
 
       return scour(state)
@@ -40,12 +46,9 @@ export default createReducer({}, {
       .value;
   },
   [POST_QUIZ_ANSWER_SUCCESS](state, action) {
-    const quizId = action.meta.previousAction.quizId;
-
-    return scour(state)
-      .go(quizId)
-      .extend({ submitting: false })
-      .root
-      .value;
+    return setNotSubmitting(state, action.meta.previousAction.quizId).value;
+  },
+  [POST_QUIZ_ANSWER_FAIL](state, action) {
+    return setNotSubmitting(state, action.meta.previousAction.quizId).value;
   }
 });

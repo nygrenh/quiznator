@@ -21,19 +21,4 @@ function getProfile(getAccessToken) {
   }
 }
 
-function grantWithPassword(options) {
-  return (req, res, next) => {
-    const username = options.getUsername(req);
-    const password = options.getPassword(req);
-
-    TMCApi.getAccessTokenWithCredentials(username, password)
-      .then(response => {
-        req.tokens = response;
-
-        return next();
-      })
-      .catch(err => next(err));
-  }
-}
-
-module.exports = { getProfile, grantWithPassword };
+module.exports = { getProfile };

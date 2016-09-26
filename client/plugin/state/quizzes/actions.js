@@ -22,8 +22,12 @@ export function submitQuiz(id) {
       : dispatch(createQuizAnswer({ quizId: id, data: quizAnswers[id].data }));
 
     createPromise
-      .then(() => {
-        return dispatch(createTemporalAlert({ quizId: id, type: 'success', content: 'Your answer has been saved' }));
+      .then(response => {
+        if(response.error) {
+          return dispatch(createTemporalAlert({ quizId: id, type: 'danger', content: 'Couldn\'t save your answer' }));
+        } else {
+          return dispatch(createTemporalAlert({ quizId: id, type: 'success', content: 'Your answer has been saved' }));
+        }
       });
   }
 }

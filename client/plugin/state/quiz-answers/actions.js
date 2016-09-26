@@ -3,11 +3,12 @@ import _get from 'lodash.get';
 import { createTemporalAlert } from 'state/quiz-alerts';
 import { PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
 
-export const SET_QUIZ_ANSWER_DATA_PATH = 'QUIZ_ANSWERS_SET_QUIZ_ANSWERS_DATA_PATH';
-export const POST_QUIZ_ANSWER = 'QUIZ_ANSWERS_POST_QUIZ_ANSWER';
-export const POST_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS_POST_QUIZ_ANSWER_SUCCESS';
-export const FETCH_QUIZ_ANSWER = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER';
-export const FETCH_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS_FETCH_QUIZ_ANSWER_SUCCESS';
+export const SET_QUIZ_ANSWER_DATA_PATH = 'QUIZ_ANSWERS::SET_QUIZ_ANSWERS_DATA_PATH';
+export const POST_QUIZ_ANSWER = 'QUIZ_ANSWERS::POST_QUIZ_ANSWER';
+export const POST_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS::POST_QUIZ_ANSWER_SUCCESS';
+export const POST_QUIZ_ANSWER_FAIL = 'QUIZ_ANSWERS::POST_QUIZ_ANSWER_FAIL';
+export const FETCH_QUIZ_ANSWER = 'QUIZ_ANSWERS::FETCH_QUIZ_ANSWER';
+export const FETCH_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS::FETCH_QUIZ_ANSWER_SUCCESS';
 
 function validateAnswerData(data, quiz) {
   const rightAnswer = _get(quiz, 'data.meta.rightAnswer');

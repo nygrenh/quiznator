@@ -13,6 +13,8 @@ function oauthGrant() {
   return oauthServer.grant()
 }
 
+console.log(process.env.QUIZNATOR_CLIENT_ID, process.env.QUIZNATOR_CLIENT_SECRET)
+
 function quiznatorGrant() {
   return flow.series(
     (req, res, next) => {
@@ -66,7 +68,7 @@ function authorize() {
 
 function generateAuthCode({ getUserId, getClientId }) {
   return (req, res, next) => {
-    const getDefaultClientId = () => process.env.CLIENT_ID;
+    const getDefaultClientId = () => process.env.QUIZNATOR_CLIENT_ID;
 
     const userId = getUserId(req);
     const clientId = (getClientId || getDefaultClientId)(req);

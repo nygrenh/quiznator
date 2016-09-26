@@ -29,6 +29,10 @@ const confirmation = options => Component => class extends React.Component {
   onAccept(e) {
     e.preventDefault();
 
+    this.setState({
+      popoverIsOpen: false
+    });
+
     this.props.onConfirm();
   }
 
