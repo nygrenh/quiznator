@@ -88,7 +88,7 @@ class QuizLoader extends React.Component {
       ? (
         <div className={withClassPrefix('quiz-alert')}>
           <Alert type="info" dismissible={true} onClose={this.onCloseAlert.bind(this, 'isExpiredAlert')}>
-            Quiz has expired
+            This quiz has expired
           </Alert>
         </div>
       )

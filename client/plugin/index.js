@@ -1,4 +1,6 @@
-import 'babel-polyfill';
+try {
+  require('babel-polyfill');
+} catch(e) {}
 
 import React from 'react';
 import { render } from 'react-dom';

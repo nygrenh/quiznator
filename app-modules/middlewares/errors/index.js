@@ -25,8 +25,6 @@ function apiErrorHandler() {
       properties = _.mapValues(err.errors, value => [value.message]);
     }
 
-    console.log(err);
-
     res.status(statusCode).json({ message, properties: err.properties || properties, status: statusCode });
   }
 }

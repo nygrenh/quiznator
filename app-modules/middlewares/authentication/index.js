@@ -13,8 +13,6 @@ function oauthGrant() {
   return oauthServer.grant()
 }
 
-console.log(process.env.QUIZNATOR_CLIENT_ID, process.env.QUIZNATOR_CLIENT_SECRET)
-
 function quiznatorGrant() {
   return flow.series(
     (req, res, next) => {

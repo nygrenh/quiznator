@@ -19,10 +19,9 @@ function id() {
   return (new Date().getTime()).toString(36) + Math.floor(Math.random() * 100).toString(36);
 }
 
-export function updateQuiz(quizId, update) {
+export function updateQuiz(update) {
   return {
     type: UPDATE_QUIZ,
-    quizId,
     update
   }
 }
@@ -53,9 +52,11 @@ export function saveQuizRequest(quizId, update) {
   }
 }
 
-export function removeQuiz(quizId) {
-  return dispatch => {
-    dispatch(removeQuizRequest(quizId))
+export function removeQuiz() {
+  return (dispatch, getState) => {
+    const { editQuiz } = getState();
+
+    dispatch(removeQuizRequest(editQuiz.result))
       .then(response => {
         dispatch(push('/dashboard/quizzes'));
 
@@ -79,13 +80,14 @@ export function removeQuizRequest(quizId) {
   }
 }
 
-export function saveQuiz(quizId) {
+export function saveQuiz() {
   return (dispatch, getState) => {
     const state = getState();
 
-    const items = state.quizzes.entities.items;
+    const quizId = state.editQuiz.result;
+    const items = state.editQuiz.entities.items;
 
-    let newQuiz = scour(state.quizzes.entities.quizzes[quizId])
+    let newQuiz = scour(state.editQuiz.entities.quizzes[quizId])
 
     const quizItems = newQuiz.get('data', 'items');
 
@@ -110,55 +112,49 @@ export function saveQuiz(quizId) {
   }
 }
 
-export function addDataItem(quizId, item) {
+export function addDataItem(item) {
   const newId = id();
 
   return {
     type: ADD_DATA_ITEM,
     itemId: newId,
-    quizId,
     item: Object.assign({}, item, { id: newId })
   }
 }
 
-export function updateDataItem(quizId, itemId, update) {
+export function updateDataItem(itemId, update) {
   return {
     type: UPDATE_DATA_ITEM,
-    quizId,
     itemId,
     update
   }
 }
 
-export function removeDataItem(quizId, itemId) {
+export function removeDataItem(itemId) {
   return {
     type: REMOVE_DATA_ITEM,
-    quizId,
     itemId
   }
 }
 
-export function updateDataMeta(quizId, update) {
+export function updateDataMeta(update) {
   return {
     type: UPDATE_DATA_META,
-    quizId,
     update
   }
 }
 
-export function setDataMetaPath(quizId, path, value) {
+export function setDataMetaPath(path, value) {
   return {
     type: SET_DATA_META_PATH,
-    quizId,
     path,
     value
   }
 }
 
-export function updateData(quizId, update) {
+export function updateData(update) {
   return {
     type: UPDATE_DATA,
-    quizId,
     update
   }
 }

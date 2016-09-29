@@ -1,16 +1,16 @@
 import _get from 'lodash.get';
 import { createSelector } from 'reselect'
 
-export const quizSelector = (state, id) => {
-  return _get(state.quizzes, `entities.quizzes.${id}`);
-}
+export const quizSelector = state => {
+  const quizId = _get(state.editQuiz, 'result');
 
-export const quizMetaSelector = (state, id) => {
-  return _get(state.quizzes, `meta.quizzes.${id}`);
+  return quizId
+    ? _get(state.editQuiz, `entities.quizzes.${quizId}`)
+    : undefined;
 }
 
 export const itemsSelector = state => {
-  return (state.quizzes.entities || {}).items;
+  return _get(state.editQuiz, 'entities.items');
 }
 
 export const quizItemsSelector = createSelector(

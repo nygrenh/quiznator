@@ -1,7 +1,7 @@
-export const FETCH_QUIZ = 'QUIZES_FETCH_QUIZ';
-export const FETCH_QUIZ_SUCCESS = 'QUIZES_FETCH_QUIZ_SUCCESS';
-export const FETCH_QUIZ_FAIL = 'QUIZES_FETCH_QUIZ_FAIL';
-export const SET_QUIZ_AS_SUBMITTED = 'QUIZES_SET_QUIZ_AS_SUBMITTED';
+export const FETCH_QUIZ = 'QUIZZES::FETCH_QUIZ';
+export const FETCH_QUIZ_SUCCESS = 'QUIZZES::FETCH_QUIZ_SUCCESS';
+export const FETCH_QUIZ_FAIL = 'QUIZZES::FETCH_QUIZ_FAIL';
+export const SET_QUIZ_AS_SUBMITTED = 'QUIZZES::SET_QUIZ_AS_SUBMITTED';
 
 import { createQuizAnswer } from 'state/quiz-answers';
 import { createPeerReview } from 'state/peer-reviews';

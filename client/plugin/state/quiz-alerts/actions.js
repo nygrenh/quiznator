@@ -1,7 +1,7 @@
 import delay from 'lodash.delay';
 
-export const CREATE_ALERT = 'QUIZ_ALERTS_CREATE_ALERT';
-export const REMOVE_ALERT = 'QUIZ_ALERTS_REMOVE_ALERT';
+export const CREATE_ALERT = 'QUIZ_ALERTS::CREATE_ALERT';
+export const REMOVE_ALERT = 'QUIZ_ALERTS::REMOVE_ALERT';
 
 let newId = 0;
 

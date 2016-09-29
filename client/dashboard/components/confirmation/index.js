@@ -1,4 +1,5 @@
 import React from 'react';
+import omit from 'lodash.omit';
 import { Popover, PopoverTitle, PopoverContent, ButtonGroup, Button } from 'reactstrap';
 
 import Icon from 'components/icon';
@@ -67,7 +68,7 @@ const confirmation = options => Component => class extends React.Component {
   render() {
     return (
       <div className="display-inline-block">
-        <Component {...this.props} onClick={this.onAction.bind(this)}/>
+        <Component {...omit(this.props, ['onConfirm'])} onClick={this.onAction.bind(this)}/>
 
         {this.renderPopover()}
       </div>

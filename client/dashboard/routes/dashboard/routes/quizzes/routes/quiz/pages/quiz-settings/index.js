@@ -4,8 +4,8 @@ import { FormGroup, Button, FormText } from 'reactstrap';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
-import { quizSelector, quizMetaSelector } from 'selectors/quizzes';
-import { fetchQuiz, saveQuiz, updateQuiz, removeQuiz } from 'state/quizzes';
+import { quizSelector } from 'selectors/edit-quiz';
+import { fetchQuiz, saveQuiz, updateQuiz, removeQuiz } from 'state/edit-quiz';
 
 import confirmation from 'components/confirmation';
 import Loader from 'components/loader';
@@ -107,25 +107,17 @@ class QuizSettings extends React.Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  const quizId = ownProps.params.id;
+const mapStateToProps = state => ({
+  quiz: quizSelector(state),
+  loading: !!state.editQuiz.meta.loading
+})
 
-  const quiz = quizSelector(state, quizId);
-  const loading = !!(quizMetaSelector(state, quizId) || {}).loading;
-
-  return { quiz, loading }
-}
-
-const mapDispatchToProps = (dispatch, ownProps) => {
-  const quizId = ownProps.params.id;
-
-  return {
-    loadQuiz: () => dispatch(fetchQuiz(quizId)),
-    onExpiresAtChange: expiresAt => dispatch(updateQuiz(quizId, { expiresAt })),
-    onSave: () => dispatch(saveQuiz(quizId)),
-    onRemove: () => dispatch(removeQuiz(quizId))
-  }
-}
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  loadQuiz: () => dispatch(fetchQuiz(ownProps.params.id)),
+  onExpiresAtChange: expiresAt => dispatch(updateQuiz({ expiresAt })),
+  onSave: () => dispatch(saveQuiz()),
+  onRemove: () => dispatch(removeQuiz())
+});
 
 export default connect(
   mapStateToProps,
