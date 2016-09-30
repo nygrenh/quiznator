@@ -7,7 +7,7 @@ import PeerReviewReceived from './peer-review-received';
 import { quizPropsTypes, quizDefaultProps } from 'components/quiz';
 import { loadPeerReviewsReceived } from 'state/peer-reviews-received';
 import withClassPrefix from 'utils/class-prefix';
-import userResourceLoader from 'utils/user-resource-loader';
+import userResourceLoader from 'components/user-resource-loader';
 
 class PeerReviewsReceivedQuiz extends React.Component {
   renderReviews() {
@@ -54,8 +54,7 @@ PeerReviewsReceivedQuiz.propTypes = Object.assign({},
 PeerReviewsReceivedQuiz.defaultProps = Object.assign({},
   quizDefaultProps,
   {
-    peerReviews: {},
-    loadPeerReviewsReceived: () => {}
+    peerReviews: {}
   }
 );
 
@@ -63,15 +62,10 @@ const mapStateToProps = (state, ownProps) => ({
   peerReviews: state.peerReviewsReceived[ownProps.quiz.data.quizId]
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  loadPeerReviewsReceived: () => dispatch(loadPeerReviewsReceived(ownProps.quiz.data.quizId))
-});
-
 const withUserResourceLoader = userResourceLoader({
   dispatcher: (dispatch, ownProps) => dispatch(loadPeerReviewsReceived(ownProps.quiz.data.quizId))
 })(PeerReviewsReceivedQuiz);
 
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(withUserResourceLoader);

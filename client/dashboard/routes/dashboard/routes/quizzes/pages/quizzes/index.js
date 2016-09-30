@@ -26,24 +26,26 @@ class Quizzes extends React.Component {
   }
 
   renderTable() {
-    return (
-      <div>
-        {this.renderHeader()}
-        <QuizzesTable/>
-        <Paginator activePage={this.props.currentPage} totalPages={this.props.totalPages} onChange={this.props.onUpdatePage}/>
-        <CreateQuizModal/>
-      </div>
-    )
+    if(this.props.loading) {
+      return <Loader/>;
+    } else {
+      return (
+        <div>
+          <QuizzesTable/>
+          <Paginator activePage={this.props.currentPage} totalPages={this.props.totalPages} onChange={this.props.onUpdatePage}/>
+        </div>
+      );
+    }
   }
 
   render() {
-    if(this.props.loading) {
-      return <Loader/>
-    } else if(this.props.quizzes) {
-      return this.renderTable();
-    } else {
-      return null;
-    }
+    return (
+      <div>
+        {this.renderHeader()}
+        {this.renderTable()}
+        <CreateQuizModal/>
+      </div>
+    )
   }
 }
 

@@ -22,10 +22,8 @@ class EditQuiz extends React.Component {
   render() {
     if(this.props.loading) {
       return <Loader/>;
-    } else if(this.props.quiz) {
-      return <QuizEditor {...omit(this.props, ['loading', 'loadQuiz'])}/>
     } else {
-      return null;
+      return <QuizEditor {...omit(this.props, ['loading', 'loadQuiz'])}/>;
     }
   }
 }

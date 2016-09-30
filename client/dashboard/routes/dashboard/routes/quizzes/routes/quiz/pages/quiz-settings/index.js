@@ -7,8 +7,8 @@ import moment from 'moment';
 import { quizSelector } from 'selectors/edit-quiz';
 import { fetchQuiz, saveQuiz, updateQuiz, removeQuiz } from 'state/edit-quiz';
 
-import confirmation from 'components/confirmation';
 import Loader from 'components/loader';
+import confirmation from 'components/confirmation';
 import Alert from 'common-components/alert';
 import Icon from 'components/icon';
 
@@ -99,10 +99,8 @@ class QuizSettings extends React.Component {
   render() {
     if(this.props.loading) {
       return <Loader/>;
-    } else if(this.props.quiz) {
-      return this.renderContent();
     } else {
-      return null;
+      return this.renderContent();
     }
   }
 }

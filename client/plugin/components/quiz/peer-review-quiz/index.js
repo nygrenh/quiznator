@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import get from 'lodash.get';
+import _get from 'lodash.get';
 
 import Loader from 'components/loader';
 import PeerReview from './peer-review';
@@ -9,7 +9,7 @@ import SubmitButton from 'components/quiz/submit-button';
 import { quizPropsTypes, quizDefaultProps } from 'components/quiz';
 import { loadPeerReviews } from 'state/peer-reviews';
 import withClassPrefix from 'utils/class-prefix';
-import userResourceLoader from 'utils/user-resource-loader';
+import userResourceLoader from 'components/user-resource-loader';
 
 class PeerReviewQuiz extends React.Component {
   onChoosePeerReview(chosen, rejected) {
@@ -30,11 +30,11 @@ class PeerReviewQuiz extends React.Component {
   }
 
   getChosenReview() {
-    return get(this.props.answer, 'data.chosenQuizAnswerId');
+    return _get(this.props.answer, 'data.chosenQuizAnswerId');
   }
 
   validate() {
-    return this.getChosenReview() && get(this.props.answer, 'data.review');
+    return this.getChosenReview() && _get(this.props.answer, 'data.review');
   }
 
   onSubmit(e) {
@@ -121,14 +121,9 @@ PeerReviewQuiz.propTypes = Object.assign({},
 PeerReviewQuiz.defaultProps = Object.assign({},
   quizDefaultProps,
   {
-    peerReviews: {},
-    loadPeerReviews: () => {}
+    peerReviews: {}
   }
 );
-
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  loadPeerReviews: () => dispatch(loadPeerReviews(ownProps.quiz.data.quizId))
-});
 
 const mapStateToProps = (state, ownProps) => {
   return {
@@ -141,6 +136,5 @@ const withUserResourceLoader = userResourceLoader({
 })(PeerReviewQuiz);
 
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(withUserResourceLoader);

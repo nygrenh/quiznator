@@ -2,9 +2,12 @@ import scour from 'scourjs';
 
 import { createReducer } from 'redux-create-reducer';
 
-import { FETCH_PEER_REVIEWS, FETCH_PEER_REVIEWS_FAIL, FETCH_PEER_REVIEWS_SUCCESS } from './actions';
+import { REMOVE_PEER_REVIEWS, FETCH_PEER_REVIEWS, FETCH_PEER_REVIEWS_FAIL, FETCH_PEER_REVIEWS_SUCCESS } from './actions';
 
 export default createReducer({}, {
+  [REMOVE_PEER_REVIEWS](state, action) {
+    return {};
+  },
   [FETCH_PEER_REVIEWS](state, action) {
     return scour(state)
       .set([action.quizId, 'loading'], true)

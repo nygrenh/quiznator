@@ -4,6 +4,6 @@ import { SET_USER } from './actions';
 
 export default createReducer({}, {
   [SET_USER](state, action) {
-    return Object.assign({}, state, action.user);
+    return Object.assign({}, action.user);
   }
 });

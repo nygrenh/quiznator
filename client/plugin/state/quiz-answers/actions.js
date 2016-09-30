@@ -3,6 +3,7 @@ import _get from 'lodash.get';
 import { createTemporalAlert } from 'state/quiz-alerts';
 import { PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
 
+export const REMOVE_QUIZ_ANSWERS = 'QUIZ_ANSWERS::REMOVE_QUIZ_ANSWERS';
 export const SET_QUIZ_ANSWER_DATA_PATH = 'QUIZ_ANSWERS::SET_QUIZ_ANSWERS_DATA_PATH';
 export const POST_QUIZ_ANSWER = 'QUIZ_ANSWERS::POST_QUIZ_ANSWER';
 export const POST_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS::POST_QUIZ_ANSWER_SUCCESS';
@@ -43,6 +44,12 @@ export function createQuizAnswer({ quizId, data }) {
     }
 
     return dispatch(createQuizAnswerRequest({ quizId, data }));
+  }
+}
+
+export function removeQuizAnswers() {
+  return {
+    type: REMOVE_QUIZ_ANSWERS
   }
 }
 

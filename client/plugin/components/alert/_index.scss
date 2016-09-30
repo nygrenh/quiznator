@@ -3,6 +3,7 @@
   margin-bottom: 1rem;
   border: 1px solid transparent;
   border-radius: .25rem;
+  position: relative;
 
   &.alert-success {
     background-color: #dff0d8;
@@ -27,20 +28,19 @@
   }
 
   &.alert-dismissible {
-    padding-right: 2rem;
+    padding-right: 2.5rem;
   }
 
   .close {
     outline: none;
-    float: right;
+    position: absolute;
+    right: 1rem;
+    top: 0.8rem;
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
     text-shadow: 0 1px 0 #fff;
     opacity: .2;
-    position: relative;
-    top: -.2rem;
-    right: -1rem;
     color: inherit;
     appearance: none;
     background-color: transparent;

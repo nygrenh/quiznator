@@ -1,3 +1,4 @@
+export const REMOVE_PEER_REVIEWS = 'PEER_REVIEWS::REMOVE_PEER_REVIEWS';
 export const FETCH_PEER_REVIEWS = 'PEER_REVIEWS::FETCH_PEER_REVIEWS';
 export const FETCH_PEER_REVIEWS_SUCCESS = 'PEER_REVIEWS::FETCH_PEER_REVIEWS_SUCCESS';
 export const FETCH_PEER_REVIEWS_FAIL = 'PEER_REVIEWS::FETCH_PEER_REVIEWS_FAIL';
@@ -12,6 +13,12 @@ export function loadPeerReviews(quizId) {
     } else {
       return Promise.resolve();
     }
+  }
+}
+
+export function removePeerReviews() {
+  return {
+    type: REMOVE_PEER_REVIEWS
   }
 }
 

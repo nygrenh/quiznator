@@ -4,7 +4,7 @@ const authenticationMiddlewares = require('app-modules/middlewares/authenticatio
 const TMCMiddlewares = require('app-modules/middlewares/tmc');
 const middlewares = require('./middlewares');
 
-function getDefaultSearchFilters(filters) {
+function getSearchFilters(filters) {
   return {
     getQuizId: filters.getQuizId || (req => req.params.id),
     getAnswererId: filters.getAnswererId || (req => req.query.answererId),
@@ -20,19 +20,15 @@ router.get('/',
     getUserId: req => req.userId,
     getQuizId: req => req.params.id,
   }),
-  middlewares.getQuizsAnswers(getDefaultSearchFilters({})),
+  middlewares.getQuizsAnswers(getSearchFilters({})),
   (req, res, next) => {
     res.json(req.quizsAnswers);
   });
 
 router.get('/:answererId',
-  middlewares.getQuizsAnswers({
-    getQuizId: req => req.params.id,
-    getAnswererId: req => req.params.answererId,
-    getSortBy: req => req.query.sortBy,
-    getLimit: req => req.query.limit,
-    getSkip: req => req.query.skip
-  }),
+  middlewares.getQuizsAnswers(getSearchFilters({
+    getAnswererId: req => req.params.answererId
+  })),
   (req, res, next) => {
     res.json(req.quizsAnswers);
   });

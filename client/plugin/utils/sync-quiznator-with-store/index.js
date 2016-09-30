@@ -1,4 +1,4 @@
-import { setUser } from 'state/user';
+import { setUser, removeUser } from 'state/user';
 
 const nop = () => () => {};
 
@@ -11,6 +11,10 @@ function syncQuiznatorWithStore(store) {
     } else {
       store.dispatch(setUser(user));
     }
+  }
+
+  self.removeUser = () => {
+    store.dispatch(removeUser());
   }
 
   return self;

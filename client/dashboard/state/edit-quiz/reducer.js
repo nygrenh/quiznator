@@ -8,7 +8,7 @@ import quizSchema from 'schemas/quiz';
 import { FETCH_QUIZ, FETCH_QUIZ_SUCCESS, UPDATE_QUIZ, ADD_DATA_ITEM, UPDATE_DATA_ITEM, REMOVE_DATA_ITEM, UPDATE_DATA, UPDATE_DATA_META, SET_DATA_META_PATH } from './actions';
 
 const initialState = {
-  meta: { loading: false }
+  meta: { loading: true }
 }
 
 export default createReducer(initialState, {
