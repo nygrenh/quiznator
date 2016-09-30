@@ -5,21 +5,15 @@ import { createReducer } from 'redux-create-reducer';
 
 import { REMOVE_QUIZ_ANSWERS, SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER, FETCH_QUIZ_ANSWER_SUCCESS, POST_QUIZ_ANSWER, POST_QUIZ_ANSWER_FAIL, POST_QUIZ_ANSWER_SUCCESS } from './actions';
 
-const initialState = {
-  meta: {
-    latestAnswer: null
-  }
-}
-
 function setNotSubmitting(state, quizId) {
   return scour(state)
     .go(quizId)
     .extend({ submitting: false });
 }
 
-export default createReducer(initialState, {
+export default createReducer({}, {
   [REMOVE_QUIZ_ANSWERS](state, action) {
-    return Object.assign({}, initialState);
+    return {};
   },
   [SET_QUIZ_ANSWER_DATA_PATH](state, action) {
     return scour(state)
@@ -55,9 +49,7 @@ export default createReducer(initialState, {
       .value;
   },
   [POST_QUIZ_ANSWER_SUCCESS](state, action) {
-    return setNotSubmitting(state, action.meta.previousAction.quizId)
-      .set(['meta', 'latestAnswer'], action.payload.data)
-      .value;
+    return setNotSubmitting(state, action.meta.previousAction.quizId).value;
   },
   [POST_QUIZ_ANSWER_FAIL](state, action) {
     return setNotSubmitting(state, action.meta.previousAction.quizId).value;

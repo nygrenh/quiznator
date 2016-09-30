@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 import axiosMiddleware from 'redux-axios-middleware';
 
 import quizAnswerFetchLogic from 'middlewares/quiz-answer-fetch-logic';
+import actionPublish from 'middlewares/action-publish';
 
 import reducer from './reducer';
 
@@ -18,5 +19,5 @@ const axiosOptions = {
 
 export default createStore(
   reducer,
-  applyMiddleware(thunk, quizAnswerFetchLogic, axiosMiddleware(axiosClient, axiosOptions))
+  applyMiddleware(thunk, quizAnswerFetchLogic, axiosMiddleware(axiosClient, axiosOptions), actionPublish)
 );
