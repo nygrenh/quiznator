@@ -20,7 +20,7 @@ document.querySelectorAll('.quiznator-plugin')
     render(
       <Provider store={store}>
         <LazyLoad height={300} once>
-          <QuizLoader id={quiz.getAttribute('quiz-id')}/>
+          <QuizLoader id={quiz.getAttribute('quiz-id') || quiz.getAttribute('data-quiz-id')}/>
         </LazyLoad>
       </Provider>,
       quiz

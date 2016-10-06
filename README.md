@@ -9,7 +9,7 @@
 Add quiz placement snippet to the your HTML page, like so:
 
 ```html
-<div class="quiznator-plugin" quiz-id="myQuizId">
+<div class="quiznator-plugin" data-quiz-id="myQuizId">
 ```
 
 Replace "myQuizId" with the id of your quiz. You can get this snippet from your [quizzes](http://quiznator.herokuapp.com/dashboard/quizzes) page in the Quiznator dashboard.

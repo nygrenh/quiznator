@@ -34,7 +34,7 @@ class PublishQuizModal extends React.Component {
   }
 
   renderContent() {
-    const placementSnippet = `<div class="quiznator-plugin" quiz-id="${this.props.quiz._id}"></div>`;
+    const placementSnippet = `<div class="quiznator-plugin" data-quiz-id="${this.props.quiz._id}"></div>`;
     const quiznatorSnippet = `<script src="${process.env.API_URL}/javascripts/plugin-loader.min.js"></script>`;
 
     return (
