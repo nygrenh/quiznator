@@ -17,7 +17,7 @@ function getProfile(getAccessToken) {
 
         return next();
       })
-      .catch(err => next(err));
+      .catch(err => next(new errors.ForbiddenError('Invalid TMC access token')));
   }
 }
 

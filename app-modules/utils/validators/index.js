@@ -16,7 +16,6 @@ function isUnique(options) {
 
     mongoose.models[options.model].findOne(query)
       .then(object => {
-        console.log(object);
         if(!object) {
           next();
         } else if(object && !this.isNew && this._id.toString() === object._id.toString()) {

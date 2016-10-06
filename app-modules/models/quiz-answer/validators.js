@@ -16,7 +16,7 @@ module.exports = schema => {
     }
 
     const notEmptyString = data => data && typeof data === 'string' && data.length > 0
-    const notEmptyArrayOfStrings = data =>  _.isArray(data) || data.every(value => typeof value === 'string');
+    const notEmptyArrayOfStrings = data => _.isArray(data) && data.every(value => typeof value === 'string');
 
     const typeValidators = {
       [quizTypes.MULTIPLE_CHOICE](data) {

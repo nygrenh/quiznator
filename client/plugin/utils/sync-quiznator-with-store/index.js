@@ -4,14 +4,8 @@ import { subscribe, publish } from 'utils/pubsub';
 import { setUser, removeUser } from 'state/user';
 import { POST_QUIZ_ANSWER_SUCCESS } from 'state/quiz-answers';
 
-const nop = () => () => {};
-
-let id = 0;
-
 function syncQuiznatorWithStore(store) {
   const self = {};
-
-  const subscriptions = {};
 
   self.setUser = user => {
     if(!user || !user.accessToken || !user.id) {
