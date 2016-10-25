@@ -28,7 +28,7 @@ function createScriptBundle({ entryPath, react = true, name, modulesDirectories 
     output: DEST_SCRIPTS,
     getEnv: isDevelopment => {
       return {
-        API_URL: isDevelopment ? 'http://localhost:3000' : 'http://quiznator.herokuapp.com'
+        API_URL: isDevelopment ? 'http://localhost:3000' : 'https://quiznator.herokuapp.com'
       }
     },
     fileName: `${name}.min.js`
