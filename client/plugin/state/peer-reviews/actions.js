@@ -36,7 +36,7 @@ export function createPeerReview({ quizId, sourceQuizId }) {
       rejectedQuizAnswerId
     }
 
-    if(user.id) {
+    if(state.user.id) {
       return dispatch(createPeerReviewRequest(peerReview));
     } else {
       return Promise.resolve();
