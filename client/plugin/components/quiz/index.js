@@ -27,7 +27,7 @@ class Quiz extends React.Component {
     if(this.props.quiz.type && mapQuizTypeToComponent[this.props.quiz.type]) {
       const Component = mapQuizTypeToComponent[this.props.quiz.type];
 
-      return <Component {...this.props}/>
+      return <Component {...this.props} answerSubmitted={this.isSubmitted()}/>
     } else {
       return null;
     }
@@ -45,10 +45,14 @@ class Quiz extends React.Component {
     }
   }
 
+  isSubmitted() {
+    return this.props.answer !== undefined && (this.props.submitted || this.props.answer.isOld);
+  }
+
   render() {
     return (
       <div className={withClassPrefix('quiz-container')}>
-        <QuizHeader isActive={this.props.answer !== undefined && (this.props.submitted || this.props.answer.isOld)}>
+        <QuizHeader isActive={this.isSubmitted()}>
           {this.props.quiz.title}
         </QuizHeader>
 
@@ -76,6 +80,7 @@ export const quizPropsTypes = {
   disabled: React.PropTypes.bool,
   submitted: React.PropTypes.bool,
   submitting: React.PropTypes.bool,
+  answerSubmitted: React.PropTypes.bool,
   user: React.PropTypes.object,
   onSubmit: React.PropTypes.func
 }

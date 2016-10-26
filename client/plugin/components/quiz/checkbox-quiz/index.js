@@ -1,5 +1,5 @@
 import React from 'react';
-import get from 'lodash.get';
+import _get from 'lodash.get';
 
 import withClassPrefix from 'utils/class-prefix';
 
@@ -7,7 +7,7 @@ import SubmitButton from 'components/quiz/submit-button';
 
 class CheckboxQuiz extends React.Component {
   getAnswer() {
-    return get(this.props.answer, 'data') || [];
+    return _get(this.props.answer, 'data') || [];
   }
 
   answerIncludes(id) {
@@ -56,7 +56,7 @@ class CheckboxQuiz extends React.Component {
         </div>
 
         <div className={withClassPrefix('form-group')}>
-          <SubmitButton disabled={submitDisabled} submitting={this.props.submitting}/>
+          <SubmitButton disabled={submitDisabled} submitting={this.props.submitting} submitted={this.props.answerSubmitted}/>
         </div>
       </form>
     )

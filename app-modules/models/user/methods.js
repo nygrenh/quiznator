@@ -30,6 +30,22 @@ module.exports = schema => {
     return toObject;
   }
 
+  schema.virtual('password')
+    .get(function() {
+      return this._password;
+    })
+    .set(function(value) {
+      if (value && value.length < 6) {
+        this.invalidate('password', 'must be at least 6 characters.');
+      }
+
+      if (this.isNew && !value) {
+        this.invalidate('password', 'required');
+      }
+
+      this._password = value;
+    });
+
   schema.pre('save', validators.isUnique({ scope: 'email', model: 'User' }));
 
   schema.pre('save', function(next) {

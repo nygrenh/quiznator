@@ -37,7 +37,7 @@ class EssayQuiz extends React.Component {
         </div>
 
         <div className={withClassPrefix('form-group')}>
-          <SubmitButton disabled={submitDisabled} submitting={this.props.submitting}/>
+          <SubmitButton disabled={submitDisabled} submitting={this.props.submitting} submitted={this.props.answerSubmitted}/>
         </div>
       </form>
     )

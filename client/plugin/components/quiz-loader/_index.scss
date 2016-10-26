@@ -87,6 +87,10 @@
     &.btn-primary {
       @include button($primary-color, white);
     }
+
+    &.btn-success {
+      @include button($success-color, white);
+    }
   }
 
   .radio, .checkbox {

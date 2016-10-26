@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const _ = require('lodash')
+const errors = require('app-modules/errors');
 
 module.exports = schema => {
   schema.statics.findPeerReviewsForAnswerer = function(options) {
@@ -7,7 +9,8 @@ module.exports = schema => {
       .then(chosenQuizAnswerIds => {
         const query = { quizId: mongoose.Types.ObjectId(options.quizId.toString()), answererId: { $ne: options.answererId }, _id: { $nin: chosenQuizAnswerIds } };
 
-        return mongoose.models.QuizAnswer.findDistinctlyByAnswerer(query, { limit: options.limit, skip: options.skip });
+        return mongoose.models.QuizAnswer.findDistinctlyByAnswerer(query, { limit: options.limit + 20, skip: options.skip, sort: { peerReviewCount: 1 } })
+          .then(reviews => _.sampleSize(reviews, options.limit));
       });
   }
 
@@ -23,4 +26,25 @@ module.exports = schema => {
       .limit(options.limit)
       .exec();
   }
+
+  schema.pre('save', function(next) {
+    mongoose.models.QuizAnswer.update({ _id: this.chosenQuizAnswerId }, { $inc: { peerReviewCount: 1 } })
+      .then(() => next())
+      .catch(next);
+  });
+
+  schema.pre('validate', function(next) {
+    if(!this.chosenQuizAnswerId) {
+      return next();
+    }
+
+    errors.withExistsOrError(new errors.NotFoundError(`Couldn't find quiz answer with id ${this.chosenQuizAnswerId}`))
+      (mongoose.models.QuizAnswer.findOne({ _id: this.chosenQuizAnswerId }))
+        .then(chosenAnswer => {
+          this.targetAnswererId = chosenAnswer.answererId;
+
+          next();
+        })
+        .catch(next);
+  });
 }
