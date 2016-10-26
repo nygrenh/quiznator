@@ -32,7 +32,7 @@ class EssayQuiz extends React.Component {
     return (
       <form onSubmit={this.onSubmit()}>
         <div className={withClassPrefix('form-group')}>
-          <textarea disabled={this.props.disabled} className={withClassPrefix('textarea')} value={answerData} rows={5} ref="essay" onChange={this.onEssayChange.bind(this)}>
+          <textarea disabled={this.props.disabled} className={withClassPrefix('textarea')} value={answerData} rows={5} ref="essay" maxLength={5000} onChange={this.onEssayChange.bind(this)}>
           </textarea>
         </div>
 

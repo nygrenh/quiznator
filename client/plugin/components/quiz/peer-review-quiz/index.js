@@ -52,7 +52,7 @@ class PeerReviewQuiz extends React.Component {
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
         <div className={withClassPrefix('form-group')}>
-          <textarea disabled={this.props.disabled} onChange={this.onReviewChange.bind(this)} className={withClassPrefix('textarea')} rows={5} ref="review">
+          <textarea disabled={this.props.disabled} onChange={this.onReviewChange.bind(this)} className={withClassPrefix('textarea')} rows={5} maxLength={5000} ref="review">
           </textarea>
         </div>
 

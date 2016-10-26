@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import LazyLoad from 'react-lazyload';
 
+//import Dashboard from 'components/dashboard';
 import QuizLoader from 'components/quiz-loader';
 import store from 'state/store';
 
@@ -19,10 +20,19 @@ Array.from(document.querySelectorAll('.quiznator-plugin'))
   .forEach(quiz => {
     render(
       <Provider store={store}>
-        <LazyLoad height={300} once>
-          <QuizLoader id={quiz.getAttribute('quiz-id') || quiz.getAttribute('data-quiz-id')}/>
-        </LazyLoad>
+        <QuizLoader id={quiz.getAttribute('quiz-id') || quiz.getAttribute('data-quiz-id')}/>
       </Provider>,
       quiz
     );
   });
+
+/*const dashboardContainer = document.getElementById('quiznator-dashboard');
+
+if(dashboardContainer) {
+  render(
+    <Provider store={store}>
+      <Dashboard/>
+    </Provider>,
+    dashboardContainer
+  );
+}*/

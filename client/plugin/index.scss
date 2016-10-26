@@ -1,2 +1,4 @@
-@import "./styles/**/*.scss";
+@import "./styles/variables.scss";
+@import "./styles/mixins.scss";
+@import "./styles/theme.scss";
 @import "./components/**/*.scss";

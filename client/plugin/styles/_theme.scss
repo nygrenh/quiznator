@@ -1,0 +1,102 @@
+.loading-error-container {
+  padding: $spacing;
+}
+
+.pull-right {
+  float: right;
+}
+
+.pull-left {
+  float: left;
+}
+
+.m-t-0 {
+  margin-top: 0px !important;
+}
+
+.m-t-1 {
+  margin-top: $spacing !important;
+}
+
+.quiz-alert {
+  padding: $spacing $spacing 0rem $spacing;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  padding: .5rem .75rem;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: #55595c;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: .25rem;
+  resize: vertical;
+  outline: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    border-color: fade-out($primary-color, 0.4);
+  }
+}
+
+.form-group {
+  margin-bottom: $spacing;
+
+  &:last-child {
+    margin-bottom: 0rem;
+  }
+}
+
+.text-muted {
+  color: $text-muted !important;
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: .5rem 1rem;
+  font-size: 1rem;
+  border-radius: .25rem;
+
+  &:disabled {
+    @include disabled();
+  }
+
+  &.btn-primary {
+    @include button($primary-color, white);
+  }
+
+  &.btn-success {
+    @include button($success-color, white);
+  }
+}
+
+.radio, .checkbox {
+  margin-bottom: .5rem;
+
+  input[type="radio"], input[type="checkbox"] {
+    margin-right: .5rem;
+
+    &:disabled {
+      @include disabled();
+    }
+  }
+}
+
+form {
+  margin: 0rem;
+}
