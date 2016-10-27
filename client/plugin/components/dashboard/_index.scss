@@ -1,0 +1,18 @@
+.dashboard {
+  color: $font-color;
+  font-family: $font-family;
+  position: fixed;
+  bottom: 1rem;
+  max-width: $max-dashboard-width;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 0.25rem;
+  border: 1px solid $light-grey-border;
+  right: 1rem;
+
+  &__quiz-list {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+  }
+}

@@ -11,3 +11,5 @@ export const typeToLabel = {
   [PEER_REVIEW]: 'Give peer review',
   [PEER_REVIEWS_RECEIVED]: 'View peer reviews'
 }
+
+export const answerableTypes = [MULTIPLE_CHOICE, ESSAY, CHECKBOX];

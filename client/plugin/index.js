@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import LazyLoad from 'react-lazyload';
 
-//import Dashboard from 'components/dashboard';
+import Dashboard from 'components/dashboard';
 import QuizLoader from 'components/quiz-loader';
 import store from 'state/store';
 

@@ -3,7 +3,7 @@ import _get from 'lodash.get';
 
 import { createReducer } from 'redux-create-reducer';
 
-import { REMOVE_QUIZ_ANSWERS, SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER, FETCH_QUIZ_ANSWER_SUCCESS, POST_QUIZ_ANSWER, POST_QUIZ_ANSWER_FAIL, POST_QUIZ_ANSWER_SUCCESS } from './actions';
+import { REMOVE_QUIZ_ANSWERS, SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER, FETCH_QUIZ_ANSWER_SUCCESS, FETCH_PEER_REVIEWS_GIVEN, FETCH_PEER_REVIEWS_GIVEN_SUCCESS, POST_QUIZ_ANSWER, POST_QUIZ_ANSWER_FAIL, POST_QUIZ_ANSWER_SUCCESS } from './actions';
 
 function setNotSubmitting(state, quizId) {
   return scour(state)
@@ -35,6 +35,27 @@ export default createReducer({}, {
       return scour(state)
         .go(answer.quizId)
         .extend({ data: answer.data, isOld: true, loading: false })
+        .root
+        .value;
+    } else {
+      return state;
+    }
+  },
+  [FETCH_PEER_REVIEWS_GIVEN](state, action) {
+    return scour(state)
+      .go(action.quizId)
+      .extend({ loading: true, answererId: action.answererId })
+      .root
+      .value;
+  },
+  [FETCH_PEER_REVIEWS_GIVEN_SUCCESS](state, action) {
+    if(_get(action, 'payload.data[0]')) {
+      const quizId = action.meta.previousAction.quizId;
+      const review = action.payload.data[0];
+
+      return scour(state)
+        .go(quizId)
+        .extend({ data: review, loading: false, isOld: true })
         .root
         .value;
     } else {

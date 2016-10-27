@@ -20,7 +20,23 @@ function createPeerReviewForQuiz(options) {
   }
 }
 
-function getPeerReviewsForQuiz(options) {
+function getPeerReviewsGivenByAnswerer(options) {
+  return (req, res, next) => {
+    const quizId = options.getQuizId(req);
+    const giverAnswererId = options.getAnswererId(req);
+
+
+    PeerReview.find({ quizId, giverAnswererId })
+      .then(reviews => {
+        req.peerReviews = reviews;
+
+        return next();
+      })
+      .catch(err => next(err));
+  }
+}
+
+function getPeerReviewsForAnswerer(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
     const answererId = options.getAnswererId(req);
@@ -41,4 +57,4 @@ function getPeerReviewsForQuiz(options) {
   }
 }
 
-module.exports = { getPeerReviewsForQuiz, createPeerReviewForQuiz };
+module.exports = { getPeerReviewsForAnswerer, createPeerReviewForQuiz, getPeerReviewsGivenByAnswerer };

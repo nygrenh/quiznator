@@ -20,6 +20,12 @@ router.get('/:id',
     res.json(req.quiz);
   });
 
+router.get('/:id/stats',
+  middlewares.getQuizStatsById(req => req.params.id),
+  (req, res, next) => {
+    res.json(req.stats);
+  });
+
 router.put('/:id',
   authenticationMiddlewares.authorize(),
   authenticationMiddlewares.canAccessQuiz({

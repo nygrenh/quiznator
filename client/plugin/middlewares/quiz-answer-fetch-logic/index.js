@@ -1,7 +1,7 @@
-import { FETCH_QUIZ_ANSWER } from 'state/quiz-answers';
+import { FETCH_QUIZ_ANSWER, FETCH_PEER_REVIEWS_GIVEN } from 'state/quiz-answers';
 
 const quizAnswerFetchLogic = store => next => action => {
-  if(action.type === FETCH_QUIZ_ANSWER) {
+  if([FETCH_QUIZ_ANSWER, FETCH_PEER_REVIEWS_GIVEN].includes(action.type)) {
     const { quizAnswers, quizzes } = store.getState();
     const { quizId, answererId } = action;
 

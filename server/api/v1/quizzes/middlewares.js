@@ -55,6 +55,22 @@ function getQuizById(getId) {
   }
 }
 
+function getQuizStatsById(getId) {
+  return (req, res, next) => {
+    const id = getId(req);
+
+    errors.withExistsOrError(new errors.NotFoundError(`Couldn't find quiz with id ${id}`))
+      (Quiz.findOne({ _id: id }))
+        .then(quiz => quiz.getStats())
+        .then(stats => {
+          req.stats = stats;
+
+          return next();
+        })
+        .catch(err => next(err));
+  }
+}
+
 function updateQuiz(options) {
   return (req, res, next) => {
     const allowedAttributes = pick(options.getAttributes(req), ['title', 'data', 'body', 'expiresAt']);
@@ -103,4 +119,4 @@ function createQuiz(options) {
   }
 }
 
-module.exports = { getUsersQuizzes, getQuizById, createQuiz, updateQuiz, removeQuiz };
+module.exports = { getUsersQuizzes, getQuizById, getQuizStatsById, createQuiz, updateQuiz, removeQuiz };

@@ -3,6 +3,7 @@ const router = require('express').Router({ mergeParams: true });
 const authenticationMiddlewares = require('app-modules/middlewares/authentication');
 const TMCMiddlewares = require('app-modules/middlewares/tmc');
 const middlewares = require('./middlewares');
+const validatorMiddlewares = require('app-modules/middlewares/validators');
 
 router.post('/',
   TMCMiddlewares.getProfile(),
@@ -16,9 +17,22 @@ router.post('/',
   });
 
 router.get('/:answererId',
-  middlewares.getPeerReviewsForQuiz({
+  middlewares.getPeerReviewsForAnswerer({
     getAnswererId: req => req.params.answererId,
     getQuizId: req => req.params.id
+  }),
+  (req, res, next) => {
+    res.json(req.peerReviews);
+  });
+
+router.get('/:answererId/given-reviews',
+  validatorMiddlewares.validateQuery({
+    limit: { numericality: true }
+  }),
+  middlewares.getPeerReviewsGivenByAnswerer({
+    getAnswererId: req => req.params.answererId,
+    getQuizId: req => req.params.id,
+    getQuery: req => req.query
   }),
   (req, res, next) => {
     res.json(req.peerReviews);
