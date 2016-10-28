@@ -29,7 +29,7 @@ export function createQuizAnswer({ quizId, data }) {
   return (dispatch, getState) => {
     const { user, quizzes } = getState();
 
-    const quiz = quizzes[quizId].data;
+    const quiz = _get(quizzes, `${quizId}.data`);
     const hasRightAnswer = !!_get(quiz, 'data.meta.rightAnswer');
 
     if(!user.id || !quiz) {
