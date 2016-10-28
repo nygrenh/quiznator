@@ -7,7 +7,7 @@ import * as actions from '../actions';
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
-describe('Quiz answer actions', () => {
+describe('Quiz answers actions', () => {
 
   it('createQuizAnswer should return a function', () => {
     expect(actions.createQuizAnswer({ quizId: '1', data: {} })).toBeA(Function);

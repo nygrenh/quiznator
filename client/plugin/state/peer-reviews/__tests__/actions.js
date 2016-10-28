@@ -7,13 +7,13 @@ import * as actions from '../actions';
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
-describe('Peer review actions', () => {
+describe('Peer reviews actions', () => {
 
   it('loadPeerReviews should return a function', () => {
     expect(actions.loadPeerReviews('1')).toBeA(Function);
   });
 
-  it('loadPeerReviews should not dispatch an action if user.id is not defined', () => {
+  it('loadPeerReviews should not fetch peer reviews if user.id is not defined', () => {
     const getState = () => ({ user: {} });
     const dispatch = expect.createSpy();
 
@@ -22,7 +22,7 @@ describe('Peer review actions', () => {
     expect(dispatch).toNotHaveBeenCalled();
   });
 
-  it('loadPeerReviews should dispatch an action if user.id is defined', () => {
+  it('loadPeerReviews should fetch peer reviews if user.id is defined', () => {
     const store = mockStore({ user: { id: '1' } });
 
     store.dispatch(actions.loadPeerReviews('1'));
@@ -31,7 +31,7 @@ describe('Peer review actions', () => {
 
   });
 
-  it('createPeerReview should dispatch an action when user.id is defined', () => {
+  it('createPeerReview should create a peer review if user.id is defined', () => {
     const review = {
       review: 'Lorem ipsum',
       chosenQuizAnswerId: '1',
