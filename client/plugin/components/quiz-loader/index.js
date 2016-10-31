@@ -164,7 +164,8 @@ class QuizLoader extends React.Component {
     }
 
     return (
-      <div className={withClassPrefix(`quiz-loader`)}>
+      <div className={withClassPrefix(`quiz-loader z-depth-1`)}>
+        <a name={`quiznator-plugin-${this.props.id}`}></a>
         {content}
       </div>
     );

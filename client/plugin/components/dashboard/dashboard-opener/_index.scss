@@ -1,0 +1,21 @@
+.dashboard-opener {
+  position: fixed;
+  bottom: $spacing;
+  right: $spacing;
+  z-index: 99;
+  cursor: pointer;
+
+  &__progress {
+    position: absolute;
+    opacity: 0.5;
+    background-color: white;
+    height: 3px;
+    bottom: 0px;
+    left: 0px;
+  }
+
+  &__details {
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: $spacing / 4;
+  }
+}

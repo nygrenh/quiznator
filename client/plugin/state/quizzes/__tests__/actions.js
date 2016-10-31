@@ -1,8 +1,8 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import expect from 'expect';
-import axiosMiddleware from 'utils/axios-middleware';
 
+import axiosMiddleware from 'utils/axios-middleware';
 import * as actions from '../actions';
 import * as peerReviewActions from 'state/peer-reviews';
 import * as quizAnswersActions from 'state/quiz-answers';

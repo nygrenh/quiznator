@@ -6,6 +6,7 @@ import quizAlerts from './quiz-alerts';
 import user from './user';
 import peerReviews from './peer-reviews';
 import peerReviewsReceived from './peer-reviews-received';
+import dashboard from './dashboard';
 
 export default combineReducers({
   quizzes,
@@ -13,5 +14,6 @@ export default combineReducers({
   quizAlerts,
   user,
   peerReviews,
-  peerReviewsReceived
+  peerReviewsReceived,
+  dashboard
 });

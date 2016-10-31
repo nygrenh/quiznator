@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import { selectQuizAnswers } from 'selectors/quiz-answers';
-import { answerableTypes } from 'common-constants/quiz-types';
+import { answerableTypes, PEER_REVIEW } from 'common-constants/quiz-types';
 
 export const selectQuizzes = state => state.quizzes;
 
@@ -10,8 +10,8 @@ export const selectAnswerableQuizzesWithAnswersAsArray = createSelector(
   selectQuizAnswers,
   (quizzes, answers) => {
     return Object.keys(quizzes)
-      .map(id => Object.assign({}, quizzes[id], { answer: answers[id] || {} }))
-      .filter(quiz => quiz.data && answerableTypes.indexOf(quiz.data.type) >= 0);
+      .map(id => Object.assign({}, quizzes[id], { answer: answers[id] || {}, id }))
+      .filter(quiz => quiz.data && [...answerableTypes, PEER_REVIEW].includes(quiz.data.type));
   }
 );
 

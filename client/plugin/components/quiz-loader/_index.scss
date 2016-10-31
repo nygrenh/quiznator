@@ -5,4 +5,8 @@
   max-width: $max-quiz-width;
   font-family: $font-family;
   color: $font-color;
+
+  a {
+    color: $primary-color;
+  }
 }

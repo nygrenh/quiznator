@@ -9,14 +9,15 @@ import { createStore } from 'redux';
 import LazyLoad from 'react-lazyload';
 
 import Dashboard from 'components/dashboard';
+import DashboardOpener from 'components/dashboard/dashboard-opener';
 import QuizLoader from 'components/quiz-loader';
 import store from 'state/store';
-
+import withClassPrefix from 'utils/class-prefix';
 import syncQuiznatorWithStore from 'utils/sync-quiznator-with-store';
 
 window.Quiznator = syncQuiznatorWithStore(store);
 
-Array.from(document.querySelectorAll('.quiznator-plugin'))
+Array.from(document.querySelectorAll(`.${withClassPrefix('plugin')}`))
   .forEach(quiz => {
     render(
       <Provider store={store}>
@@ -26,7 +27,7 @@ Array.from(document.querySelectorAll('.quiznator-plugin'))
     );
   });
 
-/*const dashboardContainer = document.getElementById('quiznator-dashboard');
+const dashboardContainer = document.querySelector(`.${withClassPrefix('dashboard')}`);
 
 if(dashboardContainer) {
   render(
@@ -35,4 +36,4 @@ if(dashboardContainer) {
     </Provider>,
     dashboardContainer
   );
-}*/
+}
