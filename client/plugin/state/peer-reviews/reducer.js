@@ -10,11 +10,11 @@ export default createReducer({}, {
   },
   [FETCH_PEER_REVIEWS](state, action) {
     return scour(state)
-      .set([action.quizId, 'loading'], true)
+      .set([action.sourceQuizId, 'loading'], true)
       .value;
   },
   [FETCH_PEER_REVIEWS_FAIL](state, action) {
-    const id = action.meta.previousAction.quizId;
+    const id = action.meta.previousAction.sourceQuizId;
 
     return scour(state)
       .go(id)
@@ -23,7 +23,7 @@ export default createReducer({}, {
       .value;
   },
   [FETCH_PEER_REVIEWS_SUCCESS](state, action) {
-    const id = action.meta.previousAction.quizId;
+    const id = action.meta.previousAction.sourceQuizId;
 
     return scour(state)
       .go(id)

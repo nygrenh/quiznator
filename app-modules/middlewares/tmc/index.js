@@ -1,5 +1,6 @@
 const errors = require('app-modules/errors');
 const TMCApi = require('app-modules/utils/tmc-api');
+const flow = require('middleware-flow');
 
 function getProfile(getAccessToken) {
   return (req, res, next) => {
@@ -21,4 +22,17 @@ function getProfile(getAccessToken) {
   }
 }
 
-module.exports = { getProfile };
+function isUser(getUsername) {
+  return flow.series(
+    getProfile(),
+    (req, res, next) => {
+      if(req.TMCProfile.username === getUsername(req)) {
+        return next();
+      } else {
+        return next(new errors.ForbiddenError(`You aren't allowed to access this TMC user's resources`));
+      }
+    }
+  );
+}
+
+module.exports = { getProfile, isUser };

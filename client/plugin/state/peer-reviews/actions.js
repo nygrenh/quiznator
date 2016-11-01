@@ -4,12 +4,12 @@ export const FETCH_PEER_REVIEWS_SUCCESS = 'PEER_REVIEWS::FETCH_PEER_REVIEWS_SUCC
 export const FETCH_PEER_REVIEWS_FAIL = 'PEER_REVIEWS::FETCH_PEER_REVIEWS_FAIL';
 export const POST_PEER_REVIEWS = 'PEER_REVIEWS::POST_PEER_REVIEWS';
 
-export function loadPeerReviews(quizId) {
+export function loadPeerReviews({ targetQuizId, sourceQuizId }) {
   return (dispatch, getState) => {
     const { user } = getState();
 
     if(user.id) {
-      return dispatch(fetchPeerReviews({ quizId, answererId: user.id }));
+      return dispatch(fetchPeerReviews({ targetQuizId, sourceQuizId, answererId: user.id }));
     } else {
       return Promise.resolve();
     }
@@ -58,13 +58,14 @@ export function createPeerReviewRequest(peerReview) {
   }
 }
 
-export function fetchPeerReviews({ quizId, answererId }) {
+export function fetchPeerReviews({ targetQuizId, sourceQuizId, answererId }) {
   return {
     type: FETCH_PEER_REVIEWS,
-    quizId,
+    targetQuizId,
+    sourceQuizId,
     payload: {
       request: {
-        url: `/quizzes/${quizId}/peer-reviews/${answererId}`,
+        url: `/quizzes/${targetQuizId}/peer-reviews/${answererId}`,
         method: 'GET'
       }
     }

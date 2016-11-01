@@ -26,6 +26,7 @@ router.get('/',
   });
 
 router.get('/:answererId',
+  TMCMiddlewares.isUser(req => req.params.answererId),
   middlewares.getQuizsAnswers(getSearchFilters({
     getAnswererId: req => req.params.answererId
   })),

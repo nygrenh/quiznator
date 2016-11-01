@@ -125,14 +125,12 @@ PeerReviewQuiz.defaultProps = Object.assign({},
   }
 );
 
-const mapStateToProps = (state, ownProps) => {
-  return {
-    peerReviews: state.peerReviews[ownProps.quiz.data.quizId]
-  }
-};
+const mapStateToProps = (state, ownProps) => ({
+  peerReviews: state.peerReviews[ownProps.quiz._id]
+});
 
 const withUserResourceLoader = userResourceLoader({
-  dispatcher: (dispatch, ownProps) => dispatch(loadPeerReviews(ownProps.quiz.data.quizId))
+  dispatcher: (dispatch, ownProps) => dispatch(loadPeerReviews({ targetQuizId: ownProps.quiz.data.quizId, sourceQuizId: ownProps.quiz._id }))
 })(PeerReviewQuiz);
 
 export default connect(

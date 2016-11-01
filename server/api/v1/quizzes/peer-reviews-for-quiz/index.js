@@ -17,6 +17,7 @@ router.post('/',
   });
 
 router.get('/:answererId',
+  TMCMiddlewares.isUser(req => req.params.answererId),
   middlewares.getPeerReviewsForAnswerer({
     getAnswererId: req => req.params.answererId,
     getQuizId: req => req.params.id
@@ -29,6 +30,7 @@ router.get('/:answererId/given-reviews',
   validatorMiddlewares.validateQuery({
     limit: { numericality: true }
   }),
+  TMCMiddlewares.isUser(req => req.params.answererId),
   middlewares.getPeerReviewsGivenByAnswerer({
     getAnswererId: req => req.params.answererId,
     getQuizId: req => req.params.id,
