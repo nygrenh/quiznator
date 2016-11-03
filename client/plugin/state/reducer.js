@@ -7,6 +7,7 @@ import user from './user';
 import peerReviews from './peer-reviews';
 import peerReviewsReceived from './peer-reviews-received';
 import dashboard from './dashboard';
+import quizAnswerSpamFlags from './quiz-answer-spam-flags';
 
 export default combineReducers({
   quizzes,
@@ -15,5 +16,6 @@ export default combineReducers({
   user,
   peerReviews,
   peerReviewsReceived,
-  dashboard
+  dashboard,
+  quizAnswerSpamFlags
 });

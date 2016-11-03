@@ -1,9 +1,12 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import _get from 'lodash.get';
 import className from 'classnames';
 import moment from 'moment';
 
 import { ESSAY, MULTIPLE_CHOICE } from 'common-constants/quiz-types';
-
+import { fetchSpamFlag, toggleSpamFlag } from 'state/quiz-answer-spam-flags';
+import { selectQuizAnswerIsSpamFlagged } from 'selectors/quiz-answer-spam-flags';
 import withClassPrefix from 'utils/class-prefix';
 
 class PeerReview extends React.Component {
@@ -24,8 +27,19 @@ class PeerReview extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.props.onAnswerChange();
+  }
+
+  componentDidUpdate(prevProps) {
+    if(this.props.answer && _get(prevProps, 'answer._id') !== _get(this.props, 'answer._id')) {
+      this.props.onAnswerChange();
+    }
+  }
+
   render() {
-    const buttonClasses = withClassPrefix(className('btn', 'btn-primary', { 'btn-outline': !this.props.chosen }));
+    const chooseButtonClasses = withClassPrefix(className('btn', 'btn-primary', { 'btn-outline': !this.props.chosen }));
+    const spamButtonClasses = withClassPrefix(className('btn', 'btn-danger', 'm-l-1', { 'btn-outline': this.props.flaggedAsSpam }));
 
     return (
       <div className={withClassPrefix('peer-review')}>
@@ -38,8 +52,12 @@ class PeerReview extends React.Component {
         </div>
 
         <div className={withClassPrefix('peer_review__footer')}>
-          <button className={buttonClasses} onClick={this.props.onChoose}>
+          <button className={chooseButtonClasses} onClick={this.props.onChoose}>
             {this.props.chosen ? 'Chosen' : 'Choose'}
+          </button>
+
+          <button className={spamButtonClasses} onClick={this.props.onToggleSpamFlag}>
+            {this.props.flaggedAsSpam ? 'Don\'t flag as poor answer' : 'Flag as poor answer'}
           </button>
         </div>
       </div>
@@ -51,12 +69,25 @@ PeerReview.propTypes = {
   quiz: React.PropTypes.object.isRequired,
   answer: React.PropTypes.object.isRequired,
   chosen: React.PropTypes.bool,
-  onChoose: React.PropTypes.func
+  onChoose: React.PropTypes.func,
+  flaggedAsSpam: React.PropTypes.bool
 }
 
 PeerReview.defaultProps = {
   chosen: false,
-  onChoose: () => {}
+  flaggedAsSpam: false
 }
 
-export default PeerReview;
+const mapStateToProps = (state, ownProps) => ({
+  flaggedAsSpam: selectQuizAnswerIsSpamFlagged(state, { answerId: ownProps.answer._id })
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  onAnswerChange: () => dispatch(fetchSpamFlag(ownProps.answer._id)),
+  onToggleSpamFlag: () => dispatch(toggleSpamFlag(ownProps.answer._id))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PeerReview);

@@ -22,6 +22,10 @@
   margin-top: 0px !important;
 }
 
+.m-l-1 {
+  margin-left: $spacing !important;
+}
+
 .m-t-1 {
   margin-top: $spacing !important;
 }
@@ -90,6 +94,10 @@
 
   &.btn-success {
     @include button($success-color, white);
+  }
+
+  &.btn-danger {
+    @include button($danger-color, white);
   }
 }
 
