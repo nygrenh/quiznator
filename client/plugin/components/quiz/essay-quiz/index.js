@@ -1,5 +1,5 @@
 import React from 'react';
-import get from 'lodash.get';
+import _get from 'lodash.get';
 
 import { quizPropsTypes, quizDefaultProps } from 'components/quiz';
 
@@ -25,7 +25,7 @@ class EssayQuiz extends React.Component {
   }
 
   render() {
-    const answerData = get(this.props, 'answer.data') || '';
+    const answerData = _get(this.props, 'answer.data') || '';
     const isValid = answerData.length > 0;
     const submitDisabled = !isValid || !!this.props.disabled || !!this.props.submitting;
 

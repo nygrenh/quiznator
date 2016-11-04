@@ -39,7 +39,7 @@ class PeerReview extends React.Component {
 
   render() {
     const chooseButtonClasses = withClassPrefix(className('btn', 'btn-primary', { 'btn-outline': !this.props.chosen }));
-    const spamButtonClasses = withClassPrefix(className('btn', 'btn-danger', 'm-l-1', { 'btn-outline': this.props.flaggedAsSpam }));
+    const spamButtonClasses = withClassPrefix(className('btn', 'btn-danger', 'm-l-1', 'pull-right', { 'btn-outline': this.props.flaggedAsSpam }));
 
     return (
       <div className={withClassPrefix('peer-review')}>
@@ -51,13 +51,13 @@ class PeerReview extends React.Component {
           </div>
         </div>
 
-        <div className={withClassPrefix('peer_review__footer')}>
+        <div className={withClassPrefix('peer_review__footer clearfix')}>
           <button className={chooseButtonClasses} onClick={this.props.onChoose}>
             {this.props.chosen ? 'Chosen' : 'Choose'}
           </button>
 
           <button className={spamButtonClasses} onClick={this.props.onToggleSpamFlag}>
-            {this.props.flaggedAsSpam ? 'Don\'t flag as poor answer' : 'Flag as poor answer'}
+            {this.props.flaggedAsSpam ? 'Don\'t flag as a poor answer' : 'Flag as a poor answer'}
           </button>
         </div>
       </div>
