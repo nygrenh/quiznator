@@ -10,6 +10,7 @@ import { quizPropsTypes, quizDefaultProps } from 'components/quiz';
 import { loadPeerReviews } from 'state/peer-reviews';
 import withClassPrefix from 'utils/class-prefix';
 import userResourceLoader from 'components/user-resource-loader';
+import { hasAnsweredToQuiz } from 'selectors/quiz-answers';
 
 class PeerReviewQuiz extends React.Component {
   onChoosePeerReview(chosen, rejected) {
@@ -96,17 +97,35 @@ class PeerReviewQuiz extends React.Component {
     return this.props.peerReviews.data && this.props.peerReviews.data.peerReviews.length > 1;
   }
 
+  renderNotAnswered() {
+    return (
+      <div className={withClassPrefix('text-muted')}>
+        Submit your answer to the quiz before giving a peer review.
+      </div>
+    );
+  }
+
+  renderNoPeerReviews() {
+    return (
+      <div className={withClassPrefix('text-muted')}>
+        No peer reviews currently available
+      </div>
+    );
+  }
+
+  answeringIsRequired() {
+    return !!_get(this.props.quiz, 'data.answeringRequired');
+  }
+
   render() {
     if(this.props.peerReviews.loading) {
       return <Loader/>;
+    } else if(!this.props.hasAnswered && this.answeringIsRequired()) {
+      return this.renderNotAnswered();
     } else if(this.hasPeerReviews()) {
       return this.renderContent();
     } else {
-      return (
-        <div className={withClassPrefix('text-muted')}>
-          No peer reviews currently available
-        </div>
-      );
+      return this.renderNoPeerReviews();
     }
   }
 }
@@ -114,19 +133,22 @@ class PeerReviewQuiz extends React.Component {
 PeerReviewQuiz.propTypes = Object.assign({},
   quizPropsTypes,
   {
-    peerReviews: React.PropTypes.object
+    peerReviews: React.PropTypes.object,
+    hasAnswered: React.PropTypes.bool
   }
 );
 
 PeerReviewQuiz.defaultProps = Object.assign({},
   quizDefaultProps,
   {
-    peerReviews: {}
+    peerReviews: {},
+    hasAnswered: false
   }
 );
 
 const mapStateToProps = (state, ownProps) => ({
-  peerReviews: state.peerReviews[ownProps.quiz._id]
+  peerReviews: state.peerReviews[ownProps.quiz._id],
+  hasAnswered: hasAnsweredToQuiz(state, { quizId: _get(ownProps, 'quiz.data.quizId') })
 });
 
 const withUserResourceLoader = userResourceLoader({
