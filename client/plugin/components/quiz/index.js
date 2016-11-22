@@ -10,8 +10,9 @@ import MultipleChoiceQuiz from './multiple-choice-quiz';
 import PeerReviewQuiz from './peer-review-quiz';
 import PeerReviewsReceivedQuiz from './peer-reviews-received-quiz';
 import CheckboxQuiz from './checkbox-quiz';
+import OpenQuiz from './open-quiz';
 
-import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
+import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN } from 'common-constants/quiz-types';
 import withClassPrefix from 'utils/class-prefix';
 
 const mapQuizTypeToComponent = {
@@ -19,7 +20,8 @@ const mapQuizTypeToComponent = {
   [MULTIPLE_CHOICE]: MultipleChoiceQuiz,
   [PEER_REVIEW]: PeerReviewQuiz,
   [PEER_REVIEWS_RECEIVED]: PeerReviewsReceivedQuiz,
-  [CHECKBOX]: CheckboxQuiz
+  [CHECKBOX]: CheckboxQuiz,
+  [OPEN]: OpenQuiz
 }
 
 class Quiz extends React.Component {

@@ -1,7 +1,7 @@
 import _get from 'lodash.get';
 
 import { createTemporalAlert } from 'state/quiz-alerts';
-import { PEER_REVIEW, PEER_REVIEWS_RECEIVED, answerableTypes } from 'common-constants/quiz-types';
+import { PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN, MULTIPLE_CHOICE, answerableTypes } from 'common-constants/quiz-types';
 
 export const REMOVE_QUIZ_ANSWERS = 'QUIZ_ANSWERS::REMOVE_QUIZ_ANSWERS';
 export const SET_QUIZ_ANSWER_DATA_PATH = 'QUIZ_ANSWERS::SET_QUIZ_ANSWERS_DATA_PATH';
@@ -13,15 +13,40 @@ export const FETCH_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS::FETCH_QUIZ_ANSWER_SUCCES
 export const FETCH_PEER_REVIEWS_GIVEN = 'QUIZ_ANSWERS::FETCH_PEER_REVIEWS_GIVEN';
 export const FETCH_PEER_REVIEWS_GIVEN_SUCCESS = 'QUIZ_ANSWERS::FETCH_PEER_REVIEWS_GIVEN_SUCCESS';
 
-function validateAnswerData(data, quiz) {
+const RIGHT_ANSWER_MESSAGE = 'Right answer';
+const WRONG_ANSWER_MESSAGE = 'Wrong answer';
+
+function validateMultipleChoiceAnswerData(data, quiz) {
   const rightAnswer = _get(quiz, 'data.meta.rightAnswer');
 
   const isRightAnswer = typeof rightAnswer === 'object'
     ? rightAnswer.indexOf(data) >= 0
     : data !== rightAnswer;
 
-  if(rightAnswer && !isRightAnswer) {
-    return _get(quiz, `data.meta.errors.${data}`) || 'Wrong answer';
+  if(isRightAnswer) {
+    return {
+      successMessage: _get(quiz, `data.meta.successes.${data}`) || RIGHT_ANSWER_MESSAGE
+    };
+  } else {
+    return {
+      errorMessage: _get(quiz, `data.meta.errors.${data}`) || WRONG_ANSWER_MESSAGE
+    };
+  }
+}
+
+function validateOpenAnswerData(data, quiz) {
+  const rightAnswer = _get(quiz, 'data.meta.rightAnswer');
+
+  const isRightAnswer = (data || '').toLowerCase() === rightAnswer.toLowerCase();
+
+  if(isRightAnswer) {
+    return {
+      successMessage: _get(quiz, 'data.meta.success') || RIGHT_ANSWER_MESSAGE
+    };
+  } else {
+    return {
+      errorMessage: _get(quiz, 'data.meta.error') || WRONG_ANSWER_MESSAGE
+    }
   }
 }
 
@@ -36,13 +61,23 @@ export function createQuizAnswer({ quizId, data }) {
       return Promise.resolve();
     }
 
-    const errorMessage = validateAnswerData(data, quiz);
-    const successMessage = _get(quiz, `data.meta.successes.${data}`) || 'Right answer';
+    let messages = {};
 
-    if(hasRightAnswer && errorMessage) {
-      dispatch(createTemporalAlert({ content: errorMessage, quizId, type: 'danger', removeDelay: 15000 }));
-    } else if(hasRightAnswer && !errorMessage) {
-      dispatch(createTemporalAlert({ content: successMessage, quizId, type: 'success', removeDelay: 15000 }));
+    if(hasRightAnswer) {
+      switch(quiz.type) {
+        case MULTIPLE_CHOICE:
+          messages = validateMultipleChoiceAnswerData(data, quiz);
+          break;
+        case OPEN:
+          messages = validateOpenAnswerData(data, quiz);
+          break;
+      }
+    }
+
+    if(messages.errorMessage) {
+      dispatch(createTemporalAlert({ content: messages.errorMessage, quizId, type: 'danger', removeDelay: 15000 }));
+    } else if(messages.successMessage) {
+      dispatch(createTemporalAlert({ content: messages.successMessage, quizId, type: 'success', removeDelay: 15000 }));
     }
 
     return dispatch(createQuizAnswerRequest({ quizId, data }));

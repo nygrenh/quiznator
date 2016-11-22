@@ -5,7 +5,7 @@ const quizTypes = require('app-modules/constants/quiz-types');
 
 module.exports = schema => {
   schema.statics.findAnswerable = function(query) {
-    const answerableTypes = [quizTypes.MULTIPLE_CHOICE, quizTypes.CHECKBOX, quizTypes.ESSAY];
+    const answerableTypes = [quizTypes.MULTIPLE_CHOICE, quizTypes.CHECKBOX, quizTypes.ESSAY, quizTypes.OPEN];
 
     const modifiedQuery = Object.assign({}, { type: { $in: answerableTypes } }, query);
 

@@ -6,7 +6,6 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import LazyLoad from 'react-lazyload';
 
 import Dashboard from 'components/dashboard';
 import DashboardOpener from 'components/dashboard/dashboard-opener';

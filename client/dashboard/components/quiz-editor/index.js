@@ -3,13 +3,14 @@ import { Form, FormGroup, Input, Button, FormText } from 'reactstrap';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
-import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
+import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN } from 'common-constants/quiz-types';
 
 import EssayQuizEditor from './essay-quiz-editor';
 import MultipleChoiceQuizEditor from './multiple-choice-quiz-editor';
 import PeerReviewQuizEditor from './peer-review-quiz-editor';
 import PeerReviewsReceivedQuizEditor from './peer-reviews-received-quiz-editor';
 import CheckboxQuizEditor from './checkbox-quiz-editor';
+import OpenQuizEditor from './open-quiz-editor';
 
 import Alert from 'common-components/alert';
 
@@ -18,7 +19,8 @@ const mapQuizTypeToEditor = {
   [MULTIPLE_CHOICE]: MultipleChoiceQuizEditor,
   [PEER_REVIEW]: PeerReviewQuizEditor,
   [PEER_REVIEWS_RECEIVED]: PeerReviewsReceivedQuizEditor,
-  [CHECKBOX]: CheckboxQuizEditor
+  [CHECKBOX]: CheckboxQuizEditor,
+  [OPEN]: OpenQuizEditor
 }
 
 class QuizEditor extends React.Component {

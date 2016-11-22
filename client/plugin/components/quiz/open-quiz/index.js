@@ -7,7 +7,7 @@ import SubmitButton from 'components/quiz/submit-button';
 
 import withClassPrefix from 'utils/class-prefix';
 
-class EssayQuiz extends React.Component {
+class OpenQuiz extends React.Component {
   onSubmit() {
     return e => {
       e.preventDefault();
@@ -16,8 +16,8 @@ class EssayQuiz extends React.Component {
     }
   }
 
-  onEssayChange() {
-    this.props.onDataChange([], this.refs.essay.value);
+  onOpenChange() {
+    this.props.onDataChange([], this.refs.open.value);
   }
 
   render() {
@@ -28,8 +28,7 @@ class EssayQuiz extends React.Component {
     return (
       <form onSubmit={this.onSubmit()}>
         <div className={withClassPrefix('form-group')}>
-          <textarea disabled={this.props.disabled} className={withClassPrefix('textarea')} value={answerData} rows={5} ref="essay" maxLength={5000} onChange={this.onEssayChange.bind(this)}>
-          </textarea>
+          <input type="text" disabled={this.props.disabled} className={withClassPrefix('textarea')} value={answerData} ref="open" maxLength={100} onChange={this.onOpenChange.bind(this)}/>
         </div>
 
         <div className={withClassPrefix('form-group')}>
@@ -40,7 +39,7 @@ class EssayQuiz extends React.Component {
   }
 }
 
-EssayQuiz.propTypes = quizPropsTypes;
-EssayQuiz.defaultProps = quizDefaultProps;
+OpenQuiz.propTypes = quizPropsTypes;
+OpenQuiz.defaultProps = quizDefaultProps;
 
-export default EssayQuiz;
+export default OpenQuiz;

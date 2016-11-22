@@ -8,7 +8,8 @@ import { REMOVE_QUIZ_ANSWERS, SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER, FETC
 function setNotSubmitting(state, quizId) {
   return scour(state)
     .go(quizId)
-    .extend({ submitting: false });
+    .extend({ submitting: false })
+    .root;
 }
 
 export default createReducer({}, {

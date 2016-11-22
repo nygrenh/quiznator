@@ -4,7 +4,7 @@ import _get from 'lodash.get';
 import className from 'classnames';
 import moment from 'moment';
 
-import { ESSAY, MULTIPLE_CHOICE } from 'common-constants/quiz-types';
+import { ESSAY, MULTIPLE_CHOICE, OPEN } from 'common-constants/quiz-types';
 import { fetchSpamFlag, toggleSpamFlag } from 'state/quiz-answer-spam-flags';
 import { selectQuizAnswerIsSpamFlagged } from 'selectors/quiz-answer-spam-flags';
 import withClassPrefix from 'utils/class-prefix';
@@ -17,6 +17,7 @@ class PeerReview extends React.Component {
   renderContentByType() {
     switch(this.props.quiz.type) {
       case ESSAY:
+      case OPEN:
         return this.props.answer.data;
         break;
       case MULTIPLE_CHOICE:

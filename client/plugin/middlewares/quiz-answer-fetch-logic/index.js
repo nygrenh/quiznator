@@ -5,7 +5,7 @@ const quizAnswerFetchLogic = store => next => action => {
     const { quizAnswers, quizzes } = store.getState();
     const { quizId, answererId } = action;
 
-    const answerIsBeingLoaded = quizAnswers[quizId] && quizAnswers[quizId].answererId === answererId;
+    const answerIsBeingLoaded = !!quizAnswers[quizId] && quizAnswers[quizId].answererId === answererId;
     const quizIsLoaded = quizzes[quizId] && quizzes[quizId].data;
 
     if(!answerIsBeingLoaded && quizIsLoaded) {

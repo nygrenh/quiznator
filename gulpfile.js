@@ -10,8 +10,6 @@ const DEST_STYLESHEETS = path.resolve('./dist/stylesheets');
 
 gulp.task('server', require('./gulp-tasks/server'));
 
-gulp.task('test.server', require('./gulp-tasks/test-server'));
-
 gulp.task('build', ['move-assets', 'build.signUp', 'build.signIn', 'build.plugin', 'build.dashboard', 'build.pluginLoader'], () => {});
 
 gulp.task('deploy', require('gulp-tasks/deploy')());

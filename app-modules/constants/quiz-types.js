@@ -5,5 +5,6 @@ module.exports = mirror({
   CHECKBOX: null,
   ESSAY: null,
   PEER_REVIEW: null,
-  PEER_REVIEWS_RECEIVED: null
+  PEER_REVIEWS_RECEIVED: null,
+  OPEN: null
 });

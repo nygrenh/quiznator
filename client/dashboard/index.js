@@ -23,7 +23,9 @@ function allSet() {
 
   render(
     <Provider store={store}>
-      <Router history={history} routes={routes}></Router>
+      <Router history={history}>
+        {routes}
+      </Router>
     </Provider>,
     document.getElementById('root')
   );
