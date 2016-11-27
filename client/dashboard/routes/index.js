@@ -10,11 +10,11 @@ import { Route, Router, IndexRoute } from 'react-router';
 
 const routes = (
   <Route path="/dashboard" component={Dashboard}>
-    <IndexRoute component={Home}/>
+    <IndexRoute component={Home} />
     <Route path="quizzes">
-      <IndexRoute component={Quizzes}/>
+      <IndexRoute component={Quizzes} />
       <Route path=":id" component={Quiz}>
-        <Route path="edit" component={EditQuiz}/>
+        <Route path="edit" component={EditQuiz} />
         <Route path="settings" component={QuizSettings}/>
       </Route>
     </Route>

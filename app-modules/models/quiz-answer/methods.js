@@ -43,8 +43,8 @@ module.exports = schema => {
     ].filter(p => !!p);
 
     return this.aggregate(pipeline)
-    .then(data => {
-      return data.map(doc => ({ _id: doc.answerId, answererId: doc._id, data: doc.data, quizId: doc.quizId, createdAt: doc.createdAt, peerReviewCount: doc.peerReviewCount }));
-    });
+      .then(data => {
+        return data.map(doc => ({ _id: doc.answerId, answererId: doc._id, data: doc.data, quizId: doc.quizId, createdAt: doc.createdAt, peerReviewCount: doc.peerReviewCount }));
+      });
   }
 }

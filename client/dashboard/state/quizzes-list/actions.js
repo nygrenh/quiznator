@@ -1,30 +1,49 @@
-export const FETCH_QUIZZES_LIST = 'QUIZZES_LIST::FETCH_QUIZZES_LIST';
-export const FETCH_QUIZZES_LIST_SUCCESS = 'QUIZZES_LIST::FETCH_QUIZZES_LIST_SUCCESS';
-export const SET_PAGE = 'QUIZZES_LIST::SET_PAGE';
+import queryString from 'query-string';
+import { push } from 'react-router-redux';
 
-export function fetchQuizzesList(page) {
+export const FETCH_QUIZZES_LIST = 'QUIZZES_LIST_FETCH_QUIZZES_LIST';
+export const FETCH_QUIZZES_LIST_SUCCESS = 'QUIZZES_LIST_FETCH_QUIZZES_LIST_SUCCESS';
+export const SET_PAGE = 'QUIZZES_LIST_SET_PAGE';
+
+export function fetchQuizzesListRequest({ limit, skip, tags }) {
+  const query = {
+    limit,
+    skip,
+    ...(tags ? { tags: tags.join(',') } : {})
+  };
+
   return {
     type: FETCH_QUIZZES_LIST,
     payload: {
       request: {
-        url: `/quizzes?page=${page}`
+        url: `/quizzes?${queryString.stringify(query)}`
       }
     }
   }
 }
 
-export function getQuizzesList() {
+export function fetchQuizzesList() {
   return (dispatch, getState) => {
-    const state = getState();
+    const {
+      quizzesList: { currentPage, pageSize },
+      quizzesListFilters: { tags }
+    } = getState();
 
-    return dispatch(fetchQuizzesList(state.quizzesList.currentPage));
+    const skip = (currentPage - 1) * pageSize;
+    const limit = pageSize;
+
+    return dispatch(fetchQuizzesListRequest({ limit, skip, tags }));
   }
 }
 
 export function updatePage(page) {
   return (dispatch, getState) => {
-    dispatch(setPage(page));
-    dispatch(getQuizzesList(page));
+    const { routing: { locationBeforeTransitions: { pathname, query } } } = getState();
+
+    const newQuery = Object.assign({}, query, { page });
+    const newLocation = Object.assign({}, { pathname, query: newQuery });
+
+    dispatch(push(newLocation));
   }
 }
 

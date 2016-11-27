@@ -1,18 +1,27 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 
 import Paginator from 'components/paginator';
 import Loader from 'components/loader';
+import Icon from 'components/icon';
+import QuizzesListFiltersModal from './quizzes-list-filters-modal';
 import CreateQuizDropdown from './create-quiz-dropdown';
 import CreateQuizModal from './create-quiz-modal';
 import QuizzesTable from './quizzes-table';
-
-import { getQuizzesList, updatePage } from 'state/quizzes-list';
+import { openModal } from 'state/quizzes-list-filters';
+import { fetchQuizzesList, updatePage } from 'state/quizzes-list';
 import { selectQuizzes, selectCurrentPage, selectTotalPages } from 'selectors/quizzes-list';
 
 class Quizzes extends React.Component {
   componentDidMount() {
-    this.props.loadQuizzes();
+    this.props.onFetchQuizzes();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.location.query !== this.props.location.query) {
+      this.props.onFetchQuizzes();
+    }
   }
 
   renderHeader() {
@@ -21,6 +30,14 @@ class Quizzes extends React.Component {
         <div className="pull-right">
           <CreateQuizDropdown/>
         </div>
+
+        <Button
+          color="secondary"
+          className="pull-right m-r-1"
+          onClick={this.props.onOpenFiltersModal}
+        >
+          <Icon name="filter" /> Adjust filters
+        </Button>
       </div>
     );
   }
@@ -43,7 +60,8 @@ class Quizzes extends React.Component {
       <div>
         {this.renderHeader()}
         {this.renderTable()}
-        <CreateQuizModal/>
+        <CreateQuizModal />
+        <QuizzesListFiltersModal />
       </div>
     )
   }
@@ -57,8 +75,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  loadQuizzes: () => dispatch(getQuizzesList()),
-  onUpdatePage: page => dispatch(updatePage(page))
+  onFetchQuizzes: () => dispatch(fetchQuizzesList()),
+  onUpdatePage: page => dispatch(updatePage(page)),
+  onOpenFiltersModal: () => dispatch(openModal())
 });
 
 export default connect(

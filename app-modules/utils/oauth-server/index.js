@@ -42,7 +42,9 @@ module.exports = oauthServer({
     },
     getAuthCode: (authCode, callback) => oauthModels.AuthorizationCode.getAuthCode(authCode, callback),
     saveAuthCode: (authCode, clientId, expires, user, callback) => oauthModels.AuthorizationCode.saveAuthCode(authCode, clientId, expires, user, callback),
-    generateToken
+    generateToken,
+    refreshTokenLifetime: 1209600,
+    accessTokenLifeTime: 3600
   },
   grants: ['password', 'refresh_token', 'authorization_code'],
   debug: true

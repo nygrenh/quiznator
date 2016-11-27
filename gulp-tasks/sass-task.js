@@ -8,23 +8,29 @@ const classPrefix = require('gulp-class-prefix');
 const plumber = require('gulp-plumber');
 
 module.exports = options => () => {
-  const pipeline = gulp.src(options.src)
-    .pipe(plumber())
+  let pipeline = gulp.src(options.entry);
+
+  if(options.isDevelopment) {
+    pipeline = pipeline
+      .pipe(plumber());
+  }
+
+  pipeline = pipeline
     .pipe(sassGlob())
     .pipe(sass())
     .pipe(autoprefixer())
-    .pipe(rename(options.fileName));
+    .pipe(rename(`${options.fileName}.min.css`));
 
   if(options.classPrefix) {
-    pipeline
+    pipeline = pipeline
       .pipe(classPrefix(options.classPrefix));
   }
 
-  if(options.uglify === true) {
-    pipeline
+  if(!options.isDevelopment) {
+    pipeline = pipeline
       .pipe(cleanCSS({ compatibility: 'ie8' }));
   }
 
   return pipeline
-    .pipe(gulp.dest(options.dest));
+    .pipe(gulp.dest(options.output));
 }

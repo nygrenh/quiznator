@@ -26,10 +26,10 @@
     bodyTag.appendChild(scriptTag);
     headTag.appendChild(styleTag);
 
-    scriptTag.src = `${process.env.API_URL}/javascripts/plugin.min.js?t=${+new Date()}`;
+    scriptTag.src = `${process.env.PLUGIN_SCRIPT_URL}?t=${+new Date()}`;
 
     styleTag.setAttribute('rel', 'stylesheet');
 
-    styleTag.href = `${process.env.API_URL}/stylesheets/plugin.min.css?t=${+new Date()}`;
+    styleTag.href = `${process.env.PLUGIN_STYLE_URL}?t=${+new Date()}`;
   });
 })();

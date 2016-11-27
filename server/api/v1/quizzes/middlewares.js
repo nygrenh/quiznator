@@ -6,8 +6,9 @@ const Quiz = require('app-modules/models/quiz');
 
 function getUsersQuizzes(getUserId) {
   return (req, res, next) => {
-    const PAGE_SIZE = 50;
-    const page = +(req.query.page || 1);
+    const limit = +(req.query.limit || 50);
+    const skip = +(req.query.skip || 0);
+    const tags = (req.query.tags || '').split(',').filter(tag => !!tag);
 
     let query = { userId: getUserId(req) };
 
@@ -19,18 +20,23 @@ function getUsersQuizzes(getUserId) {
       query = Object.assign({}, query, { type: { $in: req.query.types.split(',') } });
     }
 
+    if(tags.length > 0) {
+      query = Object.assign({}, query, { tags: { $in: tags } });
+    }
+
     const findCount = Quiz.count(query);
     const findQuizzes = Quiz
       .find(query)
       .sort({ createdAt: -1 })
-      .limit(PAGE_SIZE)
-      .skip((page - 1) * PAGE_SIZE);
+      .limit(limit)
+      .skip(skip);
 
     Promise.all([findCount, findQuizzes])
       .spread((count, quizzes) => {
         req.quizzes = {
-          page,
-          totalPages: Math.floor(count / PAGE_SIZE) + 1,
+          limit,
+          skip,
+          total: count,
           data: quizzes
         };
 
@@ -73,7 +79,7 @@ function getQuizStatsById(getId) {
 
 function updateQuiz(options) {
   return (req, res, next) => {
-    const allowedAttributes = pick(options.getAttributes(req), ['title', 'data', 'body', 'expiresAt']);
+    const allowedAttributes = pick(options.getAttributes(req), ['title', 'data', 'body', 'expiresAt', 'tags']);
 
     Quiz.updateWithValidation(options.getQuery(req), allowedAttributes)
       .then(updatedQuiz => {

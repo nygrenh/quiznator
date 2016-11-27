@@ -81,12 +81,28 @@ function generateAuthCode({ getUserId, getClientId }) {
   }
 }
 
+function canAccessUser(getUserId) {
+  return (req, res, next) => {
+    if(!req.userId) {
+      return next(new errors.ForbiddenError('User is not authorized'));
+    }
+
+    const userId = getUserId(req) || '';
+
+    if(userId.toString() !== req.userId.toString()) {
+      return next(new errors.ForbiddenError('User is not allowed to access the user'))
+    } else {
+      return next();
+    }
+  }
+}
+
 function canAccessQuiz(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
     const userId = options.getUserId(req);
 
-    const forbiddenError = new errors.ForbiddenError('User is not allowed to update the quiz');
+    const forbiddenError = new errors.ForbiddenError('User is not allowed to access the quiz');
 
     if(!userId) {
       return next(forbiddenError);
@@ -104,4 +120,12 @@ function canAccessQuiz(options) {
   }
 }
 
-module.exports = { oauthGrant, quiznatorGrant, authorize, canAccessQuiz, removeUsersTokens, generateAuthCode };
+module.exports = {
+  oauthGrant,
+  quiznatorGrant,
+  authorize,
+  canAccessQuiz,
+  removeUsersTokens,
+  generateAuthCode,
+  canAccessUser
+};

@@ -5,7 +5,11 @@ export const selectQuizzes = state => {
 }
 
 export const selectTotalPages = state => {
-  return _get(state, 'quizzesList.data.totalPages') || 0;
+  const { quizzesList: { data, pageSize } } = state;
+
+  const total = _get(data, 'total') || 0;
+
+  return Math.ceil(total / pageSize);
 }
 
 export const selectCurrentPage = state => {

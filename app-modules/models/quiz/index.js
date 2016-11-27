@@ -8,6 +8,18 @@ const schema = new mongoose.Schema({
   title: { type: String, minlength: 3, maxlength: 100, required: true },
   body: { type: String, maxlength: 1000 },
   data: { type: mongoose.Schema.Types.Mixed },
+  tags: {
+    type: Array,
+    default: [],
+    validate: tags => {
+      if(!tags || tags.length === 0) {
+        return true;
+      } else {
+        return tags.filter(tag => (typeof tag !== 'string')).length === 0
+      }
+    },
+    message: '{VALUE} is not an array of strings'
+  },
   userId: { type: mongoose.Schema.Types.ObjectId, required: true },
   expiresAt: { type: Date }
 }, { timestamps: true });

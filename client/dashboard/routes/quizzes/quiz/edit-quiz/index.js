@@ -38,6 +38,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   loadQuiz: () => dispatch(fetchQuiz(ownProps.params.id)),
   onTitleChange: title => dispatch(updateQuiz({ title })),
   onBodyChange: body => dispatch(updateQuiz({ body })),
+  onTagsChange: tags => dispatch(updateQuiz({ tags })),
   onDataItemChange: (itemId, update) => dispatch(updateDataItem(itemId, update)),
   onRemoveDataItem: itemId => dispatch(removeDataItem(itemId)),
   onDataChange: update => dispatch(updateData(update)),

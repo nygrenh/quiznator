@@ -1,9 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import Select from 'react-select';
 
 import { fetchQuizzes, fetchQuiz } from 'state/users-quizzes';
-
-import Select from 'react-select';
 
 class UsersQuizzesSelector extends React.Component {
   mapResponseToOptions(response) {
@@ -25,7 +24,7 @@ class UsersQuizzesSelector extends React.Component {
 
   loadOptions(text, callback) {
     if(!text && this.props.value) {
-      this.props.loadQuiz(this.props.value)
+      this.props.fetchQuiz(this.props.value)
         .then(response => {
           if(response.error) {
             callback(response.error);
@@ -37,7 +36,7 @@ class UsersQuizzesSelector extends React.Component {
           }
         });
     } else {
-      this.props.loadQuizzes(this.getQuery({ title: text }))
+      this.props.fetchQuizzes(this.getQuery({ title: text }))
         .then(response => {
           if(response.error) {
             callback(response.error);
@@ -54,8 +53,8 @@ class UsersQuizzesSelector extends React.Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  loadQuizzes: query => dispatch(fetchQuizzes(query)),
-  loadQuiz: id => dispatch(fetchQuiz(id))
+  fetchQuizzes: query => dispatch(fetchQuizzes(query)),
+  fetchQuiz: id => dispatch(fetchQuiz(id))
 });
 
 export default connect(

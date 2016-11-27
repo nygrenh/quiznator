@@ -26,4 +26,6 @@ router.get('/check-email-existance/:email',
     res.json({ exists: req.emailExists });
   });
 
+router.use('/:id', require('./user'));
+
 module.exports = router;

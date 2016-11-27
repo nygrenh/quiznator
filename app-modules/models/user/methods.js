@@ -1,9 +1,22 @@
+const bcrypt = require('bcrypt-as-promised');
+const mongoose = require('mongoose');
+
 const validators = require('app-modules/utils/validators');
 const errors = require('app-modules/errors');
-const bcrypt = require('bcrypt-as-promised');
 
 function hashPassword(password) {
   return bcrypt.hash(password, 10);
+}
+
+function hasUsersPassword(next) {
+  if(this._password) {
+    hashPassword(this._password)
+      .then(hashedPassword => {
+        this.passwordHash = hashedPassword;
+        next();
+      })
+      .catch(next);
+  }
 }
 
 module.exports = schema => {
@@ -20,6 +33,17 @@ module.exports = schema => {
             .catch(() => Promise.reject(invalidError));
         }
       });
+  }
+
+  schema.methods.getTags = function() {
+    const pipeline = [
+      { $match: { userId: this._id } },
+      { $unwind: '$tags' },
+      { $group: { _id: '$tags' } }
+    ];
+
+    return mongoose.models.Quiz.aggregate(pipeline)
+      .then(aggregation => (aggregation || []).map(row => row._id));
   }
 
   schema.methods.toJSON = function() {
@@ -48,14 +72,5 @@ module.exports = schema => {
 
   schema.pre('save', validators.isUnique({ scope: 'email', model: 'User' }));
 
-  schema.pre('save', function(next) {
-    if(this._password) {
-      hashPassword(this._password)
-        .then(hashedPassword => {
-          this.passwordHash = hashedPassword;
-          next();
-        })
-        .catch(err => next(err));
-    }
-  });
+  schema.pre('save', hasUsersPassword);
 }

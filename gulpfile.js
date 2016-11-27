@@ -1,77 +1,150 @@
 require('app-module-path').addPath(__dirname);
+require('dotenv').config({ silent: true });
 
 const gulp = require('gulp');
 const path = require('path');
+const _ = require('lodash');
 
-const buildBundleTasks = require('gulp-tasks/helpers/build-bundle-tasks');
+const makeNodemonTask = require('gulp-tasks/nodemon-task');
+const makeAssetTask = require('gulp-tasks/assets-task');
+const makeScripTask = require('gulp-tasks/script-task');
+const makeWebpackConfig = require('gulp-tasks/webpack-config');
+const makeSassTask = require('gulp-tasks/sass-task');
 
-const DEST_SCRIPTS = path.resolve('./dist/javascripts');
-const DEST_STYLESHEETS = path.resolve('./dist/stylesheets');
+const scriptsDist = path.join(__dirname, 'dist', 'javascripts');
+const stylesDist = path.join(__dirname, 'dist', 'stylesheets');
+const clientCommonModules = path.join(__dirname, 'client', 'common');
 
-gulp.task('server', require('./gulp-tasks/server'));
+const isDevelopment = process.env.NODE_ENV === 'development';
 
-gulp.task('build', ['move-assets', 'build.signUp', 'build.signIn', 'build.plugin', 'build.dashboard', 'build.pluginLoader'], () => {});
+gulp.task('nodemon', makeNodemonTask({
+  watch: ['./app-modules', './server']
+}));
 
-gulp.task('deploy', require('gulp-tasks/deploy')());
+gulp.task('assets', makeAssetTask({
+  entries: ['./assets/**/*'],
+  output: path.join(__dirname, 'dist', 'assets')
+}));
 
-gulp.task('serve', ['serve.signUp', 'serve.signIn', 'serve.plugin', 'serve.dashboard'], () => {});
-
-gulp.task('move-assets', require('gulp-tasks/move-assets'));
-
-function createScriptBundle({ entryPath, react = true, name, modulesDirectories = [] }) {
-  return {
-    react,
-    entry: path.resolve(`${entryPath}/index.js`),
-    modulesDirectories: [path.resolve(entryPath), ...modulesDirectories],
-    output: DEST_SCRIPTS,
-    getEnv: isDevelopment => {
-      return {
-        API_URL: isDevelopment ? 'http://localhost:3000' : 'https://quiznator.herokuapp.com'
-      }
+gulp.task('scripts.dashboard', makeScripTask({
+  webpackConfig: makeWebpackConfig({
+    entry: path.join(__dirname, 'client', 'dashboard', 'index.js'),
+    output: scriptsDist,
+    fileName: 'dashboard',
+    modules: [clientCommonModules, path.join(__dirname, 'client', 'dashboard')],
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      API_URL: process.env.API_URL
     },
-    fileName: `${name}.min.js`
-  }
-}
+    isDevelopment,
+  }),
+  isDevelopment
+}));
 
-function createSassBundle({ entryPath, name, classPrefix }) {
-  return {
-    entry: path.resolve(`${entryPath}/index.scss`),
-    output: DEST_STYLESHEETS,
-    fileName: `${name}.min.css`,
-    classPrefix,
-    watchPaths: [path.resolve(`${entryPath}/**/*.scss`)]
-  }
-}
+gulp.task('styles.dashboard', makeSassTask({
+  entry: path.join(__dirname, 'client', 'dashboard', 'index.scss'),
+  fileName: 'dashboard',
+  output: stylesDist,
+  isDevelopment
+}));
 
-buildBundleTasks({
-  name: 'dashboard',
-  scripts: createScriptBundle({ entryPath: './client/dashboard', name: 'dashboard', modulesDirectories: [path.join('./client/common')] }),
-  sass: createSassBundle({ entryPath: './client/dashboard', name: 'dashboard' })
+gulp.task('styles.dashboard:watch', ['styles.dashboard'], () => {
+  gulp.watch(['./client/dashboard/**/*.scss'], ['styles.dashboard']);
 });
 
-buildBundleTasks({
-  name: 'signUp',
-  scripts: createScriptBundle({ entryPath: './client/sign-up', name: 'sign-up', modulesDirectories: [path.join('./client/common')] }),
-  sass: createSassBundle({ entryPath: './client/sign-up', name: 'sign-up' })
-});
+gulp.task('scripts.plugin', makeScripTask({
+  webpackConfig: makeWebpackConfig({
+    entry: path.join(__dirname, 'client', 'plugin', 'index.js'),
+    output: scriptsDist,
+    fileName: 'plugin',
+    modules: [clientCommonModules, path.join(__dirname, 'client', 'plugin')],
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      API_URL: process.env.API_URL
+    },
+    isDevelopment,
+  }),
+  isDevelopment
+}));
 
-buildBundleTasks({
-  name: 'signIn',
-  scripts: createScriptBundle({ entryPath: './client/sign-in', name: 'sign-in', modulesDirectories: [path.join('./client/common')] }),
-  sass: createSassBundle({ entryPath: './client/sign-in', name: 'sign-in' })
-});
+gulp.task('styles.plugin', makeSassTask({
+  entry: path.join(__dirname, 'client', 'plugin', 'index.scss'),
+  fileName: 'plugin',
+  output: stylesDist,
+  classPrefix: 'quiznator-',
+  isDevelopment
+}));
 
-buildBundleTasks({
-  name: 'plugin',
-  scripts: createScriptBundle({ entryPath: './client/plugin', name: 'plugin', modulesDirectories: [path.join('./client/common')] }),
-  sass: createSassBundle({ entryPath: './client/plugin', name: 'plugin', classPrefix: 'quiznator-' })
-});
+gulp.task('scripts.signIn', makeScripTask({
+  webpackConfig: makeWebpackConfig({
+    entry: path.join(__dirname, 'client', 'sign-in', 'index.js'),
+    output: scriptsDist,
+    fileName: 'sign-in',
+    modules: [clientCommonModules, path.join(__dirname, 'client', 'sign-in')],
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      API_URL: process.env.API_URL
+    },
+    isDevelopment,
+  }),
+  isDevelopment
+}));
 
-buildBundleTasks({
-  name: 'pluginLoader',
-  scripts: createScriptBundle({ entryPath: './client/plugin-loader', name: 'plugin-loader', modulesDirectories: [] })
-});
+gulp.task('styles.signIn', makeSassTask({
+  entry: path.join(__dirname, 'client', 'sign-in', 'index.scss'),
+  fileName: 'sign-in',
+  output: stylesDist,
+  isDevelopment
+}));
 
-gulp.task('default', () => {
-  gulp.run('serve.plugin');
-});
+gulp.task('scripts.signUp', makeScripTask({
+  webpackConfig: makeWebpackConfig({
+    entry: path.join(__dirname, 'client', 'sign-up', 'index.js'),
+    output: scriptsDist,
+    fileName: 'sign-up',
+    modules: [clientCommonModules, path.join(__dirname, 'client', 'sign-up')],
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      API_URL: process.env.API_URL
+    },
+    isDevelopment,
+  }),
+  isDevelopment
+}));
+
+gulp.task('styles.signUp', makeSassTask({
+  entry: path.join(__dirname, 'client', 'sign-up', 'index.scss'),
+  fileName: 'sign-up',
+  output: stylesDist,
+  isDevelopment
+}));
+
+gulp.task('scripts.pluginLoader', makeScripTask({
+  webpackConfig: makeWebpackConfig({
+    entry: path.join(__dirname, 'client', 'plugin-loader', 'index.js'),
+    output: scriptsDist,
+    fileName: 'plugin-loader',
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      PLUGIN_SCRIPT_URL: process.env.PLUGIN_SCRIPT_URL,
+      PLUGIN_STYLE_URL: process.env.PLUGIN_STYLE_URL
+    },
+    isDevelopment,
+  }),
+  isDevelopment
+}));
+
+gulp.task('build', [
+  'assets',
+  'scripts.dashboard',
+  'scripts.plugin',
+  'scripts.pluginLoader',
+  'scripts.signIn',
+  'scripts.signUp',
+  'styles.dashboard',
+  'styles.plugin',
+  'styles.signIn',
+  'styles.signUp'
+]);
+
+gulp.task('default', ['nodemon', 'scripts.dashboard', 'styles.dashboard:watch']);

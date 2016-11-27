@@ -1,9 +1,9 @@
 db.oauthauthorizationcodes.createIndex({ authCode: 1 }, { unique: true });
 
-db.oauthaccesstokens.createIndex({ userId: 1, clientId: 1 }, { unique: true });
+db.oauthaccesstokens.createIndex({ userId: 1, clientId: 1 });
 db.oauthaccesstokens.createIndex({ accessToken: 1 }, { unique: true });
 
-db.oauthrefreshtokens.createIndex({ userId: 1, clientId: 1 }, { unique: true });
+db.oauthrefreshtokens.createIndex({ userId: 1, clientId: 1 });
 db.oauthrefreshtokens.createIndex({ refreshToken: 1 }, { unique: true });
 
 db.oauthclients.createIndex({ clientId: 1 }, { unique: true });

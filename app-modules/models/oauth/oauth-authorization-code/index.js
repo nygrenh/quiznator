@@ -26,7 +26,6 @@ schema.statics.generateAuthCode = function({ clientId, userId }) {
 }
 
 schema.statics.saveAuthCode = function(authCode, clientId, expires, user, callback) {
-  console.log('Client id: ' + clientId)
   this.create({ authCode, clientId, expires, userId: user.id }, callback);
 }
 
