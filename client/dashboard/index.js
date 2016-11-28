@@ -11,7 +11,7 @@ import Routes from 'routes';
 import store from 'state/store';
 
 import { hideMainLoader } from 'common-utils/main-loader';
-import { userHasTokens } from 'common-utils/authentication';
+import { userHasTokens, removeTokens, redirectToSignIn } from 'common-utils/authentication';
 import { fetchProfile } from 'state/user';
 
 import routes from 'routes';
@@ -32,8 +32,17 @@ function allSet() {
 }
 
 if(!userHasTokens()) {
-  window.location.replace('/sign-in');
+  redirectToSignIn();
 } else {
   store.dispatch(fetchProfile())
-    .then(allSet);
+    .then(response => {
+      if(response.error) {
+        removeTokens();
+        redirectToSignIn();
+      } else {
+        allSet();
+      }
+
+      return null;
+    });
 }

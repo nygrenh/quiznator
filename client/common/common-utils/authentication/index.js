@@ -9,6 +9,10 @@ export function setTokens({ accessToken, refreshToken, expiresIn, tokenType }) {
   });
 }
 
+export function redirectToSignIn() {
+  window.location.replace('/sign-in');
+}
+
 export function updateTokens(update) {
   const tokens = store.get('tokens') || {};
 
