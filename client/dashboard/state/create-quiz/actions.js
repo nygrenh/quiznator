@@ -2,11 +2,11 @@ import { change, untouch } from 'redux-form';
 import { push } from 'react-router-redux';
 import _get from 'lodash.get';
 
-import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED } from 'common-constants/quiz-types';
+import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, SCALE } from 'common-constants/quiz-types';
 import { fetchQuizzesList } from 'state/quizzes-list';
 
 export const CHOOSE_QUIZ_TYPE = 'CREATE_QUIZ_CHOOSE_QUIZ_TYPE';
-export const SET_CREATE_QUIZ_MODAL_DISPLAY = 'CREATE_QUIZ_SET_CREATE_QUIZ_MODAL_DISPLAY';
+export const SET_MODAL_DISPLAY = 'CREATE_QUIZ_SET_MODAL_DISPLAY';
 export const POST_CREATE_QUIZ = 'CREATE_QUIZ_POST_CREATE_QUIZ';
 
 function createEmptyQuiz({ title, type }) {
@@ -21,6 +21,9 @@ function createEmptyQuiz({ title, type }) {
     case CHECKBOX:
       return Object.assign({}, base, { data: { items: [], meta: {} } });
       break;
+    case SCALE:
+      return Object.assign({}, base, { data: { items: [], scale: 7, meta: {} } });
+      break;
     default:
       return Object.assign({}, base, { data: {} });
   }
@@ -33,11 +36,11 @@ export function resetForm() {
   }
 }
 
-export function toggleCreateQuizModal() {
+export function toggleModal() {
   return (dispatch, getState) => {
     const { createQuiz } = getState();
 
-    dispatch(setCreateQuizModalDisplay(!createQuiz.modalIsOpen));
+    dispatch(setModalDisplay(!createQuiz.modalIsOpen));
     dispatch(resetForm());
   }
 }
@@ -55,9 +58,9 @@ export function postCreateQuiz(quiz) {
   }
 }
 
-export function setCreateQuizModalDisplay(isOpen) {
+export function setModalDisplay(isOpen) {
   return {
-    type: SET_CREATE_QUIZ_MODAL_DISPLAY,
+    type: SET_MODAL_DISPLAY,
     isOpen
   }
 }
@@ -79,9 +82,9 @@ export function createQuiz() {
 
     return dispatch(postCreateQuiz(newQuiz))
       .then(response => {
+        dispatch(push(`/dashboard/quizzes/${response.payload.data._id}/edit`));
         dispatch(toggleCreateQuizModal());
         dispatch(resetForm());
-        dispatch(push(`/dashboard/quizzes/${response.payload.data._id}/edit`));
       });
   }
 }

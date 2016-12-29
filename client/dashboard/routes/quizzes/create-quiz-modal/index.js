@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, FormText, FormFeedback } from 'reactstrap';
 import { Field, reduxForm } from 'redux-form';
 
-import { toggleCreateQuizModal, createQuiz } from 'state/create-quiz';
+import { toggleModal, createQuiz } from 'state/create-quiz';
 
 const validate = values => {
   const errors = {};
@@ -61,7 +61,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  onToggle: () => dispatch(toggleCreateQuizModal()),
+  onToggle: () => dispatch(toggleModal()),
   onSubmit: () => dispatch(createQuiz())
 });
 

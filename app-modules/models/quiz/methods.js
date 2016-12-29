@@ -1,7 +1,51 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const hl = require('highland');
+
 const quizTypes = require('app-modules/constants/quiz-types');
+
+function cloneShallow(options) {
+  const { query, newAttributes } = options;
+
+  const stream = this.find(query).cursor();
+
+  const oldIdToNewId = {};
+  const quizRefs = {};
+
+  return new Promise((resolve, reject) => {
+    hl(stream)
+      .map(quiz => {
+        const asObject = quiz.toObject();
+        const withoutIdentifiers = _.omit(asObject, ['_id', 'createdAt', 'updatedAt']);
+
+        return Object.assign({},
+          withoutIdentifiers,
+          newAttributes || {},
+          { _oldId: asObject._id }
+        );
+      })
+      .map(newQuiz => {
+        const promise = this.create(newQuiz)
+          .then(quiz => {
+            oldIdToNewId[newQuiz._oldId.toString()] = quiz._id.toString();
+
+            return quiz;
+          });
+
+        return hl(promise);
+      })
+      .parallel(20)
+      .tap(clonedQuiz => {
+        if(_.get(clonedQuiz, 'data.quizId')) {
+          quizRefs[clonedQuiz._id.toString()] = clonedQuiz.data.quizId;
+        }
+      })
+      .done((err) => {
+        resolve({ quizRefs, oldIdToNewId });
+      });
+  });
+}
 
 function formatTags(next) {
   this.tags = _.chain(this.tags || [])
@@ -28,6 +72,28 @@ module.exports = schema => {
     const modifiedQuery = Object.assign({}, { type: { $in: answerableTypes } }, query);
 
     return this.find(modifiedQuery);
+  }
+
+  schema.statics.clone = function(options) {
+    return cloneShallow.bind(this, options)()
+      .then(data => {
+        const { quizRefs, oldIdToNewId } = data;
+
+        return new Promise((resolve, reject) => {
+          hl(Object.keys(quizRefs))
+            .map(refererId => {
+              const targetId = oldIdToNewId[quizRefs[refererId]];
+
+              const promise = targetId
+                ? this.update({ _id: refererId }, { $set: { 'data.quizId': targetId } })
+                : Promise.resolve();
+
+              return hl(promise);
+            })
+            .parallel(20)
+            .done(() => resolve());
+        });
+      });
   }
 
   schema.methods.getStats = function() {
@@ -79,7 +145,6 @@ module.exports = schema => {
     ].filter(p => !!p);
 
     if(this.type === quizTypes.PEER_REVIEW) {
-      console.log(getPeerReviewAggregation(true));
       query = Promise.all([
         mongoose.models.PeerReview.aggregate(getPeerReviewAggregation(true)).exec(),
         mongoose.models.PeerReview.aggregate(getPeerReviewAggregation(false)).exec()

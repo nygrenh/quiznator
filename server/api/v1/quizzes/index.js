@@ -14,6 +14,16 @@ router.get('/',
     res.json(req.quizzes);
   });
 
+router.post('/clone',
+  authenticationMiddlewares.authorize(),
+  middlewares.cloneUsersQuizzes({
+    getUserId: req => req.userId,
+    getQuery: req => req.body
+  }),
+  (req, res, next) => {
+    res.sendStatus(200);
+  });
+
 router.get('/:id',
   middlewares.getQuizById(req => req.params.id),
   (req, res, next) => {

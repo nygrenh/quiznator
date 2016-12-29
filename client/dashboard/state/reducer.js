@@ -6,6 +6,7 @@ import user from './user';
 import tokens from './tokens';
 import quizzesList from './quizzes-list';
 import createQuiz from './create-quiz';
+import cloneQuizzes from './clone-quizzes';
 import quizzesListFilters from './quizzes-list-filters';
 import editQuiz from './edit-quiz';
 import publishQuiz from './publish-quiz';
@@ -19,6 +20,7 @@ export default combineReducers({
   quizzesList,
   quizzesListFilters,
   createQuiz,
+  cloneQuizzes,
   editQuiz,
   publishQuiz,
   toaster

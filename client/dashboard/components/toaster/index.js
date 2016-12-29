@@ -10,10 +10,10 @@ class Toaster extends React.Component {
   renderToasts() {
     return this.props.toasts.map(toast => {
       return (
-        <Alert type={toast.type} key={toast.id} dismissible={true} onClose={() => this.props.onRemove(toast.id)}>
+        <div className={`toaster__toast toaster__toast--${toast.type}`} key={toast.id} onClick={() => this.props.onRemove(toast.id)}>
           {toast.content}
-        </Alert>
-      )
+        </div>
+      );
     });
   }
 

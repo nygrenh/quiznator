@@ -7,6 +7,7 @@ import Loader from 'components/loader';
 import Icon from 'components/icon';
 import QuizzesListFiltersModal from './quizzes-list-filters-modal';
 import CreateQuizDropdown from './create-quiz-dropdown';
+import CloneQuizzesModal from './clone-quizzes-modal';
 import CreateQuizModal from './create-quiz-modal';
 import QuizzesTable from './quizzes-table';
 import { openModal } from 'state/quizzes-list-filters';
@@ -28,16 +29,15 @@ class Quizzes extends React.Component {
     return (
       <div className="m-b-1 clearfix">
         <div className="pull-right">
-          <CreateQuizDropdown/>
-        </div>
+          <CreateQuizDropdown className="m-r-1"/>
 
-        <Button
-          color="secondary"
-          className="pull-right m-r-1"
-          onClick={this.props.onOpenFiltersModal}
-        >
-          <Icon name="filter" /> Adjust filters
-        </Button>
+          <Button
+            color="secondary"
+            onClick={this.props.onOpenFiltersModal}
+          >
+            <Icon name="filter" /> Adjust filters
+          </Button>
+        </div>
       </div>
     );
   }
@@ -61,6 +61,7 @@ class Quizzes extends React.Component {
         {this.renderHeader()}
         {this.renderTable()}
         <CreateQuizModal />
+        <CloneQuizzesModal />
         <QuizzesListFiltersModal />
       </div>
     )

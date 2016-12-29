@@ -112,6 +112,10 @@ class QuizLoader extends React.Component {
     this.props.onDataChange(['rejectedQuizAnswerId'], rejectedQuizAnswerId);
   }
 
+  onScaleChange(itemId, value) {
+    this.props.onDataChange([itemId], value);
+  }
+
   onPeerReviewReviewChange(review) {
     this.props.onDataChange(['review'], review);
   }
@@ -132,6 +136,7 @@ class QuizLoader extends React.Component {
       onCheckboxChange: this.onCheckboxChange.bind(this),
       onPeerReviewReviewChange: this.onPeerReviewReviewChange.bind(this),
       onPeerReviewChosenReviewChange: this.onPeerReviewChosenReviewChange.bind(this),
+      onScaleChange: this.onScaleChange.bind(this),
       answer: this.props.answer,
       submitting: this.isSubmitting(),
       submitted: this.props.quiz.submitted,

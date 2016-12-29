@@ -4,6 +4,7 @@ export const OPEN = 'OPEN';
 export const PEER_REVIEW = 'PEER_REVIEW';
 export const PEER_REVIEWS_RECEIVED = 'PEER_REVIEWS_RECEIVED';
 export const CHECKBOX = 'CHECKBOX';
+export const SCALE = 'SCALE';
 
 export const typeToLabel = {
   [MULTIPLE_CHOICE]: 'Multiple choice',
@@ -11,7 +12,8 @@ export const typeToLabel = {
   [CHECKBOX]: 'Checkbox',
   [ESSAY]: 'Essay',
   [PEER_REVIEW]: 'Give peer review',
-  [PEER_REVIEWS_RECEIVED]: 'View peer reviews'
-}
+  [PEER_REVIEWS_RECEIVED]: 'View peer reviews',
+  [SCALE]: 'Scale',
+};
 
-export const answerableTypes = [MULTIPLE_CHOICE, ESSAY, CHECKBOX, OPEN];
+export const answerableTypes = [MULTIPLE_CHOICE, ESSAY, CHECKBOX, OPEN, SCALE];

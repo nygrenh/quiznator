@@ -46,6 +46,33 @@ function getUsersQuizzes(getUserId) {
   }
 }
 
+function cloneUsersQuizzes(options) {
+  return (req, res, next) => {
+    const userId = options.getUserId(req);
+    const { quizId, tagsFrom, tagsTo } = options.getQuery(req);
+
+    if(!quizId && (!tagsFrom || tagsFrom.length === 0)) {
+      return next(new errors.InvalidRequestError('Either quiz id or tags is required'));
+    }
+
+    const newAttributes = tagsTo
+      ? { tags: tagsTo }
+      : {};
+
+    let query = { userId };
+
+    if(quizId) {
+      query = Object.assign({}, query, { _id: quizId });
+    } else if(tagsFrom) {
+      query = Object.assign({}, query, { tags: { $in: tagsFrom } });
+    }
+
+    Quiz.clone({ query, newAttributes })
+      .then(() => next())
+      .catch(next);
+  }
+}
+
 function getQuizById(getId) {
   return (req, res, next) => {
     const id = getId(req);
@@ -125,4 +152,12 @@ function createQuiz(options) {
   }
 }
 
-module.exports = { getUsersQuizzes, getQuizById, getQuizStatsById, createQuiz, updateQuiz, removeQuiz };
+module.exports = {
+  getUsersQuizzes,
+  getQuizById,
+  getQuizStatsById,
+  createQuiz,
+  updateQuiz,
+  removeQuiz,
+  cloneUsersQuizzes
+};

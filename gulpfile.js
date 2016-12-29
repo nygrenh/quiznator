@@ -11,6 +11,7 @@ const makeAssetTask = require('gulp-tasks/assets-task');
 const makeScripTask = require('gulp-tasks/script-task');
 const makeWebpackConfig = require('gulp-tasks/webpack-config');
 const makeSassTask = require('gulp-tasks/sass-task');
+const makeMochaTask = require('gulp-tasks/mocha-task');
 
 const scriptsDist = path.join(__dirname, 'dist', 'javascripts');
 const stylesDist = path.join(__dirname, 'dist', 'stylesheets');
@@ -76,6 +77,10 @@ gulp.task('styles.plugin', makeSassTask({
   isDevelopment
 }));
 
+gulp.task('styles.plugin:watch', ['styles.dashboard'], () => {
+  gulp.watch(['./client/plugin/**/*.scss'], ['styles.plugin']);
+});
+
 gulp.task('scripts.signIn', makeScripTask({
   webpackConfig: makeWebpackConfig({
     entry: path.join(__dirname, 'client', 'sign-in', 'index.js'),
@@ -133,6 +138,10 @@ gulp.task('scripts.pluginLoader', makeScripTask({
     isDevelopment,
   }),
   isDevelopment
+}));
+
+gulp.task('tests.server', makeMochaTask({
+  entries: ['./app-modules/**/__tests__/*.js', './server/**/__tests__/*.js']
 }));
 
 gulp.task('build', [

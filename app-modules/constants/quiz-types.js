@@ -6,5 +6,6 @@ module.exports = mirror({
   ESSAY: null,
   PEER_REVIEW: null,
   PEER_REVIEWS_RECEIVED: null,
-  OPEN: null
+  OPEN: null,
+  SCALE: null,
 });

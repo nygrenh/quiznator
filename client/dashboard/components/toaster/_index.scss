@@ -3,6 +3,23 @@
   top: 1rem;
   right: 1rem;
   max-width: 500px;
-  z-index: 99;
+  z-index: 9999;
   width: 100%;
+
+  &__toast {
+    padding: $spacer-x $spacer-y;
+    margin-bottom: $spacer-x;
+    border-radius: $border-radius;
+    cursor: pointer;
+    color: white;
+    @include z-index(1);
+
+    &--danger {
+      background-color: $brand-danger;
+    }
+
+    &--success {
+      background-color: $brand-success;
+    }
+  }
 }

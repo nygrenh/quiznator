@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, FormGroup, Input, Button, FormText, Label } from 'reactstrap';
 
-import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN } from 'common-constants/quiz-types';
+import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN, SCALE } from 'common-constants/quiz-types';
 
 import Alert from 'common-components/alert';
 import UsersTagsSelector from 'components/users-tags-selector';
@@ -11,6 +11,7 @@ import PeerReviewQuizEditor from './peer-review-quiz-editor';
 import PeerReviewsReceivedQuizEditor from './peer-reviews-received-quiz-editor';
 import CheckboxQuizEditor from './checkbox-quiz-editor';
 import OpenQuizEditor from './open-quiz-editor';
+import ScaleQuizEditor from './scale-quiz-editor';
 
 const mapQuizTypeToEditor = {
   [ESSAY]: EssayQuizEditor,
@@ -18,7 +19,8 @@ const mapQuizTypeToEditor = {
   [PEER_REVIEW]: PeerReviewQuizEditor,
   [PEER_REVIEWS_RECEIVED]: PeerReviewsReceivedQuizEditor,
   [CHECKBOX]: CheckboxQuizEditor,
-  [OPEN]: OpenQuizEditor
+  [OPEN]: OpenQuizEditor,
+  [SCALE]: ScaleQuizEditor,
 };
 
 class QuizEditor extends React.Component {

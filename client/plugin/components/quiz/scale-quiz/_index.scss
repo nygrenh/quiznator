@@ -1,0 +1,48 @@
+.scale-quiz {
+  &__item {
+    padding-bottom: $spacing;
+
+    &:last-child {
+      padding-bottom: 0rem;
+    }
+  }
+
+  &__item-title, &__item-scales, &__legend-padding, &__legend-content {
+    float: left;
+    box-sizing: border-box;
+  }
+
+  &__legend {
+    padding-bottom: $spacing;
+  }
+
+  &__legend-padding {
+    width: 40%;
+    min-height: 1px;
+  }
+
+  &__legend-content {
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__legend-min-title {
+    padding-right: $spacing;
+  }
+
+  &__item-title {
+    padding-right: $spacing;
+    width: 40%;
+  }
+
+  &__item-scales {
+    width: 60%;
+    display: flex;
+  }
+
+  &__scale-container {
+    flex: 1;
+    text-align: center;
+  }
+}
