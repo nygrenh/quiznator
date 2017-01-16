@@ -9,7 +9,9 @@ const quizAnswerFetchLogic = store => next => action => {
     const quizIsLoaded = quizzes[quizId] && quizzes[quizId].data;
 
     if(!answerIsBeingLoaded && quizIsLoaded) {
-      return next(action);
+      const { populateAnswers } = quizzes[quizId].data;
+
+      return next(Object.assign({}, action, { populateAnswers }));
     }
   } else {
     return next(action);

@@ -1,5 +1,5 @@
 import scour from 'scourjs';
-import _get from 'lodash.get';
+import lget from 'lodash.get';
 
 import { createReducer } from 'redux-create-reducer';
 
@@ -30,12 +30,13 @@ export default createReducer({}, {
       .value;
   },
   [FETCH_QUIZ_ANSWER_SUCCESS](state, action) {
-    if(_get(action, 'payload.data[0]')) {
+    if(lget(action, 'payload.data[0]')) {
       const answer = action.payload.data[0];
+      const populateAnswers = !!lget(action, 'meta.previousAction.populateAnswers');
 
       return scour(state)
         .go(answer.quizId)
-        .extend({ data: answer.data, isOld: true, loading: false })
+        .extend({ data: populateAnswers ? answer.data : null, isOld: true, loading: false })
         .root
         .value;
     } else {
@@ -50,7 +51,7 @@ export default createReducer({}, {
       .value;
   },
   [FETCH_PEER_REVIEWS_GIVEN_SUCCESS](state, action) {
-    if(_get(action, 'payload.data[0]')) {
+    if(lget(action, 'payload.data[0]')) {
       const quizId = action.meta.previousAction.quizId;
       const review = action.payload.data[0];
 

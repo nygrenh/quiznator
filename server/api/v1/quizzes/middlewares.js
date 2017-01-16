@@ -106,7 +106,7 @@ function getQuizStatsById(getId) {
 
 function updateQuiz(options) {
   return (req, res, next) => {
-    const allowedAttributes = pick(options.getAttributes(req), ['title', 'data', 'body', 'expiresAt', 'tags']);
+    const allowedAttributes = pick(options.getAttributes(req), ['title', 'populateAnswers', 'data', 'body', 'expiresAt', 'tags']);
 
     Quiz.updateWithValidation(options.getQuery(req), allowedAttributes)
       .then(updatedQuiz => {
@@ -136,7 +136,7 @@ function createQuiz(options) {
   return (req, res, next) => {
     const userId = options.getUserId(req);
 
-    const allowedAttributes = pick(options.getAttributes(req), ['type', 'title', 'data', 'expiresAt']);
+    const allowedAttributes = pick(options.getAttributes(req), ['type', 'populateAnswers', 'title', 'data', 'expiresAt']);
     const attributes = Object.assign({}, allowedAttributes, { userId });
 
     const newQuiz = new Quiz(attributes)

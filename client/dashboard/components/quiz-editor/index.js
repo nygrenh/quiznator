@@ -30,6 +30,7 @@ class QuizEditor extends React.Component {
     this.onBodyChange = this.onBodyChange.bind(this);
     this.onTitleChange = this.onTitleChange.bind(this);
     this.onTagsChange = this.onTagsChange.bind(this);
+    this.onPopulateAnswersChange = this.onPopulateAnswersChange.bind(this);
   }
 
   renderEditorContent() {
@@ -42,16 +43,20 @@ class QuizEditor extends React.Component {
     }
   }
 
-  onTitleChange() {
-    this.props.onTitleChange(this.refs.title.value);
+  onTitleChange(e) {
+    this.props.onTitleChange(e.target.value);
   }
 
-  onBodyChange() {
-    this.props.onBodyChange(this.refs.body.value);
+  onBodyChange(e) {
+    this.props.onBodyChange(e.target.value);
   }
 
   onTagsChange(value) {
     this.props.onTagsChange((value || []).map(value => value.value));
+  }
+
+  onPopulateAnswersChange(e) {
+    this.props.onPopulateAnswersChange(e.target.checked);
   }
 
   onSave(e) {
@@ -73,7 +78,6 @@ class QuizEditor extends React.Component {
             placeholder="Title"
             value={quiz.title}
             className="form-control"
-            ref="title"
             onChange={this.onTitleChange}
           />
         </FormGroup>
@@ -82,7 +86,6 @@ class QuizEditor extends React.Component {
           <Label>Body</Label>
           <textarea
             placeholder="Body"
-            ref="body"
             value={quiz.body}
             rows={6}
             className="form-control"
@@ -92,6 +95,14 @@ class QuizEditor extends React.Component {
           <FormText color="muted">
             This field supports <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">markup</a>.
           </FormText>
+        </FormGroup>
+
+        <FormGroup>
+          <div className="form-check">
+            <label className="form-check-label">
+              <input type="checkbox" className="form-check-input" checked={!!quiz.populateAnswers} onChange={this.onPopulateAnswersChange} /> Populate answers
+            </label>
+          </div>
         </FormGroup>
 
         <FormGroup>

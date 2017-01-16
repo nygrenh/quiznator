@@ -20,6 +20,7 @@ const schema = new mongoose.Schema({
     },
     message: '{VALUE} is not an array of strings'
   },
+  populateAnswers: { type: Boolean, default: true },
   userId: { type: mongoose.Schema.Types.ObjectId, required: true },
   expiresAt: { type: Date }
 }, { timestamps: true });
