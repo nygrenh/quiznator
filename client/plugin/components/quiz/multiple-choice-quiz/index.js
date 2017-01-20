@@ -1,5 +1,6 @@
 import React from 'react';
-import get from 'lodash.get';
+import lget from 'lodash.get';
+import ReactMarkdown from 'react-markdown';
 
 import { quizPropsTypes, quizDefaultProps } from 'components/quiz';
 
@@ -17,7 +18,7 @@ class MultipleChoiceQuiz extends React.Component {
       <div key={item.id} className={withClassPrefix('radio')}>
         <label>
           <input type="radio" checked={this.getAnswer() === item.id} disabled={this.props.disabled} name={`${this.props.quiz._id}-multiple-choise`} value={item.id} onChange={this.onRadioChange(item.id)}/>
-          {item.title}
+          <ReactMarkdown source={item.title} />
         </label>
       </div>
     );
@@ -42,7 +43,7 @@ class MultipleChoiceQuiz extends React.Component {
   }
 
   getAnswer() {
-    return get(this.props.answer, 'data');
+    return lget(this.props.answer, 'data');
   }
 
   render() {

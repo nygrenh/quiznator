@@ -1,5 +1,6 @@
 import React from 'react';
-import _get from 'lodash.get';
+import lget from 'lodash.get';
+import ReactMarkdown from 'react-markdown';
 
 import withClassPrefix from 'utils/class-prefix';
 
@@ -7,7 +8,7 @@ import SubmitButton from 'components/quiz/submit-button';
 
 class CheckboxQuiz extends React.Component {
   getAnswer() {
-    return _get(this.props.answer, 'data') || [];
+    return lget(this.props.answer, 'data') || [];
   }
 
   answerIncludes(id) {
@@ -27,7 +28,7 @@ class CheckboxQuiz extends React.Component {
       <div key={item.id} className={withClassPrefix('checkbox')}>
         <label>
           <input type="checkbox" checked={this.answerIncludes(item.id)} disabled={this.props.disabled} name={`${this.props.quiz._id}-multiple-choise`} value={item.id} onChange={this.onCheckboxChange.bind(this)}/>
-          {item.title}
+          <ReactMarkdown source={item.title} />
         </label>
       </div>
     );
