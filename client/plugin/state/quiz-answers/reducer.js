@@ -51,8 +51,9 @@ export default createReducer({}, {
       .value;
   },
   [FETCH_PEER_REVIEWS_GIVEN_SUCCESS](state, action) {
-    if(lget(action, 'payload.data[0]')) {
-      const quizId = action.meta.previousAction.quizId;
+    const quizId = action.meta.previousAction.quizId;
+
+    if(lget(action, 'payload.data[0]') && lget(action, 'payload.data[0].sourceQuizId') === quizId) {
       const review = action.payload.data[0];
 
       return scour(state)

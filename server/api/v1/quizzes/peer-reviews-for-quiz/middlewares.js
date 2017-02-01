@@ -24,9 +24,19 @@ function getPeerReviewsGivenByAnswerer(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
     const giverAnswererId = options.getAnswererId(req);
+    const query = options.getQuery(req) || {};
 
+    let findQuery = { quizId, giverAnswererId };
 
-    PeerReview.find({ quizId, giverAnswererId })
+    if(query.sourceQuizId) {
+      findQuery = Object.assign({}, findQuery, { sourceQuizId: query.sourceQuizId });
+    }
+
+    const limit = +(query.limit || 50);
+
+    PeerReview.find(findQuery)
+      .limit(limit)
+      .exec()
       .then(reviews => {
         req.peerReviews = reviews;
 

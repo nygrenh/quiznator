@@ -148,7 +148,7 @@ export function fetchPeerReviewsGiven({ quizId, targetQuizId, answererId }) {
     answererId,
     payload: {
       request: {
-        url: `/quizzes/${targetQuizId}/peer-reviews/${answererId}/given-reviews?limit=1`,
+        url: `/quizzes/${targetQuizId}/peer-reviews/${answererId}/given-reviews?sourceQuizId=${quizId}&limit=1`,
         method: 'GET'
       }
     }
