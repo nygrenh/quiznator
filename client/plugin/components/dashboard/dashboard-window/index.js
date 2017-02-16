@@ -6,13 +6,17 @@ import { closeDashboard } from 'state/dashboard';
 import { selectAnswerableQuizzesWithAnswersAsArray, selectAnsweredQuizzesCount, selectAnswerableQuizzesCount } from 'selectors/quizzes';
 
 class DashboardWindow extends React.Component {
+  quizIsAnswered(quiz) {
+    return !!quiz.answer.data || quiz.answer.exists;
+  }
+
   renderQuizzesList() {
     return (
       <ul className={withClassPrefix('dashboard-window__quiz-list')}>
         {this.props.quizzes.map(quiz => {
           return (
-            <li key={quiz.id} className={withClassPrefix(`dashboard-window__quiz-list-item ${quiz.answer.data ? 'text-success' : 'text-muted'}`)}>
-              <a href={`#quiznator-plugin-${quiz.id}`}>{quiz.data.title}</a> {quiz.answer.data ? '\u2705' : null}
+            <li key={quiz.id} className={withClassPrefix(`dashboard-window__quiz-list-item ${this.quizIsAnswered(quiz) ? 'text-success' : 'text-muted'}`)}>
+              <a href={`#quiznator-plugin-${quiz.id}`}>{quiz.data.title}</a> {this.quizIsAnswered(quiz) ? '\u2705' : null}
             </li>
           );
         })}

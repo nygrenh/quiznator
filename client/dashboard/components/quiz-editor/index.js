@@ -93,7 +93,7 @@ class QuizEditor extends React.Component {
           />
 
           <FormText color="muted">
-            This field supports <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">markup</a>.
+            This field supports <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">markdown</a>.
           </FormText>
         </FormGroup>
 

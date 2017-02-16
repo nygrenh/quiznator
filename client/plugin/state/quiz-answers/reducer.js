@@ -36,7 +36,7 @@ export default createReducer({}, {
 
       return scour(state)
         .go(answer.quizId)
-        .extend({ data: populateAnswers ? answer.data : null, isOld: true, loading: false })
+        .extend({ data: populateAnswers ? answer.data : null, isOld: true, loading: false, exists: !!answer.data })
         .root
         .value;
     } else {

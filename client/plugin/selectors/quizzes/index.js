@@ -20,7 +20,7 @@ export const selectAnsweredQuizzes = createSelector(
   selectQuizAnswers,
   (quizzes, answers) => {
     return Object.keys(answers)
-      .filter(id => !!answers[id].data)
+      .filter(id => !!answers[id].data || answers[id].exists)
       .map(id => quizzes[id]);
   }
 );
