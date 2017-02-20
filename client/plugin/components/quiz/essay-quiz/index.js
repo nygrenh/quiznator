@@ -22,13 +22,56 @@ class EssayQuiz extends React.Component {
     return (content.match(/\S+/g) || []).length;
   }
 
+  getMinWords() {
+    return lget(this.props, 'quiz.data.meta.minWords') || null;
+  }
+
+  getMaxWords() {
+    return lget(this.props, 'quiz.data.meta.maxWords') || null;
+  }
+
   onEssayChange() {
     this.props.onDataChange([], this.refs.essay.value);
   }
 
+  renderPreferredWordCounts() {
+    const boundaries = [
+      this.getMinWords() ? `minimum number of words is ${this.getMinWords()}` : null,
+      this.getMaxWords() ? `maximum number of words is ${this.getMaxWords()}` : null,
+    ].filter(w => !!w);
+
+    if (boundaries.length > 0) {
+      return (
+        <p>
+          Preferred {boundaries.join(' and ')}
+        </p>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  wordCountIsAboveMax() {
+    return this.getMaxWords() && this.getWordCount() > this.getMaxWords();
+  }
+
+  wordCountIsBelowMin() {
+    return this.getMinWords() && this.getWordCount() < this.getMinWords();
+  }
+
+  renderWordCountInfo() {
+    if (this.wordCountIsBelowMin()) {
+      return 'Below minimum word count!'
+    } else if (this.wordCountIsAboveMax()) {
+      return 'Above maximum word count!';
+    } else {
+      return null;
+    }
+  }
+
   render() {
     const answerData = lget(this.props, 'answer.data') || '';
-    const isValid = answerData.length > 0;
+    const isValid = answerData.length > 0 && !this.wordCountIsBelowMin();
     const submitDisabled = !isValid || !!this.props.disabled || !!this.props.submitting;
 
     return (
@@ -38,8 +81,10 @@ class EssayQuiz extends React.Component {
           </textarea>
         </div>
 
+        {this.renderPreferredWordCounts()}
+
         <p className={withClassPrefix('text-muted')}>
-          Word count: {this.getWordCount()}
+          Word count: {this.getWordCount()}. {this.renderWordCountInfo()}
         </p>
 
         <div className={withClassPrefix('form-group')}>
