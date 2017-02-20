@@ -61,9 +61,9 @@ class EssayQuiz extends React.Component {
 
   renderWordCountInfo() {
     if (this.wordCountIsBelowMin()) {
-      return 'Below minimum word count!'
+      return 'Too short!'
     } else if (this.wordCountIsAboveMax()) {
-      return 'Above maximum word count!';
+      return 'Too long!';
     } else {
       return null;
     }
