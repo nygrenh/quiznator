@@ -55,11 +55,20 @@ function authorize() {
     (req, res, next) => {
       const userId = req.user.id;
 
-      delete req.user;
+      User.findById(userId)
+        .then(user => {
+          if (!user) {
+            next(new ForbiddenError());
+          } else {
+            req.userId = userId;
+            req.user = user;
 
-      req.userId = userId;
+            next();
+          }
 
-      return next();
+          return null;
+        })
+        .catch(next);
     }
   );
 }

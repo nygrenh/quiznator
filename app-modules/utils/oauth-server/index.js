@@ -34,7 +34,7 @@ module.exports = oauthServer({
     getUser: (username, password, callback) => {
       User.authenticate(username, password)
         .then(user => {
-          callback(null, { id: user._id });
+          callback(null, { id: user._id, user });
         })
         .catch(err => {
           callback(false, null);

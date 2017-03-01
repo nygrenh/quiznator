@@ -106,6 +106,14 @@ module.exports = schema => {
       });
   }
 
+  schema.statics.whereTags = function(tags) {
+    return this.where('tags').in(tags);
+  }
+
+  schema.methods.canInspectAnswers = function(user) {
+    return this.userId.toString() === user._id.toString();
+  }
+
   schema.methods.getAnswerDistribution = function() {
     if([quizTypes.CHECKBOX, quizTypes.MULTIPLE_CHOICE].indexOf(this.type) < 0) {
       return Promise.resolve({});

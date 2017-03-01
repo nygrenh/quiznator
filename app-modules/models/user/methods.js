@@ -46,6 +46,10 @@ module.exports = schema => {
       .then(aggregation => (aggregation || []).map(row => row._id));
   }
 
+  schema.methods.canInspectAnswersOfQuiz = function(quiz) {
+    return quiz.userId.toString() === this._id.toString();
+  }
+
   schema.methods.toJSON = function() {
     let toObject = this.toObject();
 
