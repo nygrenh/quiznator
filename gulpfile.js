@@ -157,4 +157,4 @@ gulp.task('build', [
   'styles.signUp'
 ]);
 
-gulp.task('default', ['nodemon', 'scripts.plugin', 'styles.plugin:watch']);
+gulp.task('default', ['nodemon', 'scripts.dashboard', 'styles.dashboard:watch']);

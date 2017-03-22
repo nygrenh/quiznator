@@ -2,11 +2,36 @@ const co = require('co');
 
 const Quiz = require('app-modules/models/quiz');
 const QuizAnswer = require('app-modules/models/quiz-answer');
-const { ForbiddenError, InvalidRequestError } = require('app-modules/errors');
+const { ForbiddenError, InvalidRequestError, NotFoundError } = require('app-modules/errors');
 
 const middlewares = {
   getQuizAnswers,
+  updateQuizAnswerConfirmation,
 };
+
+function updateQuizAnswerConfirmation() {
+  return (req, res, next) => {
+    co(function* () {
+      const { confirmed } = req.body;
+      const { id } = req.params;
+
+      const answer = yield QuizAnswer.findById(id);
+
+      if (!answer) {
+        return Promise.reject('Couldn\'t find the quiz answer');
+      }
+
+      answer.confirmed = !!confirmed;
+
+      yield answer.save();
+
+      req.answer = answer;
+
+      return next();
+    })
+    .catch(next);
+  }
+}
 
 function getQuizAnswers() {
   return (req, res, next) => {

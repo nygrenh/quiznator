@@ -9,4 +9,11 @@ router.get('/',
   authenticationMiddlewares.authorize(),
   middlewares.getQuizAnswers());
 
+router.put('/:id/confirmed',
+  authenticationMiddlewares.authorize(),
+  middlewares.updateQuizAnswerConfirmation(),
+  (req, res, next) => {
+    res.json(req.answer);
+  });
+
 module.exports = router;

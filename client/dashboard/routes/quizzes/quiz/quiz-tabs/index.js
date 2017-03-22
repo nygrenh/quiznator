@@ -17,6 +17,12 @@ class QuizTabs extends React.Component {
             Settings
           </Link>
         </NavItem>
+
+        <NavItem>
+          <Link to={`/dashboard/quizzes/${this.props.quizId}/answers`} className="nav-link" activeClassName="active">
+            Answers
+          </Link>
+        </NavItem>
       </Nav>
     )
   }

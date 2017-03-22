@@ -9,7 +9,8 @@ const schema = new mongoose.Schema({
   answererId: { type: String, required: true },
   data: { type: mongoose.Schema.Types.Mixed, required: true },
   spamFlags: { type: Number, default: 0 },
-  peerReviewCount: { type: Number, default: 0 }
+  peerReviewCount: { type: Number, default: 0 },
+  confirmed: { type: Boolean, default: false },
 }, { timestamps: true });
 
 require('./methods')(schema);
