@@ -26,14 +26,15 @@ export function createPeerReview({ quizId, sourceQuizId }) {
   return (dispatch, getState) => {
     const state = getState();
 
-    const { review, chosenQuizAnswerId, rejectedQuizAnswerId, targetAnswererId } = state.quizAnswers[sourceQuizId].data || {};
+    const { review, chosenQuizAnswerId, rejectedQuizAnswerId, targetAnswererId, likert } = state.quizAnswers[sourceQuizId].data || {};
 
     const peerReview = {
       quizId,
       sourceQuizId,
       review,
       chosenQuizAnswerId,
-      rejectedQuizAnswerId
+      rejectedQuizAnswerId,
+      grading: likert
     }
 
     if(state.user.id) {

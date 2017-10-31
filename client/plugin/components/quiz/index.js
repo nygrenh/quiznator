@@ -80,6 +80,7 @@ export const quizPropsTypes = {
   onMultipleChoiceChange: React.PropTypes.func,
   onCheckboxChange: React.PropTypes.func,
   onPeerReviewReviewChange: React.PropTypes.func,
+  onLikertChange: React.PropTypes.func,
   onPeerReviewChosenReviewChange: React.PropTypes.func,
   disabled: React.PropTypes.bool,
   submitted: React.PropTypes.bool,
@@ -98,6 +99,7 @@ export const quizDefaultProps = {
   onEssayChange: () => {},
   onMultipleChoiceChange: () => {},
   onPeerReviewReviewChange: () => {},
+  onLikertChange: () => {},
   onPeerReviewChosenReviewChange: () => {},
   onCheckboxChange: () => {},
   onSubmit: () => {}

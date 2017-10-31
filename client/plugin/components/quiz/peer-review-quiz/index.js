@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import _get from 'lodash.get';
+import LikertScale from 'likert-react';
 
 import Loader from 'components/loader';
 import PeerReview from './peer-review';
@@ -35,7 +36,8 @@ class PeerReviewQuiz extends React.Component {
   }
 
   validate() {
-    return this.getChosenReview() && _get(this.props.answer, 'data.review');
+    const likert = _get(this.props.answer, 'data.likert') || {};
+    return this.getChosenReview() && _get(this.props.answer, 'data.review') && Object.keys(likert).length == 4;
   }
 
   onSubmit(e) {
@@ -46,15 +48,30 @@ class PeerReviewQuiz extends React.Component {
     }
   }
 
+  handleLikertChange(name, value) {
+    this.props.onLikertChange(name, value);
+  }
+
   renderForm() {
     const isValid = this.validate();
     const submitDisabled = !isValid || !!this.props.disabled || !!this.props.submitting;
+
+    const reviews = [
+      { question: 'Essay was on-topic' },
+      { question: 'Essay was comprehensive' },
+      { question: 'Essay was well-reasoned' },
+      { question: 'Essay was easy to follow' }
+    ];
 
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
         <div className={withClassPrefix('form-group')}>
           <textarea disabled={this.props.disabled} onChange={this.onReviewChange.bind(this)} className={withClassPrefix('textarea')} rows={5} maxLength={5000} ref="review">
           </textarea>
+        </div>
+
+        <div className={withClassPrefix('form-group')}>
+          <LikertScale reviews={reviews} onClick={(name, value) => this.handleLikertChange(name, value)} />
         </div>
 
         <div className={withClassPrefix('form-group')}>

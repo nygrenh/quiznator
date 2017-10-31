@@ -120,6 +120,10 @@ class QuizLoader extends React.Component {
     this.props.onDataChange(['review'], review);
   }
 
+  onLikertChange(name, value) {
+    this.props.onDataChange(['likert', name], value)
+  }
+
   isExpired() {
     const expiresAt = this.props.quiz.data.expiresAt;
 
@@ -135,6 +139,7 @@ class QuizLoader extends React.Component {
       onMultipleChoiceChange: this.onMultipleChoiceChange.bind(this),
       onCheckboxChange: this.onCheckboxChange.bind(this),
       onPeerReviewReviewChange: this.onPeerReviewReviewChange.bind(this),
+      onLikertChange: this.onLikertChange.bind(this),
       onPeerReviewChosenReviewChange: this.onPeerReviewChosenReviewChange.bind(this),
       onScaleChange: this.onScaleChange.bind(this),
       answer: this.props.answer,
