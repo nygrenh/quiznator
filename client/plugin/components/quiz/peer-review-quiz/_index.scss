@@ -9,7 +9,8 @@
     &__answer {
       padding: $spacing 0rem;
       border-bottom: 1px solid $light-grey-border;
-
+      white-space: pre-line;
+      
       &:last-child {
         padding-bottom: 0rem !important;
         border: 0px none;

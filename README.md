@@ -33,3 +33,34 @@ document.addEventListener('quiznatorLoaded', function() {
   });
 });
 ```
+
+### Development
+
+To get a dev build working locally:
+
+- clone/fork
+- `npm install`
+- install/configure [mongo](https://docs.mongodb.com/manual/installation/) (Default settings assumed below.)
+- `mongo < create-indexes.js`
+- 
+
+        $ mongo  
+        use test    
+        db.oauthclients.insert({ clientID: "CLIENT_ID", clientSecret: "CLIENT_SECRET" })
+        quit()
+  
+Choose whatever you want for CLIENT_ID and CLIENT_SECRET, as long as you use the same values in `.env`.
+
+- edit `.env` to contain:
+ 
+        NODE_ENV=development
+        TMC_URL=<your tmc server url>
+        QUIZNATOR_CLIENT_ID=CLIENT_ID
+        QUIZNATOR_CLIENT_SECRET=CLIENT_SECRET
+        PLUGIN_SCRIPT_URL=http://127.0.0.1:3000/javascripts/plugin.min.js
+        PLUGIN_STYLE_URL=http://127.0.0.1:3000/stylesheets/plugin.min.css
+        MONGO_URI=mongodb://127.0.0.1:27017/test
+        API_URL=http://127.0.0.1:3000
+        PORT=3000
+
+**NOTE**: presumes `.env` to preside one level UP (ie. `../.env`). If you want to use `.env` in the same directory, edit `gulpfile.js` and `bin/www` accordingly. 

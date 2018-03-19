@@ -47,5 +47,6 @@ module.exports = oauthServer({
     accessTokenLifeTime: 3600
   },
   grants: ['password', 'refresh_token', 'authorization_code'],
-  debug: true
+  debug: true,
+  clientIdRegex: /^[A-Za-z0-9_-]{3,64}$/i
 });
