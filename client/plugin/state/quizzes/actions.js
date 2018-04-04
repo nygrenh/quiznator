@@ -5,9 +5,10 @@ export const SET_QUIZ_AS_SUBMITTED = 'QUIZZES::SET_QUIZ_AS_SUBMITTED';
 
 import { createQuizAnswer } from 'state/quiz-answers';
 import { createPeerReview } from 'state/peer-reviews';
+import { createPrivacyAgreement } from 'state/privacy-agreement';
 
 import { createTemporalAlert } from 'state/quiz-alerts';
-import { PEER_REVIEW } from 'common-constants/quiz-types';
+import { PEER_REVIEW, PRIVACY_AGREEMENT } from 'common-constants/quiz-types';
 
 export function submitQuiz(id) {
   return (dispatch, getState) => {
@@ -17,9 +18,25 @@ export function submitQuiz(id) {
 
     dispatch(setQuizAsSubmitted(id));
 
-    const createPromise = quiz.type === PEER_REVIEW
+    var createPromise = {};
+
+    switch (quiz.type) {
+      case PEER_REVIEW: 
+        createPromise = dispatch(createPeerReview({ quizId: quiz.data.quizId, sourceQuizId: id }));
+        break;
+      case PRIVACY_AGREEMENT:
+        createPromise = 
+          dispatch(createPrivacyAgreement({ quizId: id, data: quizAnswers[id].data }))
+            .then(dispatch(createQuizAnswer({ quizId: id, data: quizAnswers[id].data })))
+        break;
+      default:
+        createPromise = dispatch(createQuizAnswer({ quizId: id, data: quizAnswers[id].data }));
+    }
+
+/*      const createPromise = quiz.type === PEER_REVIEW
       ? dispatch(createPeerReview({ quizId: quiz.data.quizId, sourceQuizId: id }))
       : dispatch(createQuizAnswer({ quizId: id, data: quizAnswers[id].data }));
+ */ 
 
     createPromise
       .then(response => {

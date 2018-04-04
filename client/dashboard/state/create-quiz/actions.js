@@ -2,7 +2,7 @@ import { change, untouch } from 'redux-form';
 import { push } from 'react-router-redux';
 import _get from 'lodash.get';
 
-import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, SCALE } from 'common-constants/quiz-types';
+import { CHECKBOX, PRIVACY_AGREEMENT, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, SCALE } from 'common-constants/quiz-types';
 import { fetchQuizzesList } from 'state/quizzes-list';
 
 export const CHOOSE_QUIZ_TYPE = 'CREATE_QUIZ_CHOOSE_QUIZ_TYPE';
@@ -19,6 +19,7 @@ function createEmptyQuiz({ title, type }) {
   switch (type) {
     case MULTIPLE_CHOICE:
     case CHECKBOX:
+    case PRIVACY_AGREEMENT:
       return Object.assign({}, base, { data: { items: [], meta: {} } });
       break;
     case SCALE:

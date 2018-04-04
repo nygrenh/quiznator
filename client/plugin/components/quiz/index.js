@@ -10,10 +10,11 @@ import MultipleChoiceQuiz from './multiple-choice-quiz';
 import PeerReviewQuiz from './peer-review-quiz';
 import PeerReviewsReceivedQuiz from './peer-reviews-received-quiz';
 import CheckboxQuiz from './checkbox-quiz';
+import PrivacyAgreementQuiz from './privacy-agreement-quiz';
 import OpenQuiz from './open-quiz';
 import ScaleQuiz from './scale-quiz';
 
-import { CHECKBOX, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN, SCALE } from 'common-constants/quiz-types';
+import { CHECKBOX, PRIVACY_AGREEMENT, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN, SCALE } from 'common-constants/quiz-types';
 import withClassPrefix from 'utils/class-prefix';
 
 const mapQuizTypeToComponent = {
@@ -22,6 +23,7 @@ const mapQuizTypeToComponent = {
   [PEER_REVIEW]: PeerReviewQuiz,
   [PEER_REVIEWS_RECEIVED]: PeerReviewsReceivedQuiz,
   [CHECKBOX]: CheckboxQuiz,
+  [PRIVACY_AGREEMENT]: PrivacyAgreementQuiz,
   [OPEN]: OpenQuiz,
   [SCALE]: ScaleQuiz,
 }
@@ -79,6 +81,7 @@ export const quizPropsTypes = {
   onEssayChange: React.PropTypes.func,
   onMultipleChoiceChange: React.PropTypes.func,
   onCheckboxChange: React.PropTypes.func,
+  onPrivacyAgreementChange: React.PropTypes.func,
   onPeerReviewReviewChange: React.PropTypes.func,
   onLikertChange: React.PropTypes.func,
   onPeerReviewChosenReviewChange: React.PropTypes.func,
@@ -102,6 +105,7 @@ export const quizDefaultProps = {
   onLikertChange: () => {},
   onPeerReviewChosenReviewChange: () => {},
   onCheckboxChange: () => {},
+  onPrivacyAgreementChange: () => {},
   onSubmit: () => {}
 }
 

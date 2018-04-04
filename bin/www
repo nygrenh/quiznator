@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const resolve = require('path').resolve;
 
-require('dotenv').config({ path: resolve('..', '.env'), silent: true });
+require('dotenv').config({ path: resolve(__dirname, '../', '.env') });
 
 /**
  * Module dependencies.

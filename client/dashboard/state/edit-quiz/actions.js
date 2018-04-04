@@ -1,4 +1,4 @@
-import scour from 'scourjs';
+  import scour from 'scourjs';
 import { push } from 'react-router-redux';
 
 import { createToast } from 'state/toaster';

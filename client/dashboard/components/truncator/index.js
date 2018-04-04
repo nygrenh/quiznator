@@ -43,10 +43,12 @@ class Truncator extends React.Component {
 
   render() {
     return this.props.content ? (
-      <span>
-        {this.renderContent()} {' '}
-        {this.exceedsLength() ? this.renderToggler() : null}
-      </span>
+      <div className={'truncator'}>
+        <span>
+          {this.renderContent()} {' '}
+          {this.exceedsLength() ? this.renderToggler() : null}
+        </span>
+      </div>
     ) : null;
   }
 }

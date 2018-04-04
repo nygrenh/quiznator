@@ -69,7 +69,12 @@ class MultipleChoiceQuizEditorMetaEditor extends React.Component {
       <div>
         <div className="m-b-1">
           <label>Right answers</label>
-          <Selector options={options} multi={true} name="meta-right-answers" value={this.props.rightAnswer} onChange={this.onRightAnswersChange.bind(this)}/>
+          <Selector 
+            options={options} 
+            multi={true} 
+            name="meta-right-answers" 
+            value={this.props.rightAnswer} 
+            onChange={this.onRightAnswersChange.bind(this)}/>
         </div>
 
         {this.renderErrorMessages()}

@@ -4,16 +4,18 @@ export const OPEN = 'OPEN';
 export const PEER_REVIEW = 'PEER_REVIEW';
 export const PEER_REVIEWS_RECEIVED = 'PEER_REVIEWS_RECEIVED';
 export const CHECKBOX = 'CHECKBOX';
+export const PRIVACY_AGREEMENT = "PRIVACY_AGREEMENT";
 export const SCALE = 'SCALE';
 
 export const typeToLabel = {
   [MULTIPLE_CHOICE]: 'Multiple choice',
   [OPEN]: 'Open',
   [CHECKBOX]: 'Checkbox',
+  [PRIVACY_AGREEMENT]: 'Privacy agreement',
   [ESSAY]: 'Essay',
   [PEER_REVIEW]: 'Give peer review',
   [PEER_REVIEWS_RECEIVED]: 'View peer reviews',
   [SCALE]: 'Scale',
 };
 
-export const answerableTypes = [MULTIPLE_CHOICE, ESSAY, CHECKBOX, OPEN, SCALE];
+export const answerableTypes = [MULTIPLE_CHOICE, ESSAY, CHECKBOX, PRIVACY_AGREEMENT, OPEN, SCALE];

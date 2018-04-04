@@ -26,7 +26,7 @@ function getQuizsAnswers(options) {
       .exec()
       .then(answers => {
         req.quizsAnswers = answers;
-
+        
         return next();
       })
       .catch(err => next(err));

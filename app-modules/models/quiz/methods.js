@@ -67,7 +67,8 @@ function removeDependent(next) {
 
 module.exports = schema => {
   schema.statics.findAnswerable = function(query) {
-    const answerableTypes = [quizTypes.MULTIPLE_CHOICE, quizTypes.CHECKBOX, quizTypes.ESSAY, quizTypes.OPEN];
+    const answerableTypes = [quizTypes.MULTIPLE_CHOICE, quizTypes.CHECKBOX, 
+                             quizTypes.PRIVACY_AGREEMENT, quizTypes.ESSAY, quizTypes.OPEN];
 
     const modifiedQuery = Object.assign({}, { type: { $in: answerableTypes } }, query);
 
@@ -115,13 +116,13 @@ module.exports = schema => {
   }
 
   schema.methods.getAnswerDistribution = function() {
-    if([quizTypes.CHECKBOX, quizTypes.MULTIPLE_CHOICE].indexOf(this.type) < 0) {
+    if([quizTypes.CHECKBOX, quizTypes.PRIVACY_AGREEMENT, quizTypes.MULTIPLE_CHOICE].indexOf(this.type) < 0) {
       return Promise.resolve({});
     }
 
     const aggregation = [
       { $match: { quizId: this._id } },
-      this.type === quizTypes.CHECKBOX ? { $unwind: '$data' } : undefined,
+      this.type === (quizTypes.CHECKBOX || quizTypes.PRIVACY_AGREEMENT) ? { $unwind: '$data' } : undefined,
       { $group: { _id: '$data', count: { $sum: 1 } } }
     ].filter(p => !!p);
 

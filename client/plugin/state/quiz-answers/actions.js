@@ -1,7 +1,13 @@
 import _get from 'lodash.get';
 
 import { createTemporalAlert } from 'state/quiz-alerts';
-import { PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN, MULTIPLE_CHOICE, answerableTypes } from 'common-constants/quiz-types';
+import { 
+  PEER_REVIEW, 
+  PEER_REVIEWS_RECEIVED, 
+  OPEN, 
+  MULTIPLE_CHOICE, 
+  answerableTypes 
+} from 'common-constants/quiz-types';
 
 export const REMOVE_QUIZ_ANSWERS = 'QUIZ_ANSWERS::REMOVE_QUIZ_ANSWERS';
 export const SET_QUIZ_ANSWER_DATA_PATH = 'QUIZ_ANSWERS::SET_QUIZ_ANSWERS_DATA_PATH';
