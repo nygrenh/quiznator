@@ -64,3 +64,5 @@ Choose whatever you want for CLIENT_ID and CLIENT_SECRET, as long as you use the
         PORT=3000
 
 **NOTE**: presumes `.env` to preside one level UP (ie. `../.env`). If you want to use `.env` in the same directory, edit `gulpfile.js` and `bin/www` accordingly. 
+
+`npm start` to start the backend, `npm run postinstall` to make webpack track for frontend changes 
