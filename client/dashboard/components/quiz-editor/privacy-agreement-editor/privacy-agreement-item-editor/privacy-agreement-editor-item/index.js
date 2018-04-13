@@ -23,7 +23,7 @@ class PrivacyAgreementEditorItem extends React.Component {
                 onChange={this.onStorageKeyChange.bind(this)} 
                 value={this.props.storageKey} 
                 ref="storageKey" 
-                placeholder="Storage key" />
+                placeholder="Storage key (optional)" />
             </div>
             <div className="flex-0 p-l-1">
                 <label>

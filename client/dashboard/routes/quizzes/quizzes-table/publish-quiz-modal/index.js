@@ -9,13 +9,16 @@ import { togglePublishQuizModal } from 'state/publish-quiz';
 import Icon from 'components/icon';
 import Alert from 'common-components/alert';
 
+import { PRIVACY_AGREEMENT } from 'common-constants/quiz-types'
+
 class PublishQuizModal extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       placementSnippetCopied: false,
-      quiznatorSnippetCopied: false
+      quiznatorSnippetCopied: false,
+      quizIdCopied: false
     }
   }
 
@@ -36,6 +39,7 @@ class PublishQuizModal extends React.Component {
   renderContent() {
     const placementSnippet = `<div class="quiznator-plugin" data-quiz-id="${this.props.quiz._id}"></div>`;
     const quiznatorSnippet = `<script src="${process.env.API_URL}/javascripts/plugin-loader.min.js"></script>`;
+    const quizId = this.props.quiz._id
 
     return (
       <div>
@@ -59,6 +63,16 @@ class PublishQuizModal extends React.Component {
           </Button>
         </FormGroup>
 
+        {this.props.quiz.type === PRIVACY_AGREEMENT &&
+         <FormGroup>
+            <Label>Add this quizId to the privacy agreement refresh snippet</Label>
+            <Input type="text" value={quizId} readOnly />
+
+            <Button color="secondary" className="m-t-1" size="sm" onClick={this.copySnippet.bind(this, quizId, 'quizId')}>
+              <Icon name="clipboard"/> {this.state.quizIdCopied ? 'Copied' : 'Copy to clipboard'}
+            </Button>
+          </FormGroup>
+        }
         <Alert type="warning">
           You only need one Quiznator snippet (above) for each page
         </Alert>

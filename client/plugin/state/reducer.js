@@ -6,7 +6,7 @@ import quizAlerts from './quiz-alerts';
 import user from './user';
 import peerReviews from './peer-reviews';
 import peerReviewsReceived from './peer-reviews-received';
-import privacyAgreement from './privacy-agreement';
+import privacyAgreements from './privacy-agreement';
 import dashboard from './dashboard';
 import quizAnswerSpamFlags from './quiz-answer-spam-flags';
 
@@ -17,7 +17,7 @@ export default combineReducers({
   user,
   peerReviews,
   peerReviewsReceived,
-  privacyAgreement,
+  privacyAgreements,
   dashboard,
   quizAnswerSpamFlags
 });

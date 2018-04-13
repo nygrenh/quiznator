@@ -33,7 +33,17 @@ document.addEventListener('quiznatorLoaded', function() {
   });
 });
 ```
+### Refresh privacy agreements
 
+```javascript
+// if you're already setting the user, add the window... part to the same event listener!
+document.addEventListener('quiznatorLoaded', function() {
+  window.Quiznator.refreshAgreement({
+    userid: 'myUserId', // userId is required
+    quizId: 'myQuizId' // quizId = the agreement id is required
+  });
+});
+``` 
 ### Development
 
 To get a dev build working locally:

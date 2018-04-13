@@ -84,8 +84,28 @@ function getAcceptedAgreementByKey(options) {
     }
 }
 
+function getAcceptedAgreementById(options) {
+    return (req, res, next) => {
+        const quizId = options.getQuizId(req);
+        const answererId = options.getAnswererId(req);
+        const agreementId = options.getAgreementId(req);
+
+        PrivacyAgreement.findOne({ answererId, accepted: agreementId })
+            .then(agreement => {
+                if (!agreement) {
+                    return res.status(400).end()
+                }
+
+                req.agreement = agreement;
+                return next();
+            })
+            .catch(err => next(err))
+    }
+}
+
 module.exports = { 
     getPrivacyAgreements,
     savePrivacyAgreement,
-    getAcceptedAgreementByKey
+    getAcceptedAgreementByKey,
+    getAcceptedAgreementById
 }

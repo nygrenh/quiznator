@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from 'reactstrap';
-import { PRIVACY_AGREEMENT } from 'common-constants/quiz-types'
 
 import Icon from 'components/icon';
 
@@ -9,14 +8,6 @@ class ItemEditorItem extends React.Component {
     this.props.onChange(this.refs.title.value);
   }
 
-/*   onStorageKeyChange() {
-    this.props.onStorageKeyChange(this.refs.storageKey.value);
-  }
-
-  onRequiredChange() {
-    this.props.onRequiredChange(this.refs.required.checked);
-  }
- */
   onRemove(e) {
     e.preventDefault();
     this.props.onRemove();
@@ -27,7 +18,11 @@ class ItemEditorItem extends React.Component {
       <div>
         <div className="display-flex m-b-1" data-id={this.props.id}>
           <div className="flex-1">
-            <input type="text" className="form-control" onChange={this.onTitleChange.bind(this)} value={this.props.title} ref="title" placeholder="Title"/>
+            <input type="text" className="form-control" 
+              onChange={this.onTitleChange.bind(this)} 
+              value={this.props.title} 
+              ref="title" 
+              placeholder="Title"/>
           </div>
 
           

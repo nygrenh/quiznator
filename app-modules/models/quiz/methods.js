@@ -59,6 +59,7 @@ function formatTags(next) {
 function removeDependent(next) {
   Promise.all([
     mongoose.models.QuizAnswer.remove({ quizId: this._id }),
+    mongoose.models.PrivacyAgreement.remove({ quizId: this._id }),
     mongoose.models.PeerReview.remove({ quizId: this._id })
   ])
   .then(() => next())
@@ -105,6 +106,21 @@ module.exports = schema => {
           answerDistribution
         }
       });
+  }
+
+  schema.statics.getTypes = function(quizIds) {
+    let pipeline = [
+      { $match: { quizId: { $in: quizIds }}},
+      { $group: { _id: '$quizId', type: { $first: '$type' } } }
+    ]
+
+    return this.aggregate(pipeline)
+      .then(data => {
+        return data.map(doc => ({
+          _id: doc._id,
+          type: doc.type
+        }))
+      })
   }
 
   schema.statics.whereTags = function(tags) {

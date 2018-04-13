@@ -18,8 +18,9 @@ export function submitQuiz(id) {
 
     dispatch(setQuizAsSubmitted(id));
 
-    var createPromise = {};
+    let createPromise = {};
 
+    console.log(quiz)
     switch (quiz.type) {
       case PEER_REVIEW: 
         createPromise = dispatch(createPeerReview({ quizId: quiz.data.quizId, sourceQuizId: id }));
@@ -38,6 +39,7 @@ export function submitQuiz(id) {
       : dispatch(createQuizAnswer({ quizId: id, data: quizAnswers[id].data }));
  */ 
 
+    console.log(createPromise)
     createPromise
       .then(response => {
         if(response.error) {

@@ -9,6 +9,7 @@ export const STORE_PRIVACY_AGREEMENT_LOCAL_STORAGE_KEY = "PRIVACY_AGREEMENT::STO
 export const FETCH_PRIVACY_AGREEMENT = 'PRIVACY_AGREEMENT::FETCH_PRIVACY_AGREEMENT';
 export const FETCH_PRIVACY_AGREEMENT_SUCCESS = 'PRIVACY_AGREEMENT::FETCH_PRIVACY_AGREEMENT_SUCCESS';
 export const FETCH_PRIVACY_AGREEMENT_FAIL = 'PRIVACY_AGREEMENT::FETCH_PRIVACY_AGREEMENT_FAIL';
+export const REFRESH_PRIVACY_AGREEMENT = 'PRIVACY_AGREEMENT::REFRESH_PRIVACY_AGREEMENT'
 
 export function createPrivacyAgreement({ quizId, data }) {
     return (dispatch, getState) => {
@@ -21,7 +22,7 @@ export function createPrivacyAgreement({ quizId, data }) {
             return Promise.resolve();
         }
 
-        dispatch(createPrivacyAgreementLocalStorageKey({ userId: user.id, quizId, data }))
+        dispatch(createPrivacyAgreementLocalStorageKey({ userId: user.id, quizId, data: { accepted: data } }))
 
         return dispatch(createPrivacyAgreementRequest({ quizId, data, meta }));
         
@@ -46,6 +47,17 @@ export function getPrivacyAgreement({ quizId }) {
             })
             .catch(err => console.log(err))
         }
+}
+
+export function refreshPrivacyAgreement({ userId, quizId }) {
+    return dispatch => {
+        return dispatch(fetchPrivacyAgreement({ userId, quizId }))
+            .then(action => {
+                dispatch(refreshPrivacyAgreementAction({ userId, quizId, data: action.payload.data }))
+                dispatch(createPrivacyAgreementLocalStorageKey({ userId, quizId, data: action.payload.data }))
+            })
+            .catch(err => console.log(err))
+    }
 }
 
 export function createPrivacyAgreementRequest({ quizId, data, meta }) {
@@ -89,4 +101,15 @@ export function fetchPrivacyAgreement({ userId, quizId }) {
         }
 
     }
+}
+
+function refreshPrivacyAgreementAction({ userId, quizId, data }) {
+    return {
+        type: REFRESH_PRIVACY_AGREEMENT,
+        userId,
+        quizId,
+        payload: {
+            data
+        }
+    }                        
 }

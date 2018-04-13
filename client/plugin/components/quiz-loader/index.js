@@ -31,12 +31,11 @@ class QuizLoader extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     this.props.loadAnswer();
-    console.log(_get(this.props, 'quiz'))
-    if (_get(this.props, 'quiz.data.type') === PRIVACY_AGREEMENT) {
-      console.log('here')
+/*     if (_get(this.props, 'quiz.data.type') === PRIVACY_AGREEMENT) {
+      console.log('why load again')
       this.props.loadPrivacyAgreement();
         }
-  }
+ */  }
 
   onCloseAlert(name) {
     this.setState({

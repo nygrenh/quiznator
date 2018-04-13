@@ -42,4 +42,16 @@ router.get('/:userId/key/:key',
     }
 )
 
+router.get('/:userId/id/:agreementId',
+    TMCMiddlewares.isUser(req => req.params.userId),
+    privacyAgreementMiddlewares.getAcceptedAgreementById({
+        getQuizId: req => req.params.id,
+        getAnswererId: req => req.params.userId,
+        getAgreementId: req => req.params.agreementId
+    }),
+    (req, res, next) => {
+        res.json(req.agreement)
+    }
+)
+
 module.exports = router;

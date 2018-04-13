@@ -3,6 +3,7 @@ import _get from 'lodash.get';
 import axios from 'utils/axios-client';
 import { subscribe, publish } from 'utils/pubsub';
 import { setUser, removeUser } from 'state/user';
+import { refreshPrivacyAgreement } from 'state/privacy-agreement'
 import { POST_QUIZ_ANSWER_SUCCESS } from 'state/quiz-answers';
 
 function syncQuiznatorWithStore(store) {
@@ -30,6 +31,16 @@ function syncQuiznatorWithStore(store) {
         callback(action.payload.data);
       }
     });
+  }
+
+  self.refreshAgreement = (agreement) => {
+    if (!agreement || !agreement.userId || !agreement.quizId) {
+      throw new Error('quiz and user ids required for agreement!');
+    } else {
+      store.dispatch(refreshPrivacyAgreement(agreement));
+    }
+
+    return self;
   }
 
   return self;

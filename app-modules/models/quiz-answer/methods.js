@@ -1,5 +1,6 @@
 const QuizAnswerSpamFlag = require('./quiz-answer-spam-flag');
 const mongoose = require('mongoose');
+const _ = require('lodash')
 
 module.exports = schema => {
 
@@ -33,6 +34,7 @@ module.exports = schema => {
   }
 
   schema.statics.findDistinctlyByAnswerer = function(query, options = {}) {
+    console.log(query)
     let pipeline = [
       { $match: query },
       { $sort: { createdAt: - 1 } },
@@ -46,5 +48,110 @@ module.exports = schema => {
       .then(data => {
         return data.map(doc => ({ _id: doc.answerId, answererId: doc._id, data: doc.data, quizId: doc.quizId, createdAt: doc.createdAt, peerReviewCount: doc.peerReviewCount }));
       });
+  }
+
+  schema.statics.getLatestDistinctAnswer = function(answererId, quizzes, options = {}) {
+    const quizIds = Object.keys(quizzes).map(k => mongoose.Types.ObjectId(k))
+    const essayQuizIds = Object.keys(quizzes).map(k => mongoose.Types.ObjectId(k)).filter(id => quizzes[id].type === 'ESSAY')
+
+    let pipeline = [
+      { $match: { answererId: answererId, quizId: { $in: quizIds } } },
+      options.onlyConfirmed ? { 
+        $match: { $or: 
+          [ { confirmed: true }, 
+            { quizId: { $in: essayQuizIds } } ]
+          }  
+      } : null,
+      { $sort: { createdAt: - 1 } },
+      { $group: { 
+        _id: '$quizId', 
+        data: { $first: '$data' }, 
+        quizId: { $first: '$quizId' }, 
+        answererId: { $first: '$answererId' }, 
+        answerId: { $first: '$_id' }, 
+        createdAt: { $first: '$createdAt' },
+        confirmed: { $first: '$confirmed' },
+        peerReviewCount: { $first: '$peerReviewCount' }
+      }},
+    ].filter(p => !!p);
+
+    return this.aggregate(pipeline)
+      .then(data => {
+        return data.map(doc => ({ 
+          _id: doc.answerId, 
+          answererId: doc.answererId, 
+          data: doc.data, 
+          quizId: doc.quizId, 
+          createdAt: doc.createdAt,
+          confirmed: doc.confirmed,
+          peerReviewCount: doc.peerReviewCount 
+        }));
+      })
+  }
+
+  schema.statics.getStatisticsByUser = function(answererId, quizzes, options = {}) {
+
+    const quizIds = Object.keys(quizzes).map(k => mongoose.Types.ObjectId(k))
+    const essayQuizIds = Object.keys(quizzes).map(k => mongoose.Types.ObjectId(k)).filter(id => quizzes[id].type === 'ESSAY')
+
+    let pipeline = [
+      { $match: { answererId: answererId, quizId: { $in: quizIds }}},
+      options.onlyConfirmed ? {
+        $match: { $or: [
+          { confirmed: true },
+          { quizId: { $in: essayQuizIds }}
+        ]}
+      } : null,
+      { $sort: { createdAt: - 1 }},
+      { $group: { _id: '$quizId', quizIds: { $addToSet: '$quizId' }, answerIds: { $addToSet: '$_id' }}},
+      { $project: { _id: '$_id', answered: '$quizIds', tries: { $size: '$answerIds' }}}
+    ].filter(p => !!p)
+
+    // TODO: should this have unique tag combinations?
+
+    const uniqueTags = [...new Set(_.flatten(quizIds.map(id => quizzes[id].tags)))]
+
+    return this.aggregate(pipeline)
+      .then(data => {
+        console.log(data)
+        return {
+          id: answererId,
+          tags: uniqueTags,
+          answered: _.flatten(data.map(quiz => quiz.answered)) || [],
+          count: data.length || 0,
+          total: quizIds.length
+        }
+      })
+  }
+
+  schema.statics.getStatsByTag = function(quizzes, options = {}) {
+
+    const quizIds = Object.keys(quizzes).map(k => mongoose.Types.ObjectId(k))
+    const essayQuizIds = Object.keys(quizzes).map(k => mongoose.Types.ObjectId(k)).filter(id => quizzes[id].type === 'ESSAY')
+
+    let pipeline = [
+      { $match: { quizId: { $in: quizIds }}},
+      options.onlyConfirmed ? {
+        $match: { $or: [
+          { confirmed: true },
+          { quizId: { $in: essayQuizIds }}
+        ]}
+      } : null,
+      { $sort: { createdAt: - 1 }},
+      { $group: { _id: '$quizId', quizId: { $first: '$quizId' }, answererIds: { $addToSet: '$answererId' }, totalTries: { $sum: 1 }}},      
+      { $project: { _id: '$quizId', answererIds: '$answererIds', count: { $size: '$answererIds' }, totalTries: '$totalTries' }}
+    ].filter(p => !!p)
+
+    return this.aggregate(pipeline)
+      .then(data => {
+        console.log(data)
+        return data.map(doc => ({
+          quizId: doc._id,
+          tags: _.get(quizzes, `[${doc._id}].tags`),
+          answererIds: doc.answererIds,
+          count: doc.count,
+          totalTries: doc.totalTries
+        }))
+      })
   }
 }

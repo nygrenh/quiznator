@@ -5,7 +5,8 @@ import {
   PEER_REVIEW, 
   PEER_REVIEWS_RECEIVED, 
   OPEN, 
-  MULTIPLE_CHOICE, 
+  MULTIPLE_CHOICE,
+  ESSAY, 
   answerableTypes 
 } from 'common-constants/quiz-types';
 
@@ -18,6 +19,7 @@ export const FETCH_QUIZ_ANSWER = 'QUIZ_ANSWERS::FETCH_QUIZ_ANSWER';
 export const FETCH_QUIZ_ANSWER_SUCCESS = 'QUIZ_ANSWERS::FETCH_QUIZ_ANSWER_SUCCESS';
 export const FETCH_PEER_REVIEWS_GIVEN = 'QUIZ_ANSWERS::FETCH_PEER_REVIEWS_GIVEN';
 export const FETCH_PEER_REVIEWS_GIVEN_SUCCESS = 'QUIZ_ANSWERS::FETCH_PEER_REVIEWS_GIVEN_SUCCESS';
+export const UPDATE_QUIZ_ANSWER_CONFIRMATION = 'QUIZ_ANSWERS::UPDATE_QUIZ_ANSWER_CONFIRMATION'
 
 const RIGHT_ANSWER_MESSAGE = 'Right answer';
 const WRONG_ANSWER_MESSAGE = 'Wrong answer';
@@ -86,7 +88,17 @@ export function createQuizAnswer({ quizId, data }) {
       dispatch(createTemporalAlert({ content: messages.successMessage, quizId, type: 'success', removeDelay: 15000 }));
     }
 
-    return dispatch(createQuizAnswerRequest({ quizId, data }));
+    const confirmed = quiz.type === ESSAY 
+                    ? false 
+                    : !hasRightAnswer 
+                      ? true
+                      : !!messages.successMessage
+
+    return dispatch(
+      createQuizAnswerRequest({ 
+        quizId, data, confirmed  
+      })
+    );
   }
 }
 
@@ -96,7 +108,7 @@ export function removeQuizAnswers() {
   }
 }
 
-export function createQuizAnswerRequest({ quizId, data }) {
+export function createQuizAnswerRequest({ quizId, data, confirmed = false }) {
   return {
     type: POST_QUIZ_ANSWER,
     quizId,
@@ -105,7 +117,8 @@ export function createQuizAnswerRequest({ quizId, data }) {
         url: `/quizzes/${quizId}/answers`,
         method: 'POST',
         data: {
-          data
+          data,
+          confirmed
         }
       }
     }
@@ -129,7 +142,7 @@ export function getQuizAnswer({ quizId }) {
     } else {
       return Promise.resolve();
     }
-  }
+  } 
 }
 
 export function fetchQuizAnswer({ quizId, answererId }) {
@@ -169,3 +182,19 @@ export function setQuizAnswerDataPath(quizId, path, value) {
     value
   }
 }
+
+export function updateConfirmation({ answerId, confirmed }) {
+  return {
+    type: UPDATE_QUIZ_ANSWER_CONFIRMATION,
+    payload: {
+      request: {
+        method: 'PUT',
+        url: `/quiz-answers/${answerId}/confirmed`,
+        data: {
+          confirmed,
+        }
+      },
+    },
+  };
+}
+

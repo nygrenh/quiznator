@@ -10,7 +10,8 @@ import {
     STORE_PRIVACY_AGREEMENT_LOCAL_STORAGE_KEY,
     FETCH_PRIVACY_AGREEMENT,
     FETCH_PRIVACY_AGREEMENT_SUCCESS,
-    FETCH_PRIVACY_AGREEMENT_FAIL
+    FETCH_PRIVACY_AGREEMENT_FAIL,
+    REFRESH_PRIVACY_AGREEMENT
 } from './actions';
 
 function setNotSubmitting(state, quizId) {
@@ -47,16 +48,28 @@ export default createReducer({}, {
             .value;
     },
     [FETCH_PRIVACY_AGREEMENT_SUCCESS](state, action) {
-        // DEBUG: add to state?
-      return scour(state)
-            .extend({ loading: false })
-            .root
-            .value;;
+        if (lget(action, 'payload.data')) {
+            const agreement = action.payload.data
+
+            return scour(state)
+                .go(agreement.quizId)
+                .extend({ data: agreement, isOld: true, loading: false})
+                .root
+                .value
+        } else {
+            return state;
+        }
     },
     [FETCH_PRIVACY_AGREEMENT_FAIL](state, action) {
         return scour(state)
             .extend({ loading: false })
             .root 
             .value;
+    },
+    [REFRESH_PRIVACY_AGREEMENT](state, action) {
+        console.log('reducer', action)
+        return scour(state)
+            .root
+            .value; 
     }
 });
