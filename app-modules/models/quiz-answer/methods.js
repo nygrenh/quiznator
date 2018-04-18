@@ -103,9 +103,9 @@ module.exports = schema => {
         ]}
       } : null,
       { $sort: { createdAt: - 1 }},
-      { $group: { _id: '$quizId', quizIds: { $addToSet: '$quizId' }, answerIds: { $addToSet: '$_id' }}},
-      { $project: { _id: '$_id', answered: '$quizIds', tries: { $size: '$answerIds' }}}
-    ].filter(p => !!p)
+      { $group: { _id: '$quizId', answerIds: { $push: '$_id' }, try: { $sum: 1 } }},
+      { $project: { _id: '$_id', answered: '$answerIds', tries: '$try'}}
+    ].filter(p => !!p) //{ $size: '$answerIds' }
 
     // TODO: should this have unique tag combinations?
 
@@ -113,13 +113,20 @@ module.exports = schema => {
 
     return this.aggregate(pipeline)
       .then(data => {
-        console.log(data)
         return {
           id: answererId,
           tags: uniqueTags,
-          answered: _.flatten(data.map(quiz => quiz.answered)) || [],
+          answered: data.map(quiz => ({ 
+              [quiz._id]: { 
+                answerIds: quiz.answered,
+                tries: quiz.tries
+              } 
+            })
+          ) || [],
+          onlyConfirmed: options.onlyConfirmed || false,
           count: data.length || 0,
           total: quizIds.length
+  
         }
       })
   }
@@ -149,6 +156,7 @@ module.exports = schema => {
           quizId: doc._id,
           tags: _.get(quizzes, `[${doc._id}].tags`),
           answererIds: doc.answererIds,
+          onlyConfirmed: options.onlyConfirmed || false,
           count: doc.count,
           totalTries: doc.totalTries
         }))
