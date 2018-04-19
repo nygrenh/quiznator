@@ -134,6 +134,10 @@ class QuizLoader extends React.Component {
     this.props.onDataChange(['likert', name], value)
   }
 
+  onRadioMatrixChange(itemId, value) {
+    this.props.onDataChange([itemId], value)
+  }
+
   isExpired() {
     const expiresAt = this.props.quiz.data.expiresAt;
 
@@ -153,6 +157,7 @@ class QuizLoader extends React.Component {
       onLikertChange: this.onLikertChange.bind(this),
       onPeerReviewChosenReviewChange: this.onPeerReviewChosenReviewChange.bind(this),
       onScaleChange: this.onScaleChange.bind(this),
+      onRadioMatrixChange: this.onRadioMatrixChange.bind(this),
       answer: this.props.answer,
       submitting: this.isSubmitting(),
       submitted: this.props.quiz.submitted,

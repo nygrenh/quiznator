@@ -2,7 +2,16 @@ import { change, untouch } from 'redux-form';
 import { push } from 'react-router-redux';
 import _get from 'lodash.get';
 
-import { CHECKBOX, PRIVACY_AGREEMENT, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, SCALE } from 'common-constants/quiz-types';
+import { 
+  CHECKBOX,
+  PRIVACY_AGREEMENT, 
+  ESSAY, 
+  MULTIPLE_CHOICE, 
+  PEER_REVIEW, 
+  PEER_REVIEWS_RECEIVED, 
+  SCALE,
+  RADIO_MATRIX
+} from 'common-constants/quiz-types';
 import { fetchQuizzesList } from 'state/quizzes-list';
 
 export const CHOOSE_QUIZ_TYPE = 'CREATE_QUIZ_CHOOSE_QUIZ_TYPE';
@@ -24,6 +33,9 @@ function createEmptyQuiz({ title, type }) {
       break;
     case SCALE:
       return Object.assign({}, base, { data: { items: [], scale: 7, meta: {} } });
+      break;
+    case RADIO_MATRIX:
+      return Object.assign({}, base, { data: { items: [], choices: [], meta: {} } })
       break;
     default:
       return Object.assign({}, base, { data: {} });

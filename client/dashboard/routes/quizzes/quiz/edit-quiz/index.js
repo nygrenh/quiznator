@@ -2,8 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import omit from 'lodash.omit';
 
-import { saveQuiz, fetchQuiz, updateQuiz, updateData, addDataItem, updateDataItem, removeDataItem, updateDataMeta, setDataMetaPath } from 'state/edit-quiz';
-import { quizSelector, quizItemsSelector } from 'selectors/edit-quiz';
+import { 
+  saveQuiz, fetchQuiz, updateQuiz, 
+  updateData, 
+  addDataItem, updateDataItem, removeDataItem,
+  addDataChoice, updateDataChoice, removeDataChoice, 
+  updateDataMeta, setDataMetaPath } from 'state/edit-quiz';
+import { quizSelector, quizItemsSelector, quizChoicesSelector } from 'selectors/edit-quiz';
 
 import Loader from 'components/loader';
 import QuizEditor from 'components/quiz-editor';
@@ -31,6 +36,7 @@ class EditQuiz extends React.Component {
 const mapStateToProps = state => ({
   quiz: quizSelector(state),
   items: quizItemsSelector(state),
+  choices: quizChoicesSelector(state),
   loading: !!state.editQuiz.meta.loading
 });
 
@@ -47,6 +53,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   onDataItemOrderChange: order => dispatch(updateData({ items: order })),
   onDataMetaChange: update => dispatch(updateDataMeta(update)),
   onDataMetaPathChange: (path, value) => dispatch(setDataMetaPath(path, value)),
+  //
+  onDataChoiceChange: (choiceId, update) => dispatch(updateDataChoice(choiceId, update)),
+  onRemoveDataChoice: choiceId => dispatch(removeDataChoice(choiceId)),
+  onAddDataChoice: choice => dispatch(addDataChoice(choice)),
+  onDataChoiceOrderChange: order => dispatch(updateData),
+  //
   onSave: () => dispatch(saveQuiz())
 });
 

@@ -13,8 +13,9 @@ import CheckboxQuiz from './checkbox-quiz';
 import PrivacyAgreementQuiz from './privacy-agreement-quiz';
 import OpenQuiz from './open-quiz';
 import ScaleQuiz from './scale-quiz';
+import RadioMatrixQuiz from './radio-matrix-quiz'
 
-import { CHECKBOX, PRIVACY_AGREEMENT, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN, SCALE } from 'common-constants/quiz-types';
+import { CHECKBOX, PRIVACY_AGREEMENT, ESSAY, MULTIPLE_CHOICE, PEER_REVIEW, PEER_REVIEWS_RECEIVED, OPEN, SCALE, RADIO_MATRIX } from 'common-constants/quiz-types';
 import withClassPrefix from 'utils/class-prefix';
 
 const mapQuizTypeToComponent = {
@@ -26,6 +27,7 @@ const mapQuizTypeToComponent = {
   [PRIVACY_AGREEMENT]: PrivacyAgreementQuiz,
   [OPEN]: OpenQuiz,
   [SCALE]: ScaleQuiz,
+  [RADIO_MATRIX]: RadioMatrixQuiz
 }
 
 class Quiz extends React.Component {
@@ -85,6 +87,7 @@ export const quizPropsTypes = {
   onPeerReviewReviewChange: React.PropTypes.func,
   onLikertChange: React.PropTypes.func,
   onPeerReviewChosenReviewChange: React.PropTypes.func,
+  onRadioMatrixChange: React.PropTypes.func,
   disabled: React.PropTypes.bool,
   submitted: React.PropTypes.bool,
   submitting: React.PropTypes.bool,
@@ -106,6 +109,7 @@ export const quizDefaultProps = {
   onPeerReviewChosenReviewChange: () => {},
   onCheckboxChange: () => {},
   onPrivacyAgreementChange: () => {},
+  onRadioMatrixChange: () => {},
   onSubmit: () => {}
 }
 
