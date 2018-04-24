@@ -69,7 +69,8 @@ function removeDependent(next) {
 module.exports = schema => {
   schema.statics.findAnswerable = function(query) {
     const answerableTypes = [quizTypes.MULTIPLE_CHOICE, quizTypes.CHECKBOX, 
-                             quizTypes.PRIVACY_AGREEMENT, quizTypes.ESSAY, quizTypes.OPEN];
+                             quizTypes.PRIVACY_AGREEMENT, quizTypes.ESSAY, 
+                             quizTypes.RADIO_MATRIX, quizTypes.OPEN];
 
     const modifiedQuery = Object.assign({}, { type: { $in: answerableTypes } }, query);
 
@@ -132,7 +133,8 @@ module.exports = schema => {
   }
 
   schema.methods.getAnswerDistribution = function() {
-    if([quizTypes.CHECKBOX, quizTypes.PRIVACY_AGREEMENT, quizTypes.MULTIPLE_CHOICE].indexOf(this.type) < 0) {
+    // TODO: I doubt this works with radio matrix yet
+    if([quizTypes.CHECKBOX, quizTypes.PRIVACY_AGREEMENT, quizTypes.MULTIPLE_CHOICE, quizTypes.RADIO_MATRIX].indexOf(this.type) < 0) {
       return Promise.resolve({});
     }
 

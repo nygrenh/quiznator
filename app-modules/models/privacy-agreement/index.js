@@ -13,7 +13,7 @@ const schema = mongoose.Schema({
                 return accepted.filter(k => (typeof k != 'string')).length === 0
             }
         },
-        message: '{VALUE} is not arry of strings'
+        message: '{VALUE} is not array of strings'
     }}, { timestamps: true })
 
 module.exports = mongoose.model('PrivacyAgreement', schema)
