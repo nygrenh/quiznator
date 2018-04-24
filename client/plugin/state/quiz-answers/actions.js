@@ -7,6 +7,7 @@ import {
   OPEN, 
   MULTIPLE_CHOICE,
   ESSAY, 
+  RADIO_MATRIX,
   answerableTypes 
 } from 'common-constants/quiz-types';
 
@@ -31,6 +32,10 @@ function validateMultipleChoiceAnswerData(data, quiz) {
     ? rightAnswer.indexOf(data) >= 0
     : data !== rightAnswer;
 
+  console.log("ranswer: ", rightAnswer)
+  console.log("data", data)
+  console.log("quiz", quiz)
+
   if(isRightAnswer) {
     return {
       successMessage: _get(quiz, `data.meta.successes.${data}`) || RIGHT_ANSWER_MESSAGE
@@ -42,6 +47,35 @@ function validateMultipleChoiceAnswerData(data, quiz) {
   }
 }
 
+function validateRadioMatrixAnswerData(data, quiz) {
+  console.log("data", data)
+  console.log("quiz", quiz)
+
+  const rightAnswer = _get(quiz, 'data.meta.rightAnswer')
+
+  console.log(rightAnswer)
+  console.log(Object.keys(rightAnswer).map(key => 
+    rightAnswer[key].indexOf(_get(data, `[${key}]`)) >= 0
+  ).every(v => !!v))
+  const isRightAnswer = typeof rightAnswer === 'object'
+    ? Object.keys(rightAnswer).map(key => { 
+      return rightAnswer[key]
+          .indexOf(_get(data, `[${key}]`)) >= 0
+      }).every(v => !!v)
+    
+    : false
+
+  // TODO: success/error messages don't work now
+  if(isRightAnswer) {
+    return {
+      successMessage: _get(quiz, `data.meta.successes.${data}`) || RIGHT_ANSWER_MESSAGE
+    };
+  } else {
+    return {
+      errorMessage: _get(quiz, `data.meta.errors.${data}`) || WRONG_ANSWER_MESSAGE
+    };
+  }
+}
 function validateOpenAnswerData(data, quiz) {
   const rightAnswer = _get(quiz, 'data.meta.rightAnswer');
 
@@ -76,6 +110,9 @@ export function createQuizAnswer({ quizId, data }) {
         case MULTIPLE_CHOICE:
           messages = validateMultipleChoiceAnswerData(data, quiz);
           break;
+        case RADIO_MATRIX:
+          messages = validateRadioMatrixAnswerData(data, quiz)
+          break
         case OPEN:
           messages = validateOpenAnswerData(data, quiz);
           break;

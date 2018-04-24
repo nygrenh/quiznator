@@ -1,7 +1,6 @@
 import React from 'react'
 import lget from 'lodash.get'
 import ReactMarkdown from 'react-markdown'
-
 import withClassPrefix from 'utils/class-prefix';
 
 import SubmitButton from 'components/quiz/submit-button';
@@ -19,17 +18,18 @@ class RadioMatrixQuiz extends React.Component {
         return lget(this.props.answer, ['data', itemId])
     }
 
+    /*                     <div
+    className={withClassPrefix('radio-matrix-quiz__choices-container')}
+    key={choice.id}
+    >
+    */
+
     renderChoices(item) {
         const quizId = lget(this.props.quiz, '_id')
 
-        console.log('quiz:', this.props.quiz)
-        console.log("choices:", this.getChoices())
         return this.getChoices()
             .map((choice, index) => (
-                <div
-                    className={withClassPrefix('radio-matrix-quiz__choices-container')}
-                    key={choice.id}
-                >
+                <td key={`${quizId}-${item.id}-${choice.id}`}>
                     <input
                         type="radio"
                         name={`${quizId}-${item.id}`}
@@ -38,29 +38,40 @@ class RadioMatrixQuiz extends React.Component {
                         onChange={() => this.props.onRadioMatrixChange(item.id, choice.id)}
                         disabled={!!this.props.disabled}
                     />
-                </div>
+                </td>
             ))
     }
     
     renderSingleItem(item, index) {
         return (
-            <div 
+            <tr
                 className={withClassPrefix('radio-matrix-quiz__item clearfix')}
                 key={item.id}
             >
-                <div className={withClassPrefix('radio-matrix-quiz__item-title')}>
-                    {item.title}
-                </div>
+                <td>
+                    <div className={withClassPrefix('radio-matrix-quiz__item-title')}>
+                        {item.title}
+                    </div>
+                </td>
 
-                <div className={withClassPrefix('radio-matrix-quiz__item-choices')}>
-                    {this.renderChoices(item)}
-                </div>
-            </div>
+                {this.renderChoices(item)}
+            </tr>
         )
     }
 
     renderItems() {
         return this.getItems().map((item, index) => this.renderSingleItem(item, index))
+    }
+
+    renderLegend() {
+        return (
+            <tr>
+                <th>&nbsp;</th>
+                {this.getChoices().map(choice => (
+                    <th key={choice.title}>{choice.title}</th>
+                ))}
+            </tr>
+        )
     }
 
     onSubmit() {
@@ -81,10 +92,15 @@ class RadioMatrixQuiz extends React.Component {
             
         return (
             <form onSubmit={this.onSubmit()} className={withClassPrefix('radio-matrix-quiz')}>
-              <div className={withClassPrefix('form-group')}>
-                {this.renderItems()}
-              </div>
-      
+              <table>
+                <thead>
+                    {this.renderLegend()}
+                </thead>
+                <tbody>
+                    {this.renderItems()}
+                </tbody>
+              </table>
+
               <div className={withClassPrefix('form-group')}>
                 <SubmitButton disabled={submitDisabled} submitting={this.props.submitting} submitted={this.props.answerSubmitted}/>
               </div>

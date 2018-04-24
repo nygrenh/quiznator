@@ -99,7 +99,7 @@ export default createReducer(initialState, {
     const choices = _get(state, `entities.quizzes.${quizId}.data.choices`) || [];
 
     return scour(state)
-      .set(['entities', 'quizzes', quizId, 'data', 'choices'], [...items.filter(id => id !== action.choiceId)])
+      .set(['entities', 'quizzes', quizId, 'data', 'choices'], [...choices.filter(id => id !== action.choiceId)])
       .del(['entities', 'choices', action.choiceId])
       .value;
   },

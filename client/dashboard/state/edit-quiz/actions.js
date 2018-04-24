@@ -44,6 +44,7 @@ export function fetchQuiz(quizId) {
 }
 
 export function saveQuizRequest(quizId, update) {
+  console.log('save request', update)
   return {
     type: PUT_SAVE_QUIZ,
     payload: {
@@ -104,6 +105,8 @@ export function saveQuiz() {
       newQuiz = newQuiz.set(['data', 'choices'], quizChoices.map(id => choices[id]))
     }
     
+    console.log('to save', newQuiz)
+
     return dispatch(saveQuizRequest(quizId, newQuiz.value))
       .then(response => {
         if(response.error) {
