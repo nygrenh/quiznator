@@ -19,7 +19,7 @@ class MultipleChoiceQuizEditor extends React.Component {
   onRemoveDataItem(id) {
     this.props.onRemoveDataItem(id);
   }
-
+  
   onRightAnswersChange(value) {
     this.props.onDataMetaChange({ rightAnswer: value });
   }
@@ -38,7 +38,13 @@ class MultipleChoiceQuizEditor extends React.Component {
         <div className="m-b-1">
           <label>Items</label>
 
-          <ItemEditor items={this.props.items} onAddDataItem={this.onAddDataItem.bind(this)} onDataItemOrderChange={this.props.onDataItemOrderChange} onDataItemChange={this.onDataItemChange.bind(this)} onRemoveDataItem={this.onRemoveDataItem.bind(this)}/>
+          <ItemEditor 
+            items={this.props.items} 
+            onAddDataItem={this.onAddDataItem.bind(this)} 
+            onDataItemOrderChange={this.props.onDataItemOrderChange} 
+            onDataItemChange={this.onDataItemChange.bind(this)} 
+            onRemoveDataItem={this.onRemoveDataItem.bind(this)}
+          />
         </div>
 
         <MetaEditor>

@@ -59,6 +59,7 @@ function formatTags(next) {
 function removeDependent(next) {
   Promise.all([
     mongoose.models.QuizAnswer.remove({ quizId: this._id }),
+    mongoose.models.PrivacyAgreement.remove({ quizId: this._id }),
     mongoose.models.PeerReview.remove({ quizId: this._id })
   ])
   .then(() => next())
@@ -67,7 +68,9 @@ function removeDependent(next) {
 
 module.exports = schema => {
   schema.statics.findAnswerable = function(query) {
-    const answerableTypes = [quizTypes.MULTIPLE_CHOICE, quizTypes.CHECKBOX, quizTypes.ESSAY, quizTypes.OPEN];
+    const answerableTypes = [quizTypes.MULTIPLE_CHOICE, quizTypes.CHECKBOX, 
+                             quizTypes.PRIVACY_AGREEMENT, quizTypes.ESSAY, 
+                             quizTypes.RADIO_MATRIX, quizTypes.OPEN];
 
     const modifiedQuery = Object.assign({}, { type: { $in: answerableTypes } }, query);
 
@@ -106,6 +109,21 @@ module.exports = schema => {
       });
   }
 
+  schema.statics.getTypes = function(quizIds) {
+    let pipeline = [
+      { $match: { quizId: { $in: quizIds }}},
+      { $group: { _id: '$quizId', type: { $first: '$type' } } }
+    ]
+
+    return this.aggregate(pipeline)
+      .then(data => {
+        return data.map(doc => ({
+          _id: doc._id,
+          type: doc.type
+        }))
+      })
+  }
+
   schema.statics.whereTags = function(tags) {
     return this.where('tags').in(tags);
   }
@@ -115,13 +133,14 @@ module.exports = schema => {
   }
 
   schema.methods.getAnswerDistribution = function() {
-    if([quizTypes.CHECKBOX, quizTypes.MULTIPLE_CHOICE].indexOf(this.type) < 0) {
+    // TODO: I doubt this works with radio matrix yet
+    if([quizTypes.CHECKBOX, quizTypes.PRIVACY_AGREEMENT, quizTypes.MULTIPLE_CHOICE, quizTypes.RADIO_MATRIX].indexOf(this.type) < 0) {
       return Promise.resolve({});
     }
 
     const aggregation = [
       { $match: { quizId: this._id } },
-      this.type === quizTypes.CHECKBOX ? { $unwind: '$data' } : undefined,
+      this.type === (quizTypes.CHECKBOX || quizTypes.PRIVACY_AGREEMENT) ? { $unwind: '$data' } : undefined,
       { $group: { _id: '$data', count: { $sum: 1 } } }
     ].filter(p => !!p);
 

@@ -3,7 +3,19 @@ import lget from 'lodash.get';
 
 import { createReducer } from 'redux-create-reducer';
 
-import { REMOVE_QUIZ_ANSWERS, SET_QUIZ_ANSWER_DATA_PATH, FETCH_QUIZ_ANSWER, FETCH_QUIZ_ANSWER_SUCCESS, FETCH_PEER_REVIEWS_GIVEN, FETCH_PEER_REVIEWS_GIVEN_SUCCESS, POST_QUIZ_ANSWER, POST_QUIZ_ANSWER_FAIL, POST_QUIZ_ANSWER_SUCCESS } from './actions';
+import { 
+  REMOVE_QUIZ_ANSWERS, 
+  SET_QUIZ_ANSWER_DATA_PATH, 
+  FETCH_QUIZ_ANSWER, 
+  FETCH_QUIZ_ANSWER_SUCCESS, 
+  FETCH_PEER_REVIEWS_GIVEN, 
+  FETCH_PEER_REVIEWS_GIVEN_SUCCESS, 
+  POST_QUIZ_ANSWER, 
+  POST_QUIZ_ANSWER_FAIL, 
+  POST_QUIZ_ANSWER_SUCCESS, 
+  UPDATE_QUIZ_ANSWER_CONFIRMATION
+
+} from './actions';
 
 function setNotSubmitting(state, quizId) {
   return scour(state)
@@ -77,5 +89,14 @@ export default createReducer({}, {
   },
   [POST_QUIZ_ANSWER_FAIL](state, action) {
     return setNotSubmitting(state, action.meta.previousAction.quizId).value;
+  },
+  [UPDATE_QUIZ_ANSWER_CONFIRMATION](state, action) {
+    const updatedAnswer = action.payload.data;
+
+    return scour(state)
+      .go('answers', updatedAnswer._id)
+      .extend(updatedAnswer)
+      .root
+      .value;
   }
 });

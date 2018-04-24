@@ -6,6 +6,9 @@ const middlewares = require('./middlewares');
 router.use('/:id/answers', require('./answers-for-quiz'));
 router.use('/:id/peer-reviews', require('./peer-reviews-for-quiz'));
 router.use('/:id/peer-reviews-received', require('./peer-reviews-received-for-quiz'));
+router.use('/:id/privacy-agreement', require('./privacy-agreement'));
+router.use('/answers-by-tag', require('./answers-for-quiz-by-tag'))
+router.use('/stats', require('./stats'))
 
 router.get('/',
   authenticationMiddlewares.authorize(),

@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import _get from 'lodash.get';
 
 import Quiz from 'components/quiz';
 import QuizAlerts from 'components/quiz-alerts';
@@ -9,7 +10,8 @@ import Loader from 'components/loader';
 
 import { fetchQuiz, submitQuiz } from 'state/quizzes';
 import { setQuizAnswerDataPath, getQuizAnswer } from 'state/quiz-answers';
-
+import { getPrivacyAgreement } from 'state/privacy-agreement';
+import { PRIVACY_AGREEMENT } from 'common-constants/quiz-types'
 import withClassPrefix from 'utils/class-prefix';
 
 class QuizLoader extends React.Component {
@@ -107,6 +109,10 @@ class QuizLoader extends React.Component {
     this.props.onDataChange([], checked);
   }
 
+  onPrivacyAgreementChange(checked) {
+    this.props.onDataChange([], checked);
+  }
+
   onPeerReviewChosenReviewChange({ chosenQuizAnswerId, rejectedQuizAnswerId }) {
     this.props.onDataChange(['chosenQuizAnswerId'], chosenQuizAnswerId);
     this.props.onDataChange(['rejectedQuizAnswerId'], rejectedQuizAnswerId);
@@ -124,6 +130,10 @@ class QuizLoader extends React.Component {
     this.props.onDataChange(['likert', name], value)
   }
 
+  onRadioMatrixChange(itemId, value) {
+    this.props.onDataChange([itemId], value)
+  }
+
   isExpired() {
     const expiresAt = this.props.quiz.data.expiresAt;
 
@@ -138,10 +148,12 @@ class QuizLoader extends React.Component {
       onEssayChange: this.onEssayChange.bind(this),
       onMultipleChoiceChange: this.onMultipleChoiceChange.bind(this),
       onCheckboxChange: this.onCheckboxChange.bind(this),
+      onPrivacyAgreementChange: this.onPrivacyAgreementChange.bind(this),
       onPeerReviewReviewChange: this.onPeerReviewReviewChange.bind(this),
       onLikertChange: this.onLikertChange.bind(this),
       onPeerReviewChosenReviewChange: this.onPeerReviewChosenReviewChange.bind(this),
       onScaleChange: this.onScaleChange.bind(this),
+      onRadioMatrixChange: this.onRadioMatrixChange.bind(this),
       answer: this.props.answer,
       submitting: this.isSubmitting(),
       submitted: this.props.quiz.submitted,
@@ -202,6 +214,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     loadQuiz: () => dispatch(fetchQuiz(ownProps.id)),
     loadAnswer: () => dispatch(getQuizAnswer({ quizId: ownProps.id })),
+    loadPrivacyAgreement: () => dispatch(getPrivacyAgreement({ quizId: ownProps.id })),
     onDataChange: (path, value) => dispatch(setQuizAnswerDataPath(ownProps.id, path, value)),
     onSubmit: () => dispatch(submitQuiz(ownProps.id))
   }

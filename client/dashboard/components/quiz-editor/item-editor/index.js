@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, FormText } from 'reactstrap';
 import Sortable from 'react-sortablejs';
+import _get from 'lodash.get';
 
 import Icon from 'components/icon';
 import ItemEditorItem from './item-editor-item';
@@ -21,6 +22,8 @@ class ItemEditor extends React.Component {
           title={item.title}
           id={item.id}
           key={item.id}
+          type={this.props.type}
+          //meta={this.props.meta}
           onChange={this.onDataItemChange(item.id)}
           onRemove={this.onRemoveDataItem(item.id)}
         />
@@ -49,7 +52,7 @@ class ItemEditor extends React.Component {
     return (
       <div>
         <Sortable {...this.getSortableProperties()}>
-          {this.renderItems()}
+          {this.props.children || this.renderItems()}
         </Sortable>
 
         <FormText color="muted" className="m-b-1">

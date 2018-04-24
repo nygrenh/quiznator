@@ -26,7 +26,7 @@ function getQuizsAnswers(options) {
       .exec()
       .then(answers => {
         req.quizsAnswers = answers;
-
+        
         return next();
       })
       .catch(err => next(err));
@@ -35,10 +35,12 @@ function getQuizsAnswers(options) {
 
 function createQuizAnswer(options) {
   return (req, res, next) => {
-    const allowedAttributes = pick(options.getAttributes(req), ['data']);
+    const allowedAttributes = pick(options.getAttributes(req), ['data', 'confirmed']);
     const attributes = Object.assign({}, allowedAttributes, { answererId: options.getAnswererId(req), quizId: options.getQuizId(req) });
 
     const newQuizAnswer = new QuizAnswer(attributes);
+
+    console.log('creating: ', attributes)
 
     newQuizAnswer
       .save()

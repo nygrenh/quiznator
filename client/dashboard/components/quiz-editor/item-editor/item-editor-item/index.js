@@ -15,16 +15,25 @@ class ItemEditorItem extends React.Component {
 
   render() {
     return (
-      <div className="display-flex m-b-1" data-id={this.props.id}>
-        <div className="flex-1">
-          <input type="text" className="form-control" onChange={this.onTitleChange.bind(this)} value={this.props.title} ref="title" placeholder="Title"/>
-        </div>
+      <div>
+        <div className="display-flex m-b-1" data-id={this.props.id}>
+          <div className="flex-1">
+            <input type="text" className="form-control" 
+              onChange={this.onTitleChange.bind(this)} 
+              value={this.props.title} 
+              ref="title" 
+              placeholder="Title"/>
+          </div>
 
-        <div className="flex-0 p-l-1">
-          <Button color="danger" onClick={this.onRemove.bind(this)}>
-            <Icon name="trash"/> Remove
-          </Button>
+          
+          <div className="flex-0 p-l-1">
+            <Button color="danger" onClick={this.onRemove.bind(this)}>
+              <Icon name="trash"/> Remove
+            </Button>
+          </div>
+
         </div>
+        {this.props.children}
       </div>
     )
   }

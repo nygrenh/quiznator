@@ -1,4 +1,4 @@
-import scour from 'scourjs';
+  import scour from 'scourjs';
 import { push } from 'react-router-redux';
 
 import { createToast } from 'state/toaster';
@@ -14,6 +14,10 @@ export const UPDATE_DATA_ITEM = 'EDIT_QUIZ_UPDATE_DATA_ITEM';
 export const UPDATE_DATA_META = 'EDIT_QUIZ_UPDATE_DATA_META';
 export const UPDATE_DATA = 'EDIT_QUIZ_UPDATA_DATA';
 export const SET_DATA_META_PATH = 'EDIT_QUIZ_SET_DATA_META_PATH';
+//
+export const ADD_DATA_CHOICE = 'EDIT_QUIZ_ADD_DATA_CHOICE';
+export const REMOVE_DATA_CHOICE ='EDIT_QUIZ_REMOVE_DATA_CHOICE';
+export const UPDATE_DATA_CHOICE = 'EDIT_QUIZ_UPDATE_DATA_CHOICE';
 
 function id() {
   return (new Date().getTime()).toString(36) + Math.floor(Math.random() * 100).toString(36);
@@ -40,6 +44,7 @@ export function fetchQuiz(quizId) {
 }
 
 export function saveQuizRequest(quizId, update) {
+  console.log('save request', update)
   return {
     type: PUT_SAVE_QUIZ,
     payload: {
@@ -86,14 +91,21 @@ export function saveQuiz() {
 
     const quizId = state.editQuiz.result;
     const items = state.editQuiz.entities.items;
+    const choices = state.editQuiz.entities.choices
 
     let newQuiz = scour(state.editQuiz.entities.quizzes[quizId])
 
     const quizItems = newQuiz.get('data', 'items');
+    const quizChoices = newQuiz.get('data', 'choices')
 
-    if(quizItems) {
+    if (quizItems) {
       newQuiz = newQuiz.set(['data', 'items'], quizItems.map(id => items[id]));
     }
+    if (quizChoices) {
+      newQuiz = newQuiz.set(['data', 'choices'], quizChoices.map(id => choices[id]))
+    }
+    
+    console.log('to save', newQuiz)
 
     return dispatch(saveQuizRequest(quizId, newQuiz.value))
       .then(response => {
@@ -136,6 +148,33 @@ export function removeDataItem(itemId) {
     itemId
   }
 }
+
+//
+export function addDataChoice(choice) {
+  const newId = id();
+
+  return {
+    type: ADD_DATA_CHOICE,
+    choiceId: newId,
+    choice: Object.assign({}, choice, { id: newId })
+  }
+}
+
+export function updateDataChoice(choiceId, update) {
+  return {
+    type: UPDATE_DATA_CHOICE,
+    choiceId,
+    update
+  }  
+}
+
+export function removeDataChoice(choiceId) {
+  return {
+    type: REMOVE_DATA_CHOICE,
+    choiceId
+  }
+}
+//
 
 export function updateDataMeta(update) {
   return {

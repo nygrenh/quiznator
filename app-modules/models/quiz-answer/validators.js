@@ -28,6 +28,9 @@ module.exports = schema => {
       [quizTypes.CHECKBOX](data) {
         return validateWith(data, notEmptyArrayOfStrings);
       },
+      [quizTypes.PRIVACY_AGREEMENT](data) {
+        return validateWith(data, notEmptyArrayOfStrings);
+      },
       [quizTypes.PEER_REVIEW](data) {
         const schema = {
           chosen: { presence: true },
