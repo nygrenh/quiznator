@@ -22,7 +22,9 @@ export default createStore(
   reducer,
   {},
   compose(
-    middleware,
-    window.devToolsExtension ? window.devToolsExtension() : f => f
+    middleware
   )
 );
+
+// inside compose for devtools: 
+// window.devToolsExtension ? window.devToolsExtension() : f => f
