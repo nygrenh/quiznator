@@ -32,10 +32,6 @@ function validateMultipleChoiceAnswerData(data, quiz) {
     ? rightAnswer.indexOf(data) >= 0
     : data !== rightAnswer;
 
-  console.log("ranswer: ", rightAnswer)
-  console.log("data", data)
-  console.log("quiz", quiz)
-
   if(isRightAnswer) {
     return {
       successMessage: _get(quiz, `data.meta.successes.${data}`) || RIGHT_ANSWER_MESSAGE
@@ -48,15 +44,8 @@ function validateMultipleChoiceAnswerData(data, quiz) {
 }
 
 function validateRadioMatrixAnswerData(data, quiz) {
-  console.log("data", data)
-  console.log("quiz", quiz)
-
   const rightAnswer = _get(quiz, 'data.meta.rightAnswer')
 
-  console.log(rightAnswer)
-  console.log(Object.keys(rightAnswer).map(key => 
-    rightAnswer[key].indexOf(_get(data, `[${key}]`)) >= 0
-  ).every(v => !!v))
   const isRightAnswer = typeof rightAnswer === 'object'
     ? Object.keys(rightAnswer).map(key => { 
       return rightAnswer[key]
