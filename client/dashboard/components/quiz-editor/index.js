@@ -10,7 +10,8 @@ import {
   OPEN, 
   SCALE, 
   PRIVACY_AGREEMENT,
-  RADIO_MATRIX 
+  RADIO_MATRIX,
+  MULTIPLE_OPEN
 } from 'common-constants/quiz-types';
 
 import Alert from 'common-components/alert';
@@ -24,6 +25,7 @@ import OpenQuizEditor from './open-quiz-editor';
 import ScaleQuizEditor from './scale-quiz-editor';
 import PrivacyAgreementEditor from './privacy-agreement-editor';
 import RadioMatrixQuizEditor from './radio-matrix-quiz-editor'
+import MultipleOpenQuizEditor from './multiple-open-quiz-editor'
 
 const mapQuizTypeToEditor = {
   [ESSAY]: EssayQuizEditor,
@@ -34,7 +36,8 @@ const mapQuizTypeToEditor = {
   [PRIVACY_AGREEMENT]: PrivacyAgreementEditor,
   [OPEN]: OpenQuizEditor,
   [SCALE]: ScaleQuizEditor,
-  [RADIO_MATRIX]: RadioMatrixQuizEditor
+  [RADIO_MATRIX]: RadioMatrixQuizEditor,
+  [MULTIPLE_OPEN]: MultipleOpenQuizEditor
 };
 
 class QuizEditor extends React.Component {

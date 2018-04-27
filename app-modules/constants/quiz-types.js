@@ -9,5 +9,6 @@ module.exports = mirror({
   PEER_REVIEWS_RECEIVED: null,
   OPEN: null,
   SCALE: null,
-  RADIO_MATRIX: null
+  RADIO_MATRIX: null,
+  MULTIPLE_OPEN: null
 });

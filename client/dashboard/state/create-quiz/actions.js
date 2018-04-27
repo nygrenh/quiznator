@@ -10,7 +10,8 @@ import {
   PEER_REVIEW, 
   PEER_REVIEWS_RECEIVED, 
   SCALE,
-  RADIO_MATRIX
+  RADIO_MATRIX,
+  MULTIPLE_OPEN
 } from 'common-constants/quiz-types';
 import { fetchQuizzesList } from 'state/quizzes-list';
 
@@ -27,6 +28,7 @@ function createEmptyQuiz({ title, type }) {
 
   switch (type) {
     case MULTIPLE_CHOICE:
+    case MULTIPLE_OPEN:
     case CHECKBOX:
     case PRIVACY_AGREEMENT:
       return Object.assign({}, base, { data: { items: [], meta: {} } });

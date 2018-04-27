@@ -33,7 +33,6 @@ export const quizChoicesSelector = createSelector(
   quizSelector,
   choicesSelector,
   (quiz, choices) => {
-    console.log(choices)
     if(!_get(quiz, 'data.choices')) {
       return undefined
     } else {

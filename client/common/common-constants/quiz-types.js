@@ -7,6 +7,7 @@ export const CHECKBOX = 'CHECKBOX';
 export const PRIVACY_AGREEMENT = "PRIVACY_AGREEMENT";
 export const SCALE = 'SCALE';
 export const RADIO_MATRIX = 'RADIO_MATRIX'
+export const MULTIPLE_OPEN = 'MULTIPLE_OPEN'
 
 export const typeToLabel = {
   [MULTIPLE_CHOICE]: 'Multiple choice',
@@ -17,7 +18,8 @@ export const typeToLabel = {
   [PEER_REVIEW]: 'Give peer review',
   [PEER_REVIEWS_RECEIVED]: 'View peer reviews',
   [SCALE]: 'Scale',
-  [RADIO_MATRIX]: 'Radio matrix'
+  [RADIO_MATRIX]: 'Radio matrix',
+  [MULTIPLE_OPEN]: 'Multiple open'
 };
 
-export const answerableTypes = [MULTIPLE_CHOICE, ESSAY, CHECKBOX, PRIVACY_AGREEMENT, OPEN, SCALE, RADIO_MATRIX];
+export const answerableTypes = [MULTIPLE_CHOICE, ESSAY, CHECKBOX, PRIVACY_AGREEMENT, OPEN, SCALE, RADIO_MATRIX, MULTIPLE_OPEN];
