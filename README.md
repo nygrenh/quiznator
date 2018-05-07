@@ -56,7 +56,7 @@ To get a dev build working locally:
 
         $ mongo  
         use test    
-        db.oauthclients.insert({ clientID: "CLIENT_ID", clientSecret: "CLIENT_SECRET" })
+        db.oauthclients.insert({ clientId: "CLIENT_ID", clientSecret: "CLIENT_SECRET" })
         quit()
   
 Choose whatever you want for CLIENT_ID and CLIENT_SECRET, as long as you use the same values in `.env`.
