@@ -12,6 +12,10 @@ class RadioMatrixQuizEditorMetaEditor extends React.Component {
     this.props.onRightAnswersChange(newAnswer)
   }
 
+  onMultiChange(e) {
+    this.props.onMultiChange(e.target.checked)
+  }
+
   getWrongChoices(itemId) {
     return this.props.choices.filter(choice => this.getRightAnswers(itemId).indexOf(choice.id) < 0);
   }
@@ -22,6 +26,10 @@ class RadioMatrixQuizEditorMetaEditor extends React.Component {
 
   getRightAnswers(itemId) {
       return _get(this.props.rightAnswer, `[${itemId}`) || []
+  }
+
+  isMulti() {
+    return _get(this.props.meta, 'multi') || false
   }
 
   renderMessageItems(items, values = {}, onChange) {
@@ -95,6 +103,16 @@ class RadioMatrixQuizEditorMetaEditor extends React.Component {
 
     return (
       <div>
+        <div className="m-b-1">
+          <label className="form-check-label">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              checked={this.isMulti()}
+              onChange={(e) => this.onMultiChange(e)}
+            /> Permit multiple answers per item
+          </label>
+        </div>
         <div className="m-b-1">
           {items.map(item => this.renderItem(item))}
         </div>

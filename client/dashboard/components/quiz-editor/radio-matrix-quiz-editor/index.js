@@ -32,22 +32,19 @@ class RadioMatrixQuizEditor extends React.Component {
         this.props.onRemoveDataItem(id);
     }
     
+    onMultiChange(value) {
+        this.props.onDataMetaChange({ multi: value })
+    }
+
     onRightAnswersChange(value) {
-        console.log('rightchange', value)
         this.props.onDataMetaChange({ rightAnswer: value });
     }
 
-/*     onRightAnswersChange(value) {
-        console.log(value)
-        Object.keys(value).map(itemId =>
-            this.props.onDataMetaPathChange(['rightAnswer', itemId], value[itemId]));
-    }
- */
     onSuccessMessageChange(id, value) {
         this.props.onDataMetaPathChange(['successes', id], value);
     }
 
-        onErrorMessageChange(id, value) {
+    onErrorMessageChange(id, value) {
         this.props.onDataMetaPathChange(['errors', id], value);
     }
     
@@ -82,6 +79,7 @@ class RadioMatrixQuizEditor extends React.Component {
                         items={this.props.items} 
                         choices={this.props.choices}
                         rightAnswer={_get(this.props.quiz, 'data.meta.rightAnswer') || {}} 
+                        onMultiChange={this.onMultiChange.bind(this)}
                         onRightAnswersChange={this.onRightAnswersChange.bind(this)} 
                         onSuccessMessageChange={this.onSuccessMessageChange.bind(this)} 
                         onErrorMessageChange={this.onErrorMessageChange.bind(this)}/>
