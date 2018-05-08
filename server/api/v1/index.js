@@ -6,5 +6,6 @@ router.use('/quizzes', require('./quizzes'));
 router.use('/quiz-answers', require('./quiz-answers'));
 router.use('/answerers', require('./answerers'));
 router.use('/tags', require('./tags'))
+router.use('/quiz-scores', require('./quiz-scores'))
 
 module.exports = router;
