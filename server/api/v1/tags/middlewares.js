@@ -55,8 +55,30 @@ function getQuizzesByTag(options = {}) {
     }
 }
 
+function getQuizIdsByTag(options = {}) {
+    return (req, res, next) => {
+        const queryTags = (options.getTags(req) || '').split(',').filter(tag => !!tag);
+
+        if (queryTags.length == 0) {
+            return next()
+        }
+
+        let query = { tags: { $all: queryTags }}
+        
+        Quiz
+            .find(query)
+            .distinct('_id')
+            .then(quizIds => {
+                req.quizIds = quizIds
+                
+                return next()
+            })
+            .catch(err => next(err))
+    }
+}
 
 module.exports = {
     getTags,
     getQuizzesByTag,
+    getQuizIdsByTag
 }

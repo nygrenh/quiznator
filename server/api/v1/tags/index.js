@@ -3,6 +3,7 @@ const router = require('express').Router({ mergeParams: true });
 
 const authenticationMiddlewares = require('app-modules/middlewares/authentication');
 const middlewares = require('./middlewares');
+const TMCMiddlewares = require('app-modules/middlewares/tmc');
 
 router.get('/',
     middlewares.getTags({
@@ -24,5 +25,13 @@ router.get('/quizzes',
     }
 )
 
+router.get('/quizids',
+    middlewares.getQuizIdsByTag({
+        getTags: req => req.query.tags
+    }),
+    (req, res, next) => {
+        res.json(req.quizIds)
+    }
+)
 
 module.exports = router

@@ -11,6 +11,18 @@
 
 *optional*: userid (24-digit hex) set in headers to query only the tags on specific quiz set
 
+### Get quizids with given tag(s)
+
+`/tags/quizids`
+
+**query params**:
+
+`?tags=TAG[,TAG2...]` match ALL given tags - at least one required
+
+**returns**:
+
+`[ array of quizids with given tag(s) ]`
+
 ### Get quizzes with given tag(s)
 `/tags/quizzes`
 
