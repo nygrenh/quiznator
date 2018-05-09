@@ -63,7 +63,16 @@ function getQuizIdsByTag(options = {}) {
             return next()
         }
 
-        let query = { tags: { $all: queryTags }}
+        Quiz
+            .getIdsByTags(queryTags)
+            .then(quizIds => {
+                req.quizIds = quizIds
+
+                return next()
+            })
+            .catch(err => next(err))
+
+/*         let query = { tags: { $all: queryTags }}
         
         Quiz
             .find(query)
@@ -73,7 +82,7 @@ function getQuizIdsByTag(options = {}) {
                 
                 return next()
             })
-            .catch(err => next(err))
+            .catch(err => next(err)) */
     }
 }
 

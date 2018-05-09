@@ -156,6 +156,24 @@ module.exports = schema => {
       });
   }
 
+  schema.statics.getIdsByTags = function(tags) {
+    const aggregation = [
+      { $match: { tags: { $in: tags } }},
+      { $group: { _id: '$tags', quizIds: { $push: '$_id' } } }
+    ]
+
+    return this.aggregate(aggregation)
+      .exec()
+      .then(results => { 
+        return results.map(doc => {
+          return {
+            tags: doc._id,
+            quizIds: doc.quizIds
+          }
+        })
+      })
+  }
+
   schema.methods.getAnswersCounts = function() {
     let query;
 

@@ -17,11 +17,11 @@
 
 **query params**:
 
-`?tags=TAG[,TAG2...]` match ALL given tags - at least one required
+`?tags=TAG[,TAG2...]` match ANY given tags - at least one required
 
 **returns**:
 
-`[ array of quizids with given tag(s) ]`
+`[ array of quizids grouped by given tag(s) ]`
 
 ### Get quizzes with given tag(s)
 `/tags/quizzes`
