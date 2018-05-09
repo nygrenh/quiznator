@@ -14,12 +14,19 @@ function getStats(options) {
         const userId = options.getUserId(req) || undefined
         const queryTags = (options.getTags(req) || '').split(',').filter(tag => !!tag);
         const onlyConfirmed = options.getOnlyConfirmed(req) || false
+        const matchAll = options.getMatchAll(req) === 'true'
 
         if (queryTags.length == 0) {
             next(new Error('no hogging the server'))
         }            
 
-        let query = { tags: { $all: queryTags } }
+        let query = {}
+
+        if (matchAll) {
+            query = { tags: { $all: queryTags } }
+        } else {
+            query = { tags: { $in: queryTags } }
+        }
 
         if (!!userId) {
             query = Object.assign({}, query, { userId })
@@ -33,9 +40,9 @@ function getStats(options) {
                 })
                 switch (options.queryType) {
                     case BY_USER_BY_TAG:
-                        return QuizAnswer.getStatisticsByUser(answererId, quizMap, { onlyConfirmed })
+                        return QuizAnswer.getStatisticsByUser(answererId, quizMap, { matchAll, onlyConfirmed })
                     case BY_TAG:
-                        return QuizAnswer.getStatsByTag(quizMap, { onlyConfirmed })
+                        return QuizAnswer.getStatsByTag(quizMap, { matchAll, onlyConfirmed })
                     default:
                         new Error('wrong query type')
                 }
@@ -50,7 +57,6 @@ function getStats(options) {
 }
 
 function getStatsByAnswererByTag(options) {
-    console.log('i am here now')
     return getStats(Object.assign({}, options, { queryType: BY_USER_BY_TAG }))
 }
 

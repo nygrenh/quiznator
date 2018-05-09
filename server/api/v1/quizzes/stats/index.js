@@ -10,7 +10,8 @@ router.get('/',
     middlewares.getStatsByTag({
         getTags: req => req.query.tags,
         getUserId: req => req.userId,
-        getOnlyConfirmed: req => req.query.onlyConfirmed
+        getOnlyConfirmed: req => req.query.onlyConfirmed,
+        getMatchAll: req => req.query.matchAll
     }),
     (req, res, next) => {
         res.json(req.stats)
@@ -23,7 +24,8 @@ router.get('/user',
         getAnswererId: req => req.TMCProfile.username,
         getUserId: req => _get(req.headers, 'userid'),
         getTags: req => req.query.tags,
-        getOnlyConfirmed: req => req.query.onlyConfirmed
+        getOnlyConfirmed: req => req.query.onlyConfirmed,
+        getMatchAll: req => req.query.matchAll
     }),
     (req, res, next) => {
         res.json(req.stats)
