@@ -15,11 +15,11 @@ function getStats(options) {
         const queryTags = (options.getTags(req) || '').split(',').filter(tag => !!tag);
         const onlyConfirmed = options.getOnlyConfirmed(req) || false
 
-        let query = {}
+        if (queryTags.length == 0) {
+            next(new Error('no hogging the server'))
+        }            
 
-        if (queryTags.length > 0) {
-            query = Object.assign({}, query, { tags: { $all: queryTags } })
-        }
+        let query = { tags: { $all: queryTags } }
 
         if (!!userId) {
             query = Object.assign({}, query, { userId })
@@ -50,6 +50,7 @@ function getStats(options) {
 }
 
 function getStatsByAnswererByTag(options) {
+    console.log('i am here now')
     return getStats(Object.assign({}, options, { queryType: BY_USER_BY_TAG }))
 }
 
