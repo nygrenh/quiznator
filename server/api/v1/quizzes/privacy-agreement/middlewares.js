@@ -40,7 +40,6 @@ function savePrivacyAgreement(options) {
             { new: true, upsert: true }
         )
             .then((newAgreement) => {
-                console.log('updated', newAgreement)
                 req.agreement = newAgreement
 
                 return next();

@@ -41,7 +41,6 @@ export function getPrivacyAgreement({ quizId }) {
 
         return dispatch(fetchPrivacyAgreement({ userId: user.id, quizId }))
             .then(action => {
-                console.log("fetch success!", action.payload.data)
                 // debug: let's not create when fetching
                 // dispatch(createPrivacyAgreementLocalStorageKey({ userId: user.id, data: action.payload.data }));
             })

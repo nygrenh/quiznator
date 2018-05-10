@@ -40,8 +40,6 @@ function createQuizAnswer(options) {
 
     const newQuizAnswer = new QuizAnswer(attributes);
 
-    console.log('creating: ', attributes)
-
     newQuizAnswer
       .save()
       .then(() => {

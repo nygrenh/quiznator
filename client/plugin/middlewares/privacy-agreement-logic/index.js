@@ -20,19 +20,15 @@ const privacyAgreementLogic = store => next => action => {
             window.localStorage.setItem('research-agreement', JSON.stringify(agreement))
             return next(Object.assign({}, action, { agreement }))
         case REFRESH_PRIVACY_AGREEMENT:
-            console.log('middleware refresh')
             return next(action)
         case FETCH_PRIVACY_AGREEMENT_FAIL:
             // console.log("middleware fail", action);
             return next(action);
         case FETCH_PRIVACY_AGREEMENT:
             const { privacyAgreements, quizzes } = store.getState();
-            console.log('fpa', action)
-            console.log('state', store.getState())
             // TODO: unnecessary requests
             var { quizId, userId } = action;
             
-            console.log('in fpa middleware', privacyAgreements)
             // const agreementIsBeingLoaded = !!privacyAgreements[quizId] && privacyAgreements[quizId].userId === userId;
             // const quizIsLoaded = quizzes[quizId] & quizzes[quizId].data
 
