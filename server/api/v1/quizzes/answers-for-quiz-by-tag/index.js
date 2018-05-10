@@ -16,6 +16,7 @@ router.get('/user',
     })
 
 router.get('/',
+    authenticationMiddlewares.authorize(),
     middlewares.getAnswersByTag({
         getTags: req => req.query.tags
     }),

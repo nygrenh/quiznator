@@ -27,7 +27,7 @@ router.get('/quizzes',
 
 router.get('/quizids',
     middlewares.getQuizIdsByTag({
-        getTags: req => req.query.tags
+        getTags: req => req.query.tags,
     }),
     (req, res, next) => {
         res.json(req.quizIds)
