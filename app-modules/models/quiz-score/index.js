@@ -5,16 +5,13 @@ const modelUtils = require('app-modules/utils/models');
 
 const schema = new mongoose.Schema({
   answererId: { type: String, required: true },
-  quizzes: {
-    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz', required: true },
-    score: { 
-      points: { type: Number, required: true },
-      maxPoints: { type: Number, required: true },
-    },
-    accepted: { type: Boolean, default: false },
-    confirmed: { type: Boolean, default: false }
+  quizId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz', required: true },
+  score: { 
+    points: { type: Number, required: true },
+    maxPoints: { type: Number, required: true },
   },
-})
+  meta: { type: mongoose.Schema.Types.Mixed },
+}, { timestamps: true })
 
 require('./methods')(schema)
 

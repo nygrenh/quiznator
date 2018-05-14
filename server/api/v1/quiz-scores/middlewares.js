@@ -8,7 +8,7 @@ const middlewares = {
 function getAnswerersScores(options) {
   return (req, res, next) => {
     const answererId = options.getAnswererId(req)
-    const quizzes = options.getQuizzes(req)
+    const quizzes = (options.getQuizzes(req) || '').split(',').filter(id => !!id);
 
     if (!answererId) {
       next()
@@ -29,6 +29,7 @@ function createQuizScore(options) {
     const answererId = options.getAnswererId(req)
     const quizId = options.getQuizId(req)
     const score = options.getScore(req)
+    const meta = options.getMeta(req)
 
     if (!answererId || !score) {
       next()
@@ -36,19 +37,22 @@ function createQuizScore(options) {
 
     const attributes = {
       answererId,
-      quizzes: {
-        id: quizId,
-        score,
-      }
+      quizId,
+      score,
+      meta
     }
+
     QuizScore.findOneAndUpdate(
-      { answererId, quizzes: { id: quizId } },
+      { answererId, quizId },
       { $set: attributes },
-      { $new: true, upsert: true }
+      { 
+        new: true, 
+        upsert: true
+      }
     )
     .then(newScore => {
       req.newScore = newScore
-      
+
       return next()
     })
     .catch(err => next(err))
