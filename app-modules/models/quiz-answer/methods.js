@@ -34,7 +34,6 @@ module.exports = schema => {
   }
 
   schema.statics.findDistinctlyByAnswerer = function(query, options = {}) {
-    console.log(query)
     let pipeline = [
       { $match: query },
       { $sort: { createdAt: - 1 } },
@@ -151,7 +150,6 @@ module.exports = schema => {
 
     return this.aggregate(pipeline)
       .then(data => {
-        console.log(data)
         return data.map(doc => ({
           quizId: doc._id,
           tags: _.get(quizzes, `[${doc._id}].tags`),

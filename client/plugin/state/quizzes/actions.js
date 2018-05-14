@@ -20,7 +20,6 @@ export function submitQuiz(id) {
 
     let createPromise = {};
 
-    console.log(quiz)
     switch (quiz.type) {
       case PEER_REVIEW: 
         createPromise = dispatch(createPeerReview({ quizId: quiz.data.quizId, sourceQuizId: id }));

@@ -16,7 +16,6 @@ module.exports = schema => {
 
     return this.aggregate(pipeline)
       .then(data => {
-        console.log(data)
         return {
           _id: answererId,
           quizzes: data.map(quiz => ({
