@@ -7,6 +7,8 @@
   },
   "scripts": {
     "start": "node ./bin/www",
+    "serve": "./node_modules/.bin/pm2 start --no-daemon pm2.json",
+    "reload-serve": "./node_modules/.bin/pm2 reload --no-daemon pm2.json",
     "test": "node ./node_modules/gulp/bin/gulp tests.server",
     "postinstall": "node ./node_modules/gulp/bin/gulp build"
   },
@@ -71,6 +73,7 @@
     "nock": "^9.0.1",
     "normalizr": "^2.2.1",
     "oauth2-server": "^2.4.1",
+    "pm2": "^2.10.3",
     "query-string": "^4.2.3",
     "randomstring": "^1.1.5",
     "react": "^15.3.2",
