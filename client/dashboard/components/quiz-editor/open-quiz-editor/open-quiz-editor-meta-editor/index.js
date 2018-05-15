@@ -105,8 +105,10 @@ class OpenQuizEditorMetaEditor extends React.Component {
             value={_get(this.props, 'meta.rightAnswer') || ''}/>
 
           <FormText color="muted">
-            The value is case insensitive. {this.isRegex() ?
-            <span><br /><small>Don't forget ^ and $ to match the whole answer!</small></span> : null}
+            {this.isRegex() ?
+            <span><br /><small>Don't require CAPS or spaces before/after in your regex - the answer will be converted to low case and trimmed. <br />
+            Don't forget ^ and $ to match the whole answer!</small></span> : 
+            <span>The value is case insensitive. </span>}
           </FormText>
         </FormGroup>
 

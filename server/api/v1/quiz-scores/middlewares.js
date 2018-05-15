@@ -80,7 +80,8 @@ function validate(options) {
       const quizzes = yield Quiz.getByIds(quizIds)
       const answers = yield QuizAnswer.getByQuizIds(quizIds, answererId)
 
-      let validation = []
+      let answered = []
+      let unanswered = []
       let totalPoints = 0
       let totalMaxPoints = 0
       let totalNormalizedPoints = 0
@@ -94,12 +95,20 @@ function validate(options) {
         const { items, choices } = quiz.data 
         const answer = answers.filter(v => v.quizId.equals(quiz._id))
 
+        const itemAmount = Math.max(items ? items.length : 0, 1)
+        
         if (answer.length === 0) {
+          totalMaxPoints += itemAmount
+
+          unanswered.push({
+            quizId: quiz._id,
+            maxPoints: itemAmount
+          })
+
           return
         }
 
         const { data } = answer[0]
-        const itemAmount = Math.max(items ? items.length : 0, 1)
 
         switch (quiz.type) {
           case quizTypes.ESSAY:
@@ -161,7 +170,7 @@ function validate(options) {
         totalMaxPoints += maxPoints
         totalNormalizedPoints += normalizedPoints
 
-        validation.push({
+        answered.push({
               quizId: quiz._id,
               points,
               maxPoints,
@@ -170,7 +179,10 @@ function validate(options) {
       })
       
       validation = {
-        quizzes: validation,
+        quizzes: {
+          answered,
+          unanswered
+        },
         answererId,
         points: totalPoints,
         maxPoints: totalMaxPoints,
@@ -183,9 +195,11 @@ function validate(options) {
       const confirmation = body.confirmation
 
       if (!!confirmation) {
+        // check for requirements here
         Confirmation.getConfirmed(answererId)
           .then(receivedConfirmation => {
             if (receivedConfirmation.length === 0) {
+              // do confirmation stuff and all that
               Confirmation.setConfirmation(answererId, confirmation)
                 .then(setConfirmation => {
                   console.log('updated', setConfirmation)

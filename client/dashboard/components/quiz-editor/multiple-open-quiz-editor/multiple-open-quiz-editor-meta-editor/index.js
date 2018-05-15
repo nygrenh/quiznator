@@ -117,11 +117,13 @@ class MultipleOpenQuizEditorMetaEditor extends React.Component {
                 onChange={e => this.onRightAnswerChange(item.id, e.target.value)} 
                 value={_get(this.props, `rightAnswer[${item.id}]`) || ''}/>
 
-              <FormText color="muted">
-                The value is case insensitive. {this.isRegex() ?
-                <span><br /><small>Don't forget ^ and $ to match the whole answer!</small></span> : null}
-              </FormText>
-            </FormGroup>
+                <FormText color="muted">
+                  {this.isRegex() ?
+                  <span><br /><small>Don't require CAPS or spaces before/after in your regex - the answer will be converted to low case and trimmed. <br />
+                  Don't forget ^ and $ to match the whole answer!</small></span> : 
+                  <span>The value is case insensitive. </span>}
+                  </FormText>
+              </FormGroup>
 
             <FormGroup>
               <Label>Success message</Label>
