@@ -5,6 +5,7 @@ const quizTypes = require('app-modules/constants/quiz-types');
 const QuizScore = require('app-modules/models/quiz-score')
 const Quiz = require('app-modules/models/quiz')
 const QuizAnswer = require('app-modules/models/quiz-answer')
+const Confirmation = require('app-modules/models/confirmation')
 
 const middlewares = {
   getAnswerersScores,
@@ -96,6 +97,7 @@ function validate(options) {
         if (answer.length === 0) {
           return
         }
+
         const { data } = answer[0]
         const itemAmount = Math.max(items ? items.length : 0, 1)
 
@@ -167,13 +169,31 @@ function validate(options) {
             })
       })
       
-      req.validation = {
+      validation = {
         quizzes: validation,
         answererId,
         points: totalPoints,
         maxPoints: totalMaxPoints,
         normalizedPoints: precise_round(totalNormalizedPoints, 2),
         maxNormalizedPoints: quizzes.length
+      }
+
+      req.validation = validation
+
+      const confirmation = body.confirmation
+
+      if (!!confirmation) {
+        Confirmation.getConfirmed(answererId)
+          .then(receivedConfirmation => {
+            if (receivedConfirmation.length === 0) {
+              Confirmation.setConfirmation(answererId, confirmation)
+                .then(setConfirmation => {
+                  console.log('updated', setConfirmation)
+                })
+            } else {
+              console.log('received', receivedConfirmation)
+            }
+          })
       }
 
       return next()
