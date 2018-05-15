@@ -122,8 +122,12 @@ function validate(options) {
             break
           case quizTypes.OPEN:
             if (regex) {
-              let re = new RegExp(rightAnswer)
-              points = !!re.exec(data.trim().toLowerCase()) ? 1 : 0
+              try {
+                let re = new RegExp(rightAnswer)
+                points = !!re.exec(data.trim().toLowerCase()) ? 1 : 0
+              } catch(err) {
+                return 0
+              }
             } else {
               points = data.trim().toLowerCase() === rightAnswer.trim().toLowerCase() ? 1 : 0
             }
@@ -132,8 +136,12 @@ function validate(options) {
           case quizTypes.MULTIPLE_OPEN:
             if (regex) {
               points = items.map(item => {
-                let re = new RegExp(rightAnswer[item.id])
-                return !!re.exec(data[item.id].trim().toLowerCase())
+                try {
+                  let re = new RegExp(rightAnswer[item.id])
+                  return !!re.exec(data[item.id].trim().toLowerCase())
+                } catch(err) {
+                  return false
+                }
               }).filter(v => v).length              
             } else {
               points = items.map(item => 
