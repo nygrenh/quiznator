@@ -174,6 +174,16 @@ module.exports = schema => {
       })
   }
 
+  schema.statics.getByIds = function(quizIds) {
+    if (!quizIds || !!quizIds && quizIds.length === 0) {
+      return Promise.resolve({})
+    } 
+
+    return this.find({
+      '_id': { $in: quizIds }
+    })
+  }
+  
   schema.methods.getAnswersCounts = function() {
     let query;
 

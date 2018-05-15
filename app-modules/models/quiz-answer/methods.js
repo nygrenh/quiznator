@@ -130,6 +130,40 @@ module.exports = schema => {
       })
   }
 
+  schema.statics.getByQuizIds = function(quizIds, answererId) {
+    if (!answererId || !quizIds || (!!quizIds && quizIds.length === 0)) {
+      return Promise.esolve({})
+    }
+
+    let pipeline = [
+      { $match: { answererId: answererId, quizId: { $in: quizIds }}},
+      { $sort: { createdAt: - 1 } },
+      { $group: { 
+        _id: '$quizId', 
+        data: { $first: '$data' }, 
+        quizId: { $first: '$quizId' }, 
+        answererId: { $first: '$answererId' }, 
+        answerId: { $first: '$_id' }, 
+        createdAt: { $first: '$createdAt' },
+        confirmed: { $first: '$confirmed' },
+        peerReviewCount: { $first: '$peerReviewCount' } } }
+    ].filter(p => !!p)
+
+    return this.aggregate(pipeline)
+      .then(data => {
+        return data.map(doc => ({ 
+          _id: doc.answerId, 
+          answererId: doc.answererId, 
+          data: doc.data, 
+          quizId: doc.quizId, 
+          createdAt: doc.createdAt,
+          confirmed: doc.confirmed,
+          peerReviewCount: doc.peerReviewCount 
+        }));
+      })
+
+  }
+
   schema.statics.getStatsByTag = function(quizzes, options = {}) {
 
     const quizIds = Object.keys(quizzes).map(k => mongoose.Types.ObjectId(k))

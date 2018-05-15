@@ -4,12 +4,103 @@ import _get from 'lodash.get';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 class OpenQuizEditorMetaEditor extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      regexTest: '',
+      rightAnswer: _get(this.props.meta, 'rightAnswer') || '',
+      valid: false,
+      error: false
+    }
+  }
+
+  onRegexTestChange(e) {
+    const regexTest = e.target.value
+    const regex = this.state.rightAnswer
+
+    this.setState({ regexTest })
+  
+    this.testRegex(regex, regexTest)
+  }
+
+  testRegex(regex, regexTest) {
+    try {
+      let re = new RegExp(regex)
+      this.setState({ valid: !!re.exec(regexTest.trim().toLowerCase()), error: false })
+    } catch (err) {
+      this.setState({ valid: false, error: true })
+    }
+  }
+
+  onMultiChange(e) {
+    this.props.onMultiChange(e.target.checked)
+  }
+
+  onRegexChange(e) {
+    this.props.onRegexChange(e.target.checked)
+  }
+
+  onRightAnswerChange(value) {
+    this.setState({ rightAnswer: value })
+    this.props.onRightAnswerChange(value)
+    this.testRegex(value, this.state.regexTest)
+  }
+
+  isMulti() {
+    return _get(this.props.meta, 'multi') || false
+  }
+
+  isRegex() {
+    return _get(this.props.meta, 'regex') || false
+  }
+
   render() {
     return (
-      <div>
+      <div>        
+        {/*<div className="m-b-1">
+          <label className="form-check-label">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              checked={this.isMulti()}
+              onChange={(e) => this.onMultiChange(e)}
+            /> This quiz can have several right answers (separate by |) <b>NOT IMPLEMENTED</b>
+          </label>
+        </div>
+        */}
+
+        <div className="m-b-1">
+          <label className="form-check-label">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              checked={this.isRegex()}
+              onChange={(e) => this.onRegexChange(e)}
+            /> Right answer is a regular expression
+          </label>
+        </div>
+
+        {this.isRegex() ?
+          <FormGroup>
+            <Label>Test your regex here</Label>
+            <Input
+              onChange={(e) => this.onRegexTestChange(e)}
+            />
+            {this.state.regexTest !== '' ?
+              <FormText>
+                {this.state.valid ? 'Correct!' : 
+                (this.state.error ? 'Invalid regex!' : 'Incorrect!')}
+              </FormText>
+              : null}
+            <hr />
+            </FormGroup>
+          : null}
+
         <FormGroup>
           <Label>Right answer</Label>
-          <Input onChange={e => this.props.onRightAnswerChange(e.target.value)} value={_get(this.props, 'meta.rightAnswer') || ''}/>
+          <Input 
+            onChange={e => this.onRightAnswerChange(e.target.value)} 
+            value={_get(this.props, 'meta.rightAnswer') || ''}/>
 
           <FormText color="muted">
             The value is case insensitive.

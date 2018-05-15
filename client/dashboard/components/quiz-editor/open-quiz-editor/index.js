@@ -17,6 +17,14 @@ class OpenQuizEditor extends React.Component {
     this.props.onDataMetaChange({ error });
   }
 
+  onRegexChange(regex) {
+    this.props.onDataMetaChange({ regex })
+  }
+
+  onMultiChange(value) {
+    this.props.onDataMetaChange({ multi: value })
+  }
+
   render() {
     return (
       <div>
@@ -26,6 +34,8 @@ class OpenQuizEditor extends React.Component {
             onRightAnswerChange={this.onRightAnswerChange.bind(this)}
             onSuccessMessageChange={this.onSuccessMessageChange.bind(this)}
             onErrorMessageChange={this.onErrorMessageChange.bind(this)}
+            onRegexChange={this.onRegexChange.bind(this)}
+            onMultiChange={this.onMultiChange.bind(this)}
           />
         </MetaEditor>
       </div>

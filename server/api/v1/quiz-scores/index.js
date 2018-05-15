@@ -4,8 +4,6 @@ const authenticationMiddlewares = require('app-modules/middlewares/authenticatio
 const middlewares = require('./middlewares');
 const TMCMiddlewares = require('app-modules/middlewares/tmc');
 
-// this may have a better home under quizzes/quizid/scores
-
 router.get('/',
   TMCMiddlewares.getProfile(),
   middlewares.getAnswerersScores({
@@ -29,4 +27,14 @@ router.post('/',
     res.json(req.newScore)
   })
 
+router.post('/validate',
+  TMCMiddlewares.getProfile(),
+  middlewares.validate({
+    getAnswererId: req => req.TMCProfile.username,
+    getBody: req => req.body
+  }),
+  (req, res, next) => {
+    res.json(req.validation)
+  }
+)
 module.exports = router
