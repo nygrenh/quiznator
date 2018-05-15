@@ -76,24 +76,26 @@ class OpenQuizEditorMetaEditor extends React.Component {
               className="form-check-input"
               checked={this.isRegex()}
               onChange={(e) => this.onRegexChange(e)}
-            /> Right answer is a regular expression
+            /> Right answer is a regular expression  
           </label>
         </div>
 
         {this.isRegex() ?
-          <FormGroup>
+          <div>
+            <FormGroup style={{ background: '#EEEEEE', padding: '5px' }}>
             <Label>Test your regex here</Label>
-            <Input
-              onChange={(e) => this.onRegexTestChange(e)}
-            />
-            {this.state.regexTest !== '' ?
-              <FormText>
-                {this.state.valid ? 'Correct!' : 
-                (this.state.error ? 'Invalid regex!' : 'Incorrect!')}
-              </FormText>
-              : null}
-            <hr />
+              <Input
+                onChange={(e) => this.onRegexTestChange(e)}
+              />
+              {!!this.state.regexTest && !!this.state.rightAnswer ?
+                <FormText>
+                  {this.state.valid ? 'Correct!' : 
+                  (this.state.error ? 'Invalid regex!' : 'Incorrect!')}
+                </FormText>
+              : <span>&nbsp;</span>}
             </FormGroup>
+          <hr />
+          </div>
           : null}
 
         <FormGroup>
@@ -103,7 +105,8 @@ class OpenQuizEditorMetaEditor extends React.Component {
             value={_get(this.props, 'meta.rightAnswer') || ''}/>
 
           <FormText color="muted">
-            The value is case insensitive.
+            The value is case insensitive. {this.isRegex() ?
+            <span><br /><small>Don't forget ^ and $ to match the whole answer!</small></span> : null}
           </FormText>
         </FormGroup>
 

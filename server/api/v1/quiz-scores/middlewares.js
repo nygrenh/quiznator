@@ -130,9 +130,16 @@ function validate(options) {
             normalizedPoints = points
             break
           case quizTypes.MULTIPLE_OPEN:
-            points = items.map(item => 
-              data[item.id].trim().toLowerCase() === rightAnswer[item.id].trim().toLowerCase()
-            ).filter(v => v).length
+            if (regex) {
+              points = items.map(item => {
+                let re = new RegExp(rightAnswer[item.id])
+                return !!re.exec(data[item.id].trim().toLowerCase())
+              }).filter(v => v).length              
+            } else {
+              points = items.map(item => 
+                data[item.id].trim().toLowerCase() === rightAnswer[item.id].trim().toLowerCase()
+              ).filter(v => v).length
+            }
             normalizedPoints = points / itemAmount
             maxPoints = itemAmount
             break

@@ -18,6 +18,10 @@ class MultipleOpenQuizEditor extends React.Component {
     this.props.onRemoveDataItem(id);
   }
     
+  onRegexChange(regex) {
+    this.props.onDataMetaChange({ regex })
+  }
+
   onRightAnswerChange(id, value) {
     this.props.onDataMetaPathChange(['rightAnswer', id], value);
   }
@@ -53,6 +57,7 @@ class MultipleOpenQuizEditor extends React.Component {
               onRightAnswerChange={this.onRightAnswerChange.bind(this)}
               onSuccessMessageChange={this.onSuccessMessageChange.bind(this)}
               onErrorMessageChange={this.onErrorMessageChange.bind(this)}
+              onRegexChange={this.onRegexChange.bind(this)}
             />
         </MetaEditor>
       </div>
