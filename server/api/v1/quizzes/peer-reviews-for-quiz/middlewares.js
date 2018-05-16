@@ -46,6 +46,28 @@ function getPeerReviewsGivenByAnswerer(options) {
   }
 }
 
+function getPeerReviewsGivenByAnswererAndActualQuiz(options) {
+  return (req, res, next) => {
+    const sourceQuizId = options.getQuizId(req);
+    const giverAnswererId = options.getAnswererId(req);
+    const query = options.getQuery(req) || {};
+
+    let findQuery = { sourceQuizId, giverAnswererId };
+
+    const limit = +(query.limit || 50);
+
+    PeerReview.find(findQuery)
+      .limit(limit)
+      .exec()
+      .then(reviews => {
+        req.peerReviews = reviews;
+
+        return next();
+      })
+      .catch(err => next(err));
+  }
+}
+
 function getPeerReviewsForAnswerer(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
@@ -67,4 +89,4 @@ function getPeerReviewsForAnswerer(options) {
   }
 }
 
-module.exports = { getPeerReviewsForAnswerer, createPeerReviewForQuiz, getPeerReviewsGivenByAnswerer };
+module.exports = { getPeerReviewsForAnswerer, createPeerReviewForQuiz, getPeerReviewsGivenByAnswerer, getPeerReviewsGivenByAnswererAndActualQuiz };
