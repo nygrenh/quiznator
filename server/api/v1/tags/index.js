@@ -24,10 +24,19 @@ router.get('/quizzes',
         res.json(req.quizzes)
     }
 )
-
 router.get('/quizids',
     middlewares.getQuizIdsByTag({
         getTags: req => req.query.tags,
+        oldFormat: true
+    }),
+    (req, res, next) => {
+        res.json(req.quizIds)
+    }
+)
+
+router.post('/quizids',
+    middlewares.getQuizIdsByTag({
+        getTags: req => req.body.tags,
     }),
     (req, res, next) => {
         res.json(req.quizIds)

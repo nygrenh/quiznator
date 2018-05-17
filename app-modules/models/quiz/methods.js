@@ -183,7 +183,7 @@ module.exports = schema => {
       '_id': { $in: quizIds }
     })
   }
-  
+
   schema.methods.getAnswersCounts = function() {
     let query;
 

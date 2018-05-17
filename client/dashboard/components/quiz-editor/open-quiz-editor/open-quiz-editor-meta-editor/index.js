@@ -114,12 +114,20 @@ class OpenQuizEditorMetaEditor extends React.Component {
 
         <FormGroup>
           <Label>Success message</Label>
-          <Input onChange={e => this.props.onSuccessMessageChange(e.target.value)} value={_get(this.props, 'meta.success') || ''}/>
+          <Input
+            type="textarea"
+            rows="3"
+            onChange={e => this.props.onSuccessMessageChange(e.target.value)} 
+            value={_get(this.props, 'meta.success') || ''}/>
         </FormGroup>
 
         <FormGroup>
           <Label>Error message</Label>
-          <Input onChange={e => this.props.onErrorMessageChange(e.target.value)} value={_get(this.props, 'meta.error') || ''}/>
+          <Input 
+            type="textarea"
+            rows="3"
+            onChange={e => this.props.onErrorMessageChange(e.target.value)} 
+            value={_get(this.props, 'meta.error') || ''}/>
         </FormGroup>
       </div>
     );

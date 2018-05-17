@@ -32,7 +32,8 @@ router.get('/:answererId',
   })),
   (req, res, next) => {
     res.json(req.quizsAnswers);
-  });
+  }
+);
 
 router.post('/',
   TMCMiddlewares.getProfile(),

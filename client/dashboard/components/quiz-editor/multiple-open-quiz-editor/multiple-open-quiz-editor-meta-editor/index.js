@@ -128,6 +128,8 @@ class MultipleOpenQuizEditorMetaEditor extends React.Component {
             <FormGroup>
               <Label>Success message</Label>
               <Input 
+                type="textarea"
+                rows="3"
                 onChange={e => this.props.onSuccessMessageChange(item.id, e.target.value)} 
                 value={_get(this.props, `meta.successes[${item.id}]`) || ''}/>
             </FormGroup>
@@ -135,6 +137,8 @@ class MultipleOpenQuizEditorMetaEditor extends React.Component {
             <FormGroup>
               <Label>Error message</Label>
               <Input 
+                type="textarea"
+                rows="3"
                 onChange={e => this.props.onErrorMessageChange(item.id, e.target.value)} 
                 value={_get(this.props, `meta.errors[${item.id}]`) || ''}/>
             </FormGroup>

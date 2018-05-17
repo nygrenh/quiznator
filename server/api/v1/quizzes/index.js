@@ -39,6 +39,14 @@ router.get('/:id/stats',
     res.json(req.stats);
   });
 
+router.post('/stripped', 
+  middlewares.getStrippedQuizzesById({
+    getBody: req => req.body
+  }),
+  (req, res, next) => {
+    res.json(req.quizzes)
+  }
+)
 router.put('/:id',
   authenticationMiddlewares.authorize(),
   authenticationMiddlewares.canAccessQuiz({

@@ -14,6 +14,17 @@ router.post('/progress',
     res.json(req.progress);
   });
 
+router.post('/progress-with-validation',
+  TMCMiddlewares.getProfile(),
+  middlewares.getProgressWithValidation({
+    getAnswererId: req => req.TMCProfile.username,
+    getBody: req => req.body
+  }),
+  (req, res, next) => {
+    res.json(req.validation)
+  }
+)
+
 router.get('/', 
   authenticationMiddlewares.authorize(),
   middlewares.getAnswerers(),

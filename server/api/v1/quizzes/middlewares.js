@@ -88,6 +88,42 @@ function getQuizById(getId) {
   }
 }
 
+function getStrippedQuizzesById(options) {
+  return (req, res, next) => {
+    const body = options.getBody(req)
+
+    let quizIds = body.quizIds
+    
+    if (!quizIds) {
+      return next()
+    }
+
+    return Quiz.findAnswerable({ _id: { $in: quizIds }})
+      .then(quizzes => {
+        const strippedQuizzes = quizzes.map(quiz => {
+          return {
+            ...quiz._doc,
+            data: {
+              meta: {
+                ...quiz._doc.data.meta,
+                errors: undefined,
+                successes: undefined,
+                error: undefined,
+                success: undefined,
+                rightAnswer: undefined
+              }
+            }
+          }
+        })
+        
+        req.quizzes = strippedQuizzes
+      
+        return next()
+      })
+      .catch(err => next(err))
+  }
+}
+
 function getQuizStatsById(getId) {
   return (req, res, next) => {
     const id = getId(req);
@@ -155,6 +191,7 @@ function createQuiz(options) {
 module.exports = {
   getUsersQuizzes,
   getQuizById,
+  getStrippedQuizzesById,
   getQuizStatsById,
   createQuiz,
   updateQuiz,

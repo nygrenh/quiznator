@@ -27,14 +27,4 @@ router.post('/',
     res.json(req.newScore)
   })
 
-router.post('/validate',
-  TMCMiddlewares.getProfile(),
-  middlewares.validate({
-    getAnswererId: req => req.TMCProfile.username,
-    getBody: req => req.body
-  }),
-  (req, res, next) => {
-    res.json(req.validation)
-  }
-)
 module.exports = router

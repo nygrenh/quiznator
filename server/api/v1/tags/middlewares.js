@@ -57,8 +57,15 @@ function getQuizzesByTag(options = {}) {
 
 function getQuizIdsByTag(options = {}) {
     return (req, res, next) => {
-        const queryTags = (options.getTags(req) || '').split(',').filter(tag => !!tag);
+        let queryTags = []
 
+        if (options.oldFormat) {
+            //old: get query
+            queryTags = (options.getTags(req) || '').split(',').filter(tag => !!tag);
+        } else {
+            const queryTags = options.getTags(req)
+        }
+        
         if (queryTags.length == 0) {
             return next()
         }

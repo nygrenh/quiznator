@@ -6,6 +6,7 @@ const { ForbiddenError, InvalidRequestError, NotFoundError } = require('app-modu
 
 const middlewares = {
   getQuizAnswers,
+  getQuizsAnswersBatch,
   updateQuizAnswerConfirmation,
 };
 
@@ -77,6 +78,43 @@ function getQuizAnswers() {
       res.json(answers);
     })
     .catch(next);
+  }
+}
+
+function getQuizsAnswersBatch(options) {
+  return (req, res, next) => {
+    const answererId = options.getAnswererId(req)
+    const body = options.getBody(req)
+
+    let quizIds = body.quizIds
+
+    let pipeline = [
+      { query: { answererId, quizId: { $in: quizIds }}},
+      { $sort: { createdAt: - 1 }},
+      { $group: { 
+        _id: '$quizId', 
+        data: { $first: '$data' }, 
+        quizId: { $first: '$quizId' }, 
+        answererId: { $first: '$answererId' }, 
+        answerId: { $first: '$_id' }, 
+        createdAt: { $first: '$createdAt' },
+        confirmed: { $first: '$confirmed' },
+        peerReviewCount: { $first: '$peerReviewCount' }
+      }},
+    ].filter(p => !!p)      
+
+    QuizAnswer.aggregate(pipeline)
+      .then(data => {
+        return data.map(doc => ({ 
+          _id: doc.answerId, 
+          answererId: doc.answererId, 
+          data: doc.data, 
+          quizId: doc.quizId, 
+          createdAt: doc.createdAt,
+          confirmed: doc.confirmed,
+          peerReviewCount: doc.peerReviewCount 
+        }))
+      })
   }
 }
 
