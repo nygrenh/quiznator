@@ -93,19 +93,36 @@ function getProgressWithValidation(options) {
     
     let quizIds = body.quizIds
     
+    console.log(answererId)
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
     const getAnswers = QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).exec()
+    const getPeerReviewsGiven = PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec()
+    const getPeerReviewsReceived = PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec()
 
-    return Promise.all([getQuizzes, getAnswers])
-      .spread((quizzes, answers) => {
+    return Promise.all([getQuizzes, getAnswers, getPeerReviewsGiven, getPeerReviewsReceived])
+      .spread((quizzes, answers, peerReviewsGiven, peerReviewsReceived) => {
         const answerQuizIds = answers.map(answer => answer.quizId.toString());
         
         const progress = _.groupBy(quizzes.map(quiz => {
           const answer = answers.filter(answer => answer.quizId.equals(quiz._id))
 
+          let peerReviews = undefined
+
+          if (quiz.type === quizTypes.ESSAY) {
+            console.log('I got here')
+            const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
+            const received = peerReviewsReceived.filter(pr => pr.sourceQuizId.equals(quiz._id))
+            
+            peerReviews = {
+              given,
+              received
+            }
+          }
+
           return {
             quiz,
-            answer: answer.length > 0 ? answer : null
+            answer: answer.length > 0 ? answer : null,
+            peerReviews
           } 
         }), entry => answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered')
 
@@ -131,8 +148,11 @@ function validate(progress) {
   let notAnswered = []
 
   progress.answered && progress.answered.forEach(entry => {
-    const { quiz, answer } = entry
+    const { quiz, answer, peerReviews } = entry
 
+    if (quiz.type === quizTypes.ESSAY) {
+      console.log('got to validate', quiz)
+    }
     let points = 0
     let maxPoints = 1
     let normalizedPoints = 0
@@ -207,6 +227,7 @@ function validate(progress) {
     answered.push({
           quiz,
           answer,
+          peerReviews,
           validation: {
             points,
             maxPoints,
@@ -216,7 +237,7 @@ function validate(progress) {
   })
   
   progress.notAnswered && progress.notAnswered.map(entry => {
-    const { quiz } = entry
+    const { quiz, peerReviews } = entry
     const { items } = quiz.data
 
     const itemAmount = Math.max(items ? items.length : 0, 1)
@@ -225,6 +246,7 @@ function validate(progress) {
 
     notAnswered.push({
       quiz,
+      peerReviews,
       validation: {
         maxPoints: itemAmount
       }
