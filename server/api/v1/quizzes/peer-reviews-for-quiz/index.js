@@ -40,4 +40,18 @@ router.get('/:answererId/given-reviews',
     res.json(req.peerReviews);
   });
 
+router.get('/:answererId/given-reviews-by-actual-quiz',
+  validatorMiddlewares.validateQuery({
+    limit: { numericality: true }
+  }),
+  TMCMiddlewares.isUser(req => req.params.answererId),
+  middlewares.getPeerReviewsGivenByAnswererAndActualQuiz({
+    getAnswererId: req => req.params.answererId,
+    getQuizId: req => req.params.id,
+    getQuery: req => req.query
+  }),
+  (req, res, next) => {
+    res.json(req.peerReviews);
+  });
+
 module.exports = router;
