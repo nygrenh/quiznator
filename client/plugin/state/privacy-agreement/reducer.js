@@ -67,7 +67,6 @@ export default createReducer({}, {
             .value;
     },
     [REFRESH_PRIVACY_AGREEMENT](state, action) {
-        console.log('reducer', action)
         return scour(state)
             .root
             .value; 

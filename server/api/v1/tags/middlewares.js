@@ -63,7 +63,7 @@ function getQuizIdsByTag(options = {}) {
             //old: get query
             queryTags = (options.getTags(req) || '').split(',').filter(tag => !!tag);
         } else {
-            const queryTags = options.getTags(req)
+            queryTags = options.getTags(req)
         }
         
         if (queryTags.length == 0) {

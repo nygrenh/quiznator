@@ -91,13 +91,18 @@ function getProgressWithValidation(options) {
     const answererId = options.getAnswererId(req)
     const body = options.getBody(req)
     
+    const quizzes = body.quizzes || true
+    const answers = body.answers || false
+    const peerReviews = body.peerReviews || false
+    const validation = body.validation && !body.stripAnswers || false
+    const stripAnswers = body.stripAnswers || false
+
     let quizIds = body.quizIds
     
-    console.log(answererId)
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
-    const getAnswers = QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).exec()
-    const getPeerReviewsGiven = PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec()
-    const getPeerReviewsReceived = PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec()
+    const getAnswers = answers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).exec() : new Promise((resolve) => resolve([]))
+    const getPeerReviewsGiven = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
+    const getPeerReviewsReceived = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
 
     return Promise.all([getQuizzes, getAnswers, getPeerReviewsGiven, getPeerReviewsReceived])
       .spread((quizzes, answers, peerReviewsGiven, peerReviewsReceived) => {
@@ -106,30 +111,53 @@ function getProgressWithValidation(options) {
         const progress = _.groupBy(quizzes.map(quiz => {
           const answer = answers.filter(answer => answer.quizId.equals(quiz._id))
 
-          let peerReviews = undefined
+          let peerReviewsReturned = undefined
 
-          if (quiz.type === quizTypes.ESSAY) {
-            console.log('I got here')
+          if (quiz.type === quizTypes.ESSAY && peerReviews) {
             const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
             const received = peerReviewsReceived.filter(pr => pr.sourceQuizId.equals(quiz._id))
             
-            peerReviews = {
+            peerReviewsReturned = {
               given,
               received
             }
           }
 
+          let returnedQuiz
+
+          if (stripAnswers) {
+            returnedQuiz = {
+              ...quiz._doc,
+              data: {
+                meta: {
+                  ...quiz._doc.data.meta,
+                  errors: undefined,
+                  successes: undefined,
+                  error: undefined,
+                  success: undefined,
+                  rightAnswer: undefined
+                }
+              }
+            }
+          } else {
+            returnedQuiz = quiz
+          }
+
           return {
-            quiz,
-            answer: answer.length > 0 ? answer : null,
-            peerReviews
+            quiz: returnedQuiz,
+            answer: answers && answer.length > 0 ? answer : null,
+            peerReviews: peerReviewsReturned
           } 
         }), entry => answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered')
 
         // or some better method
         Confirmation.findOne({ answererId })
           .then(confirmation => {
-            req.validation = { ...validate(progress), answererId, confirmation }
+            if (validation) {
+              req.validation = { ...validate(progress), answererId, confirmation: confirmation || {} }
+            } else {
+              req.validation = { answered: progress.answered, notAnswered: progress.notAnswered, answererId, confirmation: confirmation || {} }
+            }
 
             return next()
           })
@@ -150,17 +178,13 @@ function validate(progress) {
   progress.answered && progress.answered.forEach(entry => {
     const { quiz, answer, peerReviews } = entry
 
-    if (quiz.type === quizTypes.ESSAY) {
-      console.log('got to validate', quiz)
-    }
     let points = 0
-    let maxPoints = 1
     let normalizedPoints = 0
 
     const { regex, multi, rightAnswer } = quiz.data.meta
     const { items, choices } = quiz.data 
 
-    const itemAmount = Math.max(items ? items.length : 0, 1)
+    const maxPoints = Math.max(items ? items.length : 0, 1)
     
     const { data } = answer[0]
 
@@ -178,8 +202,7 @@ function validate(progress) {
           : (items.map(item => 
             rightAnswer[item.id].indexOf(data[item.id]) >= 0
           ).filter(v => v).length)
-        normalizedPoints = points / itemAmount
-        maxPoints = itemAmount
+        normalizedPoints = points / maxPoints
         break
       case quizTypes.MULTIPLE_CHOICE:
         points = rightAnswer.some(o => o === data) ? 1 : 0
@@ -213,8 +236,7 @@ function validate(progress) {
             data[item.id].trim().toLowerCase() === rightAnswer[item.id].trim().toLowerCase()
           ).filter(v => v).length
         }
-        normalizedPoints = points / itemAmount
-        maxPoints = itemAmount
+        normalizedPoints = points / maxPoints
         break
       default:
         break
@@ -240,15 +262,15 @@ function validate(progress) {
     const { quiz, peerReviews } = entry
     const { items } = quiz.data
 
-    const itemAmount = Math.max(items ? items.length : 0, 1)
+    const maxPoints = Math.max(items ? items.length : 0, 1)
         
-    totalMaxPoints += itemAmount
+    totalMaxPoints += maxPoints
 
     notAnswered.push({
       quiz,
       peerReviews,
       validation: {
-        maxPoints: itemAmount
+        maxPoints
       }
     })
   })
