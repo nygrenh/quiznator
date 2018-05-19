@@ -110,7 +110,8 @@ function getStrippedQuizzesById(options) {
                 successes: undefined,
                 error: undefined,
                 success: undefined,
-                rightAnswer: undefined
+                rightAnswer: undefined,
+                submitMessage: undefined
               }
             }
           }
