@@ -129,7 +129,20 @@ function getProgressWithValidation(options) {
           let returnedQuiz
 
           if (stripAnswers) {
-            returnedQuiz = {
+            const newQuizMeta = Object.assign({}, quiz._doc.data.meta, {
+              errors: undefined,
+              successes: undefined,
+              error: undefined,
+              success: undefined,
+              rightAnswer: undefined
+            })
+            const newQuiz = Object.assign({}, quiz._doc, 
+              { data: {
+                meta: docMeta
+              }}
+            )
+            returnedQuiz = newQuiz
+/*             returnedQuiz = {
               ...quiz._doc,
               data: {
                 meta: {
@@ -141,7 +154,7 @@ function getProgressWithValidation(options) {
                   rightAnswer: undefined
                 }
               }
-            }
+            } */
           } else {
             returnedQuiz = quiz
           }
