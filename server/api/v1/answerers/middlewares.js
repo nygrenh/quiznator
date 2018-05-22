@@ -306,7 +306,7 @@ function confirmEssays(options) {
                 } */
 
                 const averageGrade = 
-                  _.mean(received.map(review => _.sum(Object.values(review.grading))))
+                  _.mean(received.map(review => _.sum(_.values(review.grading))))
 
                 const spamFlags = answer.spamFlags
 
