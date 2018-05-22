@@ -46,4 +46,15 @@ router.post('/',
     res.json(req.newQuizAnswer);
   });
 
+router.post('/validate',
+  TMCMiddlewares.getProfile(),
+  middlewares.createQuizAnswerWithValidation({
+    getAttributes: req => req.body,
+    getAnswererId: req => req.TMCProfile.username,
+    getQuizId: req => req.params.id
+  }),
+  (req, res, next) => {
+    res.json(req.newQuizAnswer)
+  })
+
 module.exports = router;
