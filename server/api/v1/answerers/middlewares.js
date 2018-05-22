@@ -129,6 +129,7 @@ function getProgressWithValidation(options) {
           let returnedQuiz
 
           if (stripAnswers) {
+            // spread fix
             const newQuizMeta = Object.assign({}, quiz._doc.data.meta, {
               errors: undefined,
               successes: undefined,
@@ -170,7 +171,11 @@ function getProgressWithValidation(options) {
         Confirmation.findOne({ answererId })
           .then(confirmation => {
             if (validation) {
-              req.validation = { ...validateProgress(progress), answererId, confirmation: confirmation || {} }
+              req.validation = Object.assign({}, validateProgress(progress), {
+                answererId,
+                confirmation
+              })
+              //req.validation = { ...validateProgress(progress), answererId, confirmation: confirmation || {} }
             } else {
               req.validation = { answered: progress.answered, notAnswered: progress.notAnswered, answererId, confirmation: confirmation || {} }
             }
