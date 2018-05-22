@@ -334,7 +334,7 @@ function confirmEssays(options) {
                   entry.pass ? 'pass'
                 : (entry.fail ? 'fail' : 'review')) } // groupBy
 
-              console.log('essays for answerer', essaysForAnswerer)
+              // console.log('essays for answerer', essaysForAnswerer)
 
               return essaysForAnswerer
             }), essays => essays.answererId) // groupBy
