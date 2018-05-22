@@ -101,7 +101,23 @@ function getStrippedQuizzesById(options) {
     return Quiz.findAnswerable({ _id: { $in: quizIds }})
       .then(quizzes => {
         const strippedQuizzes = quizzes.map(quiz => {
-          return {
+          const returnObjMeta = Object.assign({}, quiz._doc.data.meta, {
+            errors: undefined,
+            successes: undefined,
+            error: undefined,
+            success: undefined,
+            rightAnswer: undefined,
+            submitMessage: undefined
+          })
+
+          const returnObj = Object.assign({}, quiz._doc, { 
+            data: {
+              meta: returnObjMeta,
+            }
+          })
+
+          return returnObj // fix around spread 
+/*           {
             ...quiz._doc,
             data: {
               meta: {
@@ -113,8 +129,8 @@ function getStrippedQuizzesById(options) {
                 rightAnswer: undefined,
                 submitMessage: undefined
               }
-            }
-          }
+            } 
+          }*/
         })
         
         req.quizzes = strippedQuizzes

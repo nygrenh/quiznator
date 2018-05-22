@@ -94,11 +94,17 @@ function createQuizAnswerWithValidation(options) {
               peerReviews: peerReviewsReturned
             })
 
-            req.newQuizAnswer = { 
+            const extendNewQuizAnswer = Object.assign({}, newQuizAnswer._doc, 
+            {
+              peerReviews: validatedAnswer.peerReviews,
+              validation: validatedAnswer.validation
+            })
+            req.newQuizAnswer = extendNewQuizAnswer
+            /*{ 
               ...newQuizAnswer._doc,
               peerReviews: validatedAnswer.peerReviews,
               validation: validatedAnswer.validation
-            }
+            }*/
 
             return next()
           })
