@@ -172,6 +172,7 @@ function getProgressWithValidation(options) {
 function validateProgress(progress) {
   let totalPoints = 0
   let totalMaxPoints = 0
+  let totalCompletedMaxPoints = 0
   let totalNormalizedPoints = 0
 
   let answered = []
@@ -182,6 +183,7 @@ function validateProgress(progress) {
 
     totalPoints += validatedAnswer.validation.points
     totalMaxPoints += validatedAnswer.validation.maxPoints
+    totalCompletedMaxPoints += validatedAnswer.validation.maxPoints
     totalNormalizedPoints += validatedAnswer.validation.normalizedPoints
 
     answered.push(validatedAnswer)
@@ -205,6 +207,7 @@ function validateProgress(progress) {
   })
 
   const maxNormalizedPoints = (progress.answered || []).length + (progress.notAnswered || []).length 
+  const maxCompletedNormalizedPoints = (progress.answered || []).length
   const confirmedAmount = (progress.answered || []).filter(entry => entry.answer[0].confirmed).length
 
   const progressWithValidation = {
@@ -213,9 +216,11 @@ function validateProgress(progress) {
     validation: {
       points: totalPoints,
       maxPoints: totalMaxPoints,
+      maxCompletedPoints: totalCompletedMaxPoints,
       confirmedAmount,
       normalizedPoints: precise_round(totalNormalizedPoints, 2),
       maxNormalizedPoints,
+      maxCompletedNormalizedPoints,
       progress: precise_round(confirmedAmount / maxNormalizedPoints * 100, 2),
     }
   }
@@ -223,5 +228,121 @@ function validateProgress(progress) {
   return progressWithValidation
 }
 
+function confirmEssays(options) {
+  return (req, res, next) => {
+    const quizIds = options.getQuizIds(req)
+    // const answererIds = options.getAnswererIds(req)
 
-module.exports = { getAnswerersProgress, getAnswerers, getProgressWithValidation };
+    if (quizIds.length === 0) { //} || answererIds.length === 0) {
+      return next(new Error('no quizids'))
+    }
+
+    const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
+      
+    return getQuizzes
+      .then(quizzes => quizzes.filter(quiz => quiz.type === quizTypes.ESSAY))
+      .then(essays => {
+        const essayIds = essays.map(quiz => quiz._id)
+
+        const getAnswers = QuizAnswer.find({
+          //{ answererId: { $in: answererIds }, 
+          quizId: { $in: essayIds } 
+        }).exec() //: new Promise((resolve) => resolve([]))
+        const getPeerReviewsGiven = PeerReview.find({ 
+          sourceQuizId: { $in: essayIds }, 
+          //giverAnswererId: { $in: answererIds }
+        }).exec() //: new Promise((resolve) => resolve([]))
+        const getPeerReviewsReceived = PeerReview.find({ 
+          sourceQuizId: { $in: essayIds }, 
+          //targetAnswererId: { $in: answererIds }
+        }).exec() //: new Promise((resolve) => resolve([]))
+    
+        return Promise.all([getAnswers, getPeerReviewsGiven, getPeerReviewsReceived])
+          .spread((answers, peerReviewsGiven, peerReviewsReceived) => {
+            const answerQuizIds = answers.map(answer => answer.quizId.toString());
+            const answererIds = _.uniq(answers.map(answer => answer.answererId))
+
+            const passedEssays = _.groupBy(answererIds.map(answererId => {
+              const essaysForAnswerer = { answererId, essays: _.groupBy(essays.map(quiz => {
+                const answerArray = answers.filter(answer => 
+                  answer.quizId.equals(quiz._id) && answer.answererId === answererId
+                )
+
+                if (!answerArray || (!!answerArray && answerArray.length === 0)) {
+                  return
+                }
+
+                const answer = answerArray[0]
+
+
+                const given = peerReviewsGiven.filter(pr => {
+                  return pr.sourceQuizId.equals(quiz._id) && pr.giverAnswererId === answererId
+                })
+                const received = peerReviewsReceived.filter(pr => {
+                  return pr.sourceQuizId.equals(quiz._id) && pr.targetAnswererId === answererId
+                })
+
+/*                 if (given.length < 2 || received.length < 2) {
+                  console.log('too few peer reviews: ', answer)
+                  return
+                } */
+
+                const averageGrade = 
+                  _.mean(received.map(review => _.sum(Object.values(review.grading))))
+
+                const spamFlags = answer.spamFlags
+
+                const pass = given.length >= 2 && 
+                            (received.length >= 5 && averageGrade >= 12)
+                            && spamFlags < 2
+                const fail = (received.length >= 5 && averageGrade < 10)
+                            || spamFlags >= 5
+
+                const reviewObject = {
+                  answererId,
+                  quizId: quiz._id,
+                  answer: answer,
+                  givenCount: given.length,
+                  receivedCount: received.length,
+                  spamFlags: answer.spamFlags,
+                  averageGrade,
+                  pass,
+                  fail
+                }
+
+                return reviewObject
+
+              }).filter(v => !!v), entry => 
+                  entry.pass ? 'pass'
+                : (entry.fail ? 'fail' : 'review')) } // groupBy
+
+              console.log('essays for answerer', essaysForAnswerer)
+
+              return essaysForAnswerer
+            }), essays => essays.answererId) // groupBy
+
+            req.passedEssays = passedEssays
+
+            return next()
+          })
+      })
+    }
+}
+
+function getUsersToBeConfirmed(quizIds) {
+  return (req, res, next) => {
+    const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
+    const getAnswers = QuizAnswer.find({ answererId: { $in: answererIds }, quizId: { $in: quizIds } }).exec() //: new Promise((resolve) => resolve([]))
+    const getPeerReviewsGiven = PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: { $in: answererIds }}).exec() //: new Promise((resolve) => resolve([]))
+    const getPeerReviewsReceived = PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: { $in: answererIds }}).exec() //: new Promise((resolve) => resolve([]))
+
+    //...go on --- look for confirmations also
+  }  
+}
+
+module.exports = { 
+  getAnswerersProgress, 
+  getAnswerers, 
+  getProgressWithValidation,
+  confirmEssays 
+};

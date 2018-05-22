@@ -73,7 +73,7 @@ function createQuizAnswerWithValidation(options) {
       .then(() => {
         const getQuizzes = Quiz.findAnswerable({ _id: quizId })
         const getPeerReviewsGiven = PeerReview.find({ sourceQuizId: quizId, giverAnswererId: answererId }).exec()
-        const getPeerReviewsReceived= PeerReview.find({ sourceQuizId: quizId, targetAnswererId: answererId }).exec()
+        const getPeerReviewsReceived = PeerReview.find({ sourceQuizId: quizId, targetAnswererId: answererId }).exec()
 
         Promise.all([getQuizzes, getPeerReviewsGiven, getPeerReviewsReceived])
           .spread((quizzes, peerReviewsGiven, peerReviewsReceived) => {
@@ -185,8 +185,6 @@ function validateAnswer(data) {
     }
   }  
 
-  console.log('returning', returnObject)
-  
   return returnObject
 }
 
