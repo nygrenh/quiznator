@@ -22,7 +22,7 @@ router.post('/',
     privacyAgreementMiddlewares.savePrivacyAgreement({
         getQuizId: req => req.params.id,
         getAnswererId: req => req.TMCProfile.username,
-        getStorageKey: req => _get(req.body.meta.storageKeys, req.params.id), 
+        getStorageKey: req => _get(req.body.meta, `storageKeys[${req.params.id}]`), 
         getAttributes: req => req.body
     }),
     (req, res, next) => {
