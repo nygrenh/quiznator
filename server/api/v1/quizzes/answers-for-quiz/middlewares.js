@@ -133,13 +133,23 @@ function validateAnswer(data) {
       break
     case quizTypes.RADIO_MATRIX:
       points = multi
-        ? (items.map(item => 
-          answerData[item.id].map(k => rightAnswer[item.id].indexOf(k) >= 0).every(v => !!v)
-          && rightAnswer[item.id].map(k => answerData[item.id].indexOf(k) >= 0).every(v => !!v)
-        ).filter(v => v).length)
-        : (items.map(item => 
-          rightAnswer[item.id].indexOf(answerData[item.id]) >= 0
-        ).filter(v => v).length)
+        ? (items.map(item => {
+          if (!answerData[item.id] || (!!answerData[item.id] && answerData[item.id].length === 0)) {
+            return false
+          } 
+          return (answerData[item.id] || [])
+            .map(k => (rightAnswer[item.id] || []).indexOf(k) >= 0)
+            .every(v => !!v)
+          && (rightAnswer[item.id] || [])
+            .map(k => (answerData[item.id] || []).indexOf(k) >= 0)
+            .every(v => !!v)
+        }).filter(v => v).length)
+        : (items.map(item => {
+          if (!answerData[item.id] || (!!answerData[item.id] && answerData[item.id].length === 0)) {
+            return false
+          } 
+          return (rightAnswer[item.id] || []).indexOf(answerData[item.id]) >= 0
+        }).filter(v => v).length)
       normalizedPoints = points / maxPoints
       break
     case quizTypes.MULTIPLE_CHOICE:

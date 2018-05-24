@@ -92,6 +92,10 @@ function getAnswerers() {
 function getProgressWithValidation(options) {
   return (req, res, next) => {
     const answererId = options.getAnswererId(req)
+    if (!answererId || (!!answererId && answererId === '')) {
+      return next()
+    }
+    
     const body = options.getBody(req)
     
     const quizzes = body.quizzes || true
