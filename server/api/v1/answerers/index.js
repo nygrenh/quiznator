@@ -25,21 +25,22 @@ router.post('/progress-with-validation',
   }
 )
 
+router.post('/progress-with-validation-admin',
+  authenticationMiddlewares.authorize(),
+  middlewares.getProgressWithValidation({
+    getAnswererId: req => req.body.answererId,
+    getBody: req => req.body
+  }),
+  (req, res, next) => {
+    res.json(req.validation)
+  }
+)
+
 router.get('/', 
   authenticationMiddlewares.authorize(),
   middlewares.getAnswerers(),
   (req, res, next) => { 
     res.json(req.answerers);
   });
-
-router.post('/essaygrades',
-  authenticationMiddlewares.authorize(),
-  middlewares.confirmEssays({
-    getAnswererIds: req => req.body.answererIds,
-    getQuizIds: req => req.body.quizIds
-  }),
-(req, res, next) => {
-  res.json(req.passedEssays)
-})
 
 module.exports = router;

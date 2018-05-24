@@ -99,13 +99,16 @@ function getProgressWithValidation(options) {
     const peerReviews = body.peerReviews || false
     const validation = body.validation && !body.stripAnswers || false
     const stripAnswers = body.stripAnswers || false
-
+    const peerReviewsRequiredGiven = body.peerReviewsRequiredGiven || 0
+  
     let quizIds = body.quizIds
     
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
     const getAnswers = answers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).exec() : new Promise((resolve) => resolve([]))
     const getPeerReviewsGiven = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
     const getPeerReviewsReceived = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
+
+    let essaysAwaitingPeerReviewsGiven = []
 
     return Promise.all([getQuizzes, getAnswers, getPeerReviewsGiven, getPeerReviewsReceived])
       .spread((quizzes, answers, peerReviewsGiven, peerReviewsReceived) => {
@@ -115,7 +118,7 @@ function getProgressWithValidation(options) {
           const answer = answers.filter(answer => answer.quizId.equals(quiz._id))
 
           let peerReviewsReturned = undefined
-
+          
           if (quiz.type === quizTypes.ESSAY && peerReviews) {
             const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
             const received = peerReviewsReceived.filter(pr => pr.sourceQuizId.equals(quiz._id))
@@ -123,6 +126,10 @@ function getProgressWithValidation(options) {
             peerReviewsReturned = {
               given,
               received
+            }
+
+            if (given.length < peerReviewsRequiredGiven && answer.length > 0)  {
+              essaysAwaitingPeerReviewsGiven.push(quiz._id)
             }
           }
 
@@ -160,25 +167,34 @@ function getProgressWithValidation(options) {
             returnedQuiz = quiz
           }
 
-          return {
+          let returnObject = {
             quiz: returnedQuiz,
             answer: answers && answer.length > 0 ? answer : null,
             peerReviews: peerReviewsReturned
           } 
+
+          return returnObject
         }), entry => answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered')
 
         // or some better method
         Confirmation.findOne({ answererId })
           .then(confirmation => {
-            if (validation) {
-              req.validation = Object.assign({}, validateProgress(progress), {
-                answererId,
-                confirmation
-              })
-              //req.validation = { ...validateProgress(progress), answererId, confirmation: confirmation || {} }
-            } else {
-              req.validation = { answered: progress.answered, notAnswered: progress.notAnswered, answererId, confirmation: confirmation || {} }
+            let returnObject = {
+              answererId,
+              confirmation: confirmation || {},
+              essaysAwaitingPeerReviewsGiven
             }
+
+            if (validation) {
+              returnObject = Object.assign({}, returnObject, validateProgress(progress))
+            } else {
+              returnObject = Object.assign({}, returnObject, { 
+                answered: progress.answered, 
+                notAnswered: progress.notAnswered, 
+              })
+            }
+
+            req.validation = returnObject
 
             return next()
           })
@@ -246,107 +262,6 @@ function validateProgress(progress) {
   return progressWithValidation
 }
 
-function confirmEssays(options) {
-  return (req, res, next) => {
-    const quizIds = options.getQuizIds(req)
-    // const answererIds = options.getAnswererIds(req)
-
-    if (quizIds.length === 0) { //} || answererIds.length === 0) {
-      return next(new Error('no quizids'))
-    }
-
-    const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
-      
-    return getQuizzes
-      .then(quizzes => quizzes.filter(quiz => quiz.type === quizTypes.ESSAY))
-      .then(essays => {
-        const essayIds = essays.map(quiz => quiz._id)
-
-        const getAnswers = QuizAnswer.find({
-          //{ answererId: { $in: answererIds }, 
-          quizId: { $in: essayIds } 
-        }).exec() //: new Promise((resolve) => resolve([]))
-        const getPeerReviewsGiven = PeerReview.find({ 
-          sourceQuizId: { $in: essayIds }, 
-          //giverAnswererId: { $in: answererIds }
-        }).exec() //: new Promise((resolve) => resolve([]))
-        const getPeerReviewsReceived = PeerReview.find({ 
-          sourceQuizId: { $in: essayIds }, 
-          //targetAnswererId: { $in: answererIds }
-        }).exec() //: new Promise((resolve) => resolve([]))
-    
-        return Promise.all([getAnswers, getPeerReviewsGiven, getPeerReviewsReceived])
-          .spread((answers, peerReviewsGiven, peerReviewsReceived) => {
-            const answerQuizIds = answers.map(answer => answer.quizId.toString());
-            const answererIds = _.uniq(answers.map(answer => answer.answererId))
-
-            const passedEssays = _.groupBy(answererIds.map(answererId => {
-              const essaysForAnswerer = { answererId, essays: _.groupBy(essays.map(quiz => {
-                const answerArray = answers.filter(answer => 
-                  answer.quizId.equals(quiz._id) && answer.answererId === answererId
-                )
-
-                if (!answerArray || (!!answerArray && answerArray.length === 0)) {
-                  return
-                }
-
-                const answer = answerArray[0]
-
-
-                const given = peerReviewsGiven.filter(pr => {
-                  return pr.sourceQuizId.equals(quiz._id) && pr.giverAnswererId === answererId
-                })
-                const received = peerReviewsReceived.filter(pr => {
-                  return pr.sourceQuizId.equals(quiz._id) && pr.targetAnswererId === answererId
-                })
-
-/*                 if (given.length < 2 || received.length < 2) {
-                  console.log('too few peer reviews: ', answer)
-                  return
-                } */
-
-                const averageGrade = 
-                  _.mean(received.map(review => _.sum(_.values(review.grading))))
-
-                const spamFlags = answer.spamFlags
-
-                const pass = given.length >= 2 && 
-                            (received.length >= 5 && averageGrade >= 12)
-                            && spamFlags < 2
-                const fail = (received.length >= 5 && averageGrade < 10)
-                            || spamFlags >= 5
-
-                const reviewObject = {
-                  answererId,
-                  quizId: quiz._id,
-                  answer: answer,
-                  givenCount: given.length,
-                  receivedCount: received.length,
-                  spamFlags: answer.spamFlags,
-                  averageGrade,
-                  pass,
-                  fail
-                }
-
-                return reviewObject
-
-              }).filter(v => !!v), entry => 
-                  entry.pass ? 'pass'
-                : (entry.fail ? 'fail' : 'review')) } // groupBy
-
-              // console.log('essays for answerer', essaysForAnswerer)
-
-              return essaysForAnswerer
-            }), essays => essays.answererId) // groupBy
-
-            req.passedEssays = passedEssays
-
-            return next()
-          })
-      })
-    }
-}
-
 function getUsersToBeConfirmed(quizIds) {
   return (req, res, next) => {
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
@@ -362,5 +277,4 @@ module.exports = {
   getAnswerersProgress, 
   getAnswerers, 
   getProgressWithValidation,
-  confirmEssays 
 };
