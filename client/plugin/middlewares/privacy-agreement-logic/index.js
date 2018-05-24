@@ -11,7 +11,10 @@ import { 
 const privacyAgreementLogic = store => next => action => {
     switch (action.type) {
         case STORE_PRIVACY_AGREEMENT_LOCAL_STORAGE_KEY:
-            const { accepted } = action.payload.data
+            let accepted = false;
+            if (action.payload.data) {
+                accepted = action.payload.data.accepted
+            }
             var { userId, quizId } = action
             const currentAgreement = window.localStorage.getItem('research-agreement') || '{}'
             const oldAgreement = JSON.parse(currentAgreement)
