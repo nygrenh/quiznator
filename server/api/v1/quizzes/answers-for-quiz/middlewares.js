@@ -134,14 +134,16 @@ function validateAnswer(data) {
     case quizTypes.RADIO_MATRIX:
       points = multi
         ? (items.map(item => {
+          const userAnswer = typeof answerData[item.id] === 'string' ? [answerData[item.id]] : answerData[item.id]
+
           if (!answerData[item.id] || (!!answerData[item.id] && answerData[item.id].length === 0)) {
             return false
           } 
-          return (answerData[item.id] || [])
+          return userAnswer
             .map(k => (rightAnswer[item.id] || []).indexOf(k) >= 0)
             .every(v => !!v)
           && (rightAnswer[item.id] || [])
-            .map(k => (answerData[item.id] || []).indexOf(k) >= 0)
+            .map(k => userAnswer.indexOf(k) >= 0)
             .every(v => !!v)
         }).filter(v => v).length)
         : (items.map(item => {
