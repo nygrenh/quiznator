@@ -15,9 +15,10 @@ const privacyAgreementLogic = store => next => action => {
             var { userId, quizId } = action
             const currentAgreement = window.localStorage.getItem('research-agreement') || '{}'
             const oldAgreement = JSON.parse(currentAgreement)
-            const agreement = Object.assign(oldAgreement, { [quizId]: { ...oldAgreement[quizId], [userId]: accepted } }) 
-
-            window.localStorage.setItem('research-agreement', JSON.stringify(agreement))
+            const agreement = Object.assign(oldAgreement, { [quizId]: { ...oldAgreement[quizId], [userId]: accepted } })
+            const agreementString = JSON.stringify(agreement)
+            window.localStorage.setItem('research-agreement', agreementString)
+            window['research-agreement'] = agreementString
             return next(Object.assign({}, action, { agreement }))
         case REFRESH_PRIVACY_AGREEMENT:
             return next(action)
