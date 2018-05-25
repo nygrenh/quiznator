@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+mongoose.Promise = require('bluebird').Promise
 
 const quizTypes = require('app-modules/constants/quiz-types');
 const modelUtils = require('app-modules/utils/models');
