@@ -89,7 +89,7 @@ function getQuizsAnswersBatch(options) {
     let quizIds = body.quizIds
 
     let pipeline = [
-      { query: { answererId, quizId: { $in: quizIds }}},
+      { $match: { answererId, quizId: { $in: quizIds }}},
       { $sort: { createdAt: - 1 }},
       { $group: { 
         _id: '$quizId', 
@@ -105,7 +105,7 @@ function getQuizsAnswersBatch(options) {
 
     QuizAnswer.aggregate(pipeline)
       .then(data => {
-        return data.map(doc => ({ 
+        req.quizAnswers = res.json(data.map(doc => ({ 
           _id: doc.answerId, 
           answererId: doc.answererId, 
           data: doc.data, 
@@ -113,7 +113,8 @@ function getQuizsAnswersBatch(options) {
           createdAt: doc.createdAt,
           confirmed: doc.confirmed,
           peerReviewCount: doc.peerReviewCount 
-        }))
+        })))
+        return next()
       })
   }
 }
