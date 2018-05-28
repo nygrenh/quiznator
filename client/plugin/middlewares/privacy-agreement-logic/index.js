@@ -1,8 +1,8 @@
 import _get from 'lodash.get'
 
 import { 
-    FETCH_PRIVACY_AGREEMENT, 
-    FETCH_PRIVACY_AGREEMENT_SUCCESS, 
+    FETCH_PRIVACY_AGREEMENT,
+    FETCH_PRIVACY_AGREEMENT_SUCCESS,
     FETCH_PRIVACY_AGREEMENT_FAIL,
     STORE_PRIVACY_AGREEMENT_LOCAL_STORAGE_KEY,
     REFRESH_PRIVACY_AGREEMENT
@@ -13,7 +13,7 @@ const privacyAgreementLogic = store => next => action => {
         case STORE_PRIVACY_AGREEMENT_LOCAL_STORAGE_KEY:
             let accepted = false;
             if (action.payload.data) {
-                accepted = action.payload.data.accepted
+                accepted = action.payload.data.accepted || false
             }
             var { userId, quizId } = action
             const currentAgreement = window.localStorage.getItem('research-agreement') || '{}'
@@ -32,7 +32,7 @@ const privacyAgreementLogic = store => next => action => {
             const { privacyAgreements, quizzes } = store.getState();
             // TODO: unnecessary requests
             var { quizId, userId } = action;
-            
+
             // const agreementIsBeingLoaded = !!privacyAgreements[quizId] && privacyAgreements[quizId].userId === userId;
             // const quizIsLoaded = quizzes[quizId] & quizzes[quizId].data
 
