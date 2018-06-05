@@ -7,7 +7,7 @@ const quizTypes = require('app-modules/constants/quiz-types');
 const QuizScore = require('app-modules/models/quiz-score')
 const Quiz = require('app-modules/models/quiz')
 const QuizAnswer = require('app-modules/models/quiz-answer')
-const Confirmation = require('app-modules/models/confirmation')
+const CourseState = require('app-modules/models/course-state')
 
 const middlewares = {
   getAnswerersScores,

@@ -8,7 +8,7 @@ const quizTypes = require('app-modules/constants/quiz-types');
 const Quiz = require('app-modules/models/quiz');
 const QuizAnswer = require('app-modules/models/quiz-answer');
 const PeerReview = require('app-modules/models/peer-review');
-const Confirmation = require('app-modules/models/confirmation')
+const CourseState = require('app-modules/models/course-state')
 
 const { InvalidRequestError } = require('app-modules/errors');
 const { precise_round} = require('app-modules/utils/math-utils')
@@ -95,7 +95,7 @@ function getProgressWithValidation(options) {
     if (!answererId || (!!answererId && answererId === '')) {
       return next()
     }
-    
+
     const body = options.getBody(req)
     
     const quizzes = body.quizzes || true
@@ -121,7 +121,7 @@ function getProgressWithValidation(options) {
         const progress = _.groupBy(quizzes.map(quiz => {
           const answer = answers.filter(answer => answer.quizId.equals(quiz._id))
 
-          let peerReviewsReturned = undefined
+          let peerReviewsReturned = {}
           
           if (quiz.type === quizTypes.ESSAY && peerReviews) {
             const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
@@ -154,19 +154,6 @@ function getProgressWithValidation(options) {
               }}
             )
             returnedQuiz = newQuiz
-/*             returnedQuiz = {
-              ...quiz._doc,
-              data: {
-                meta: {
-                  ...quiz._doc.data.meta,
-                  errors: undefined,
-                  successes: undefined,
-                  error: undefined,
-                  success: undefined,
-                  rightAnswer: undefined
-                }
-              }
-            } */
           } else {
             returnedQuiz = quiz
           }
@@ -181,11 +168,11 @@ function getProgressWithValidation(options) {
         }), entry => answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered')
 
         // or some better method
-        Confirmation.findOne({ answererId })
-          .then(confirmation => {
+        CourseState.findOne({ answererId })
+          .then(courseState => {
             let returnObject = {
               answererId,
-              confirmation: confirmation || {},
+              courseState: courseState || {},
               essaysAwaitingPeerReviewsGiven
             }
 

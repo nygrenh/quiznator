@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const hl = require('highland');
 
 mongoose.Promise = require('bluebird').Promise
+
 const quizTypes = require('app-modules/constants/quiz-types');
 
 function cloneShallow(options) {

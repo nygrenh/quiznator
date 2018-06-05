@@ -8,6 +8,7 @@ const middlewares = {
   getQuizAnswers,
   getQuizsAnswersBatch,
   updateQuizAnswerConfirmation,
+  updateQuizAnswerRejection,
 };
 
 function updateQuizAnswerConfirmation() {
@@ -23,6 +24,30 @@ function updateQuizAnswerConfirmation() {
       }
 
       answer.confirmed = !!confirmed;
+
+      yield answer.save();
+
+      req.answer = answer;
+
+      return next();
+    })
+    .catch(next);
+  }
+}
+
+function updateQuizAnswerRejection() {
+  return (req, res, next) => {
+    co(function* () {
+      const { rejected } = req.body;
+      const { id } = req.params;
+
+      const answer = yield QuizAnswer.findById(id);
+
+      if (!answer) {
+        return Promise.reject('Couldn\'t find the quiz answer');
+      }
+
+      answer.rejected = !!rejected;
 
       yield answer.save();
 

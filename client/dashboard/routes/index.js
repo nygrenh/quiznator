@@ -8,6 +8,7 @@ import Quiz from './quizzes/quiz';
 import EditQuiz from './quizzes/quiz/edit-quiz';
 import QuizSettings from './quizzes/quiz/quiz-settings';
 import QuizAnswers from './quizzes/quiz/quiz-answers';
+import QuizReviewAnswers from './quizzes/quiz/quiz-review-answers'
 
 const routes = (
   <Route path="/dashboard" component={Dashboard}>
@@ -18,6 +19,7 @@ const routes = (
         <Route path="edit" component={EditQuiz} />
         <Route path="settings" component={QuizSettings}/>
         <Route path="answers" component={QuizAnswers}/>
+        <Route path="review-answers" component={QuizReviewAnswers}/>
       </Route>
     </Route>
   </Route>

@@ -6,7 +6,7 @@ const { precise_round} = require('app-modules/utils/math-utils')
 
 const Quiz = require('app-modules/models/quiz')
 const PeerReview = require('app-modules/models/peer-review')
-const Confirmation = require('app-modules/models/confirmation')
+const CourseState = require('app-modules/models/course-state')
 const QuizAnswer = require('app-modules/models/quiz-answer');
 
 function getQuizsAnswers(options) {
@@ -75,7 +75,7 @@ function createQuizAnswerWithValidation(options) {
         const getPeerReviewsGiven = PeerReview.find({ sourceQuizId: quizId, giverAnswererId: answererId }).exec()
         const getPeerReviewsReceived = PeerReview.find({ sourceQuizId: quizId, targetAnswererId: answererId }).exec()
 
-        Promise.all([getQuizzes, getPeerReviewsGiven, getPeerReviewsReceived])
+        return Promise.all([getQuizzes, getPeerReviewsGiven, getPeerReviewsReceived])
           .spread((quizzes, peerReviewsGiven, peerReviewsReceived) => {
             const quiz = quizzes[0]
             
@@ -117,6 +117,7 @@ function createQuizAnswerWithValidation(options) {
 function validateAnswer(data) {
   // TODO: some checking
   const { quiz, answer, peerReviews } = data
+  // TODO: check for rejected answer
   const answerData = answer[0].data
   const { regex, multi, rightAnswer } = quiz.data.meta
   const { items, choices } = quiz.data 

@@ -19,12 +19,16 @@ module.exports = options => {
         {
           test: /\.json$/,
           loader: 'json'
+        },
+        { 
+          test: /\.css$/, 
+          loader: "style-loader!css-loader" 
         }
       ]
     },
     resolve: {
       modulesDirectories: ['node_modules', ...(options.modules || [])],
-      extensions: ['', '.js', '.jsx']
+      extensions: ['', '.js', '.jsx', 'css']
     },
     plugins: [
       new webpack.DefinePlugin({
