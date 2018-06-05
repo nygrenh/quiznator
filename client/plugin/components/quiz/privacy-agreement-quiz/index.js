@@ -50,8 +50,7 @@ class PrivacyAgreementQuiz extends React.Component {
     }
 
     render() {
-        const isValid = this.getAnswer().length > 0;
-        const submitDisabled = !isValid || !!this.props.disabled || !!this.props.submitting;
+        const submitDisabled = !!this.props.disabled || !!this.props.submitting;
 
         return (
             <form onSubmit={this.onSubmit()}>
