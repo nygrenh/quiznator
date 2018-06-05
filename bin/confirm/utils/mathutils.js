@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 function median(arr) {
   arr = arr.slice(0); // create copy
   var middle = (arr.length + 1) / 2,

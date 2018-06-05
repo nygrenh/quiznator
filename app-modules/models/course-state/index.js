@@ -5,9 +5,9 @@ const schema = new mongoose.Schema({
   completion: { 
     data: { type: mongoose.Schema.Types.Mixed, required: false },
     completed: { type: Boolean, required: false },
-    completionDate: { type: Date },
+    completionDate: { type: Date, default: Date.now() },
     confirmationSent: { type: Boolean, required: false },
-    confirmationSentDate: { type: Date }
+    confirmationSentDate: { type: Date  }
   },    
   meta: { type: mongoose.Schema.Types.Mixed, required: false }
 }, { timestamps: true })

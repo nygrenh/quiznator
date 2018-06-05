@@ -3,5 +3,23 @@
     "script"    : "bin/www",
     "instances" : "max",
     "exec_mode" : "cluster"
+  },
+  {
+    "script"          : "bin/confirm/confirm-essays.js",
+    "name"            : "essays",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : false,
+    "cron_restart"    : "*/5 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z"
+  },
+  {
+    "script"          : "bin/confirm/confirm-completion.js",
+    "name"            : "completion",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : false,
+    "cron_restart"    : "2/5 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z"
   }]
 }

@@ -26,7 +26,6 @@ function fetchQuizIds(tags) {
           })
           resolve(quizIds)
         })
-        .catch(err => reject(new Error(err)))
     }).catch(err => reject(new Error(err)))
   })
 }

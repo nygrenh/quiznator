@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 const resolve = require('path').resolve
 require('app-module-path').addPath(__dirname + '/../../');
 
@@ -132,13 +133,16 @@ function updateCompletion(answererId, data) {
   return new Promise((resolve, reject) => {
     CourseState.findOneAndUpdate(
       { answererId, 'completion.confirmationSent': false },
-      { $set: { completion: { 
-        data, 
-        completed: true,
-        completionDate: Date.now(),
-        confirmationSent: false
-      }}},
-      { new: true, upsert: true }
+      { 
+        $set: { 
+          completion: { 
+            data, 
+            completed: true,
+            confirmationSent: false
+          } 
+        },
+      },
+      { new: true, upsert: true } // 
     ).exec()
     // TODO: actually check if already set
     // - confirmationSent/date/whatever...
@@ -198,10 +202,10 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
           //console.log(progress)
           count += 1
           percentage = precise_round(count / answererIds.length * 100, 0)
-          if (!_.includes(percentagesShown, percentage)) {
+/*           if (!_.includes(percentagesShown, percentage)) {
             percentagesShown.push(percentage)
             printProgress(percentage)
-          }
+          } */
 
           const score = calculatePercentage(progress.validation.normalizedPoints, progress.validation.maxNormalizedPoints)
           const pointsPercentage = calculatePercentage(progress.validation.points, progress.validation.maxPoints)
@@ -235,7 +239,8 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
 
 
 getCompleted().then(response => {
-  console.log('\n', JSON.stringify(response))
+/*   console.log('\n', JSON.stringify(response)) */
+  console.log(response.length + ' completed')
   process.exit(0)
 })
 
