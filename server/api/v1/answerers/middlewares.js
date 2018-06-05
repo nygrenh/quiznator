@@ -4,6 +4,7 @@ const moment = require('moment');
 const co = require('co');
 const mongoose = require('mongoose');
 const quizTypes = require('app-modules/constants/quiz-types');
+const { validateAnswer, validateProgress } = require('app-modules/quiz-validation')
 
 const Quiz = require('app-modules/models/quiz');
 const QuizAnswer = require('app-modules/models/quiz-answer');
@@ -11,7 +12,7 @@ const PeerReview = require('app-modules/models/peer-review');
 const CourseState = require('app-modules/models/course-state')
 
 const { InvalidRequestError } = require('app-modules/errors');
-const { precise_round} = require('app-modules/utils/math-utils')
+const { precise_round } = require('app-modules/utils/math-utils')
 
 const answerMiddlewares = require('../quizzes/answers-for-quiz/middlewares')
 
@@ -194,64 +195,6 @@ function getProgressWithValidation(options) {
   }
 }
 
-function validateProgress(progress) {
-  let totalPoints = 0
-  let totalMaxPoints = 0
-  let totalCompletedMaxPoints = 0
-  let totalNormalizedPoints = 0
-
-  let answered = []
-  let notAnswered = []
-
-  progress.answered && progress.answered.forEach(entry => {
-    const validatedAnswer = answerMiddlewares.validateAnswer(entry)
-
-    totalPoints += validatedAnswer.validation.points
-    totalMaxPoints += validatedAnswer.validation.maxPoints
-    totalCompletedMaxPoints += validatedAnswer.validation.maxPoints
-    totalNormalizedPoints += validatedAnswer.validation.normalizedPoints
-
-    answered.push(validatedAnswer)
-  })
-  
-  progress.notAnswered && progress.notAnswered.map(entry => {
-    const { quiz, peerReviews } = entry
-    const { items } = quiz.data
-
-    const maxPoints = Math.max(items ? items.length : 0, 1)
-        
-    totalMaxPoints += maxPoints
-
-    notAnswered.push({
-      quiz,
-      peerReviews,
-      validation: {
-        maxPoints
-      }
-    })
-  })
-
-  const maxNormalizedPoints = (progress.answered || []).length + (progress.notAnswered || []).length 
-  const maxCompletedNormalizedPoints = (progress.answered || []).length
-  const confirmedAmount = (progress.answered || []).filter(entry => entry.answer[0].confirmed).length
-
-  const progressWithValidation = {
-    answered,
-    notAnswered,
-    validation: {
-      points: totalPoints,
-      maxPoints: totalMaxPoints,
-      maxCompletedPoints: totalCompletedMaxPoints,
-      confirmedAmount,
-      normalizedPoints: precise_round(totalNormalizedPoints, 2),
-      maxNormalizedPoints,
-      maxCompletedNormalizedPoints,
-      progress: precise_round(confirmedAmount / maxNormalizedPoints * 100, 2),
-    }
-  }
-
-  return progressWithValidation
-}
 
 function getUsersToBeConfirmed(quizIds) {
   return (req, res, next) => {

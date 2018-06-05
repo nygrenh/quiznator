@@ -25,7 +25,7 @@ router.put('/:id/rejected',
     res.json(req.answer);
   });
 
-  router.post('/batch',
+router.post('/batch',
   TMCMiddlewares.getProfile(),
   middlewares.getQuizsAnswersBatch({
     getAnswererId: req => req.TMCProfile.username,
