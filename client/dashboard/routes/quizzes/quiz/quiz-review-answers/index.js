@@ -31,7 +31,7 @@ class QuizReviewAnswers extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     console.log(this.props, nextProps)
-    
+
     if (nextProps.location.query !== this.props.location.query) {
       this.props.onFetchQuizReviewAnswers(this.props.params.id, this.state.options)
         .then(_ => this.setState({ dataLoading: false }))
@@ -110,7 +110,7 @@ class QuizReviewAnswers extends React.Component {
 
   dropdownSelect(e) {
     const options = [e.target.value]
-    this.setState({ options, dataLoading: true })
+    this.setState({ options, dataLoading: true, isDropdownOpen: false })
     console.log(options)
     this.props.onFetchQuizReviewAnswers(this.props.params.id, options)
       .then(_ => this.setState({ dataLoading: false }))
@@ -145,7 +145,7 @@ class QuizReviewAnswers extends React.Component {
   }
 
   render() {
-    if (this.props.loading || this.state.dataLoading) {
+    if (this.props.reviewAnswers.loading || this.state.dataLoading) {
       return <div><Loader /></div>
     }
     const data = this.props.reviewAnswers.statuses

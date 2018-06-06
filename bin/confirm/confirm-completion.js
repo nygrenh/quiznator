@@ -216,12 +216,17 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
           const score = calculatePercentage(progress.validation.normalizedPoints, progress.validation.maxNormalizedPoints)
           const pointsPercentage = calculatePercentage(progress.validation.points, progress.validation.maxPoints)
                   
-          const answerValidation = progress.answered.map(entry => ({
-            quizId: entry.quiz._id,
-            points: entry.validation.points,
-            maxPoints: entry.validation.maxPoints,
-            normalizedPoints: entry.validation.normalizedPoints
-          }))
+          const answerValidation = progress.answered.map(entry => {
+            return ({
+              quizId: entry.quiz._id,
+              points: entry.validation.points,
+              maxPoints: entry.validation.maxPoints,
+              normalizedPoints: entry.validation.normalizedPoints,
+              confirmed: entry.answer[0].confirmed,
+              rejected: entry.answer[0].rejected,
+              type: entry.quiz.type
+            })
+          })
 
           const scoreObject = {
             answererId,
