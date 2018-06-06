@@ -16,7 +16,7 @@ function validateAnswer(data) {
 
   switch (quiz.type) {
     case quizTypes.ESSAY:
-      points = answer.confirmed ? 1 : 0
+      points = answer[0].confirmed ? 1 : 0
       normalizedPoints = points
       break
     case quizTypes.RADIO_MATRIX:

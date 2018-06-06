@@ -11,6 +11,7 @@ import quizzesListFilters from './quizzes-list-filters';
 import editQuiz from './edit-quiz';
 import quizAnswers from './quiz-answers';
 import quizReviewAnswers from './quiz-review-answers'
+import quizAnswerDistribution from './quiz-answer-distribution'
 import publishQuiz from './publish-quiz';
 import toaster from './toaster';
 
@@ -26,6 +27,7 @@ export default combineReducers({
   editQuiz,
   quizAnswers,
   quizReviewAnswers,
+  quizAnswerDistribution,
   publishQuiz,
   toaster
 });

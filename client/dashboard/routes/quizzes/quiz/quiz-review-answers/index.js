@@ -4,7 +4,8 @@ import { push } from 'react-router-redux'
 import { FormGroup } from 'reactstrap'
 import { Input, Label, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
-import { fetchQuizReviewAnswers } from 'state/quiz-review-answers'
+import { updateConfirmation, updateRejection } from 'state/quiz-answers'
+import { fetchQuizReviewAnswers, updateReviewConfirmation, updateReviewRejection } from 'state/quiz-review-answers'
 import { selectQuizReviewAnswers } from 'selectors/quiz-review-answers'
 import Loader from 'components/loader'
 import Truncator from 'components/truncator'
@@ -17,17 +18,23 @@ class QuizReviewAnswers extends React.Component {
     this.state = {
       options: ["review"],
       dropdownOptions: ["review", "rejected", "pass"],
-      isDropdownOpen: false
+      isDropdownOpen: false,
+      dataLoading: true
     }
   }
 
   componentDidMount() {
+    this.setState({ dataLoading: true })
     this.props.onFetchQuizReviewAnswers(this.props.params.id, this.state.options)
+      .then(_ => this.setState({ dataLoading: false }))
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log(this.props, nextProps)
+    
     if (nextProps.location.query !== this.props.location.query) {
       this.props.onFetchQuizReviewAnswers(this.props.params.id, this.state.options)
+        .then(_ => this.setState({ dataLoading: false }))
     }
   }
 
@@ -48,6 +55,17 @@ class QuizReviewAnswers extends React.Component {
         })}
 
   */
+
+  updateConfirmation({ answerId, confirmed }) {
+    this.props.onUpdateConfirmation({ answerId, confirmed })
+    this.props.onUpdateReviewConfirmation({ answerId, confirmed })
+  }
+
+  updateRejection({ answerId, rejected }) {
+    this.props.onUpdateRejection({ answerId, rejected })
+    this.props.onUpdateReviewRejection({ answerId, rejected })
+  }
+
   renderStatus(status) {
     return (
       <div key={status._id}>
@@ -92,8 +110,10 @@ class QuizReviewAnswers extends React.Component {
 
   dropdownSelect(e) {
     const options = [e.target.value]
-    this.setState({ options })
+    this.setState({ options, dataLoading: true })
+    console.log(options)
     this.props.onFetchQuizReviewAnswers(this.props.params.id, options)
+      .then(_ => this.setState({ dataLoading: false }))
   }
 
   renderDropdown() {
@@ -125,7 +145,7 @@ class QuizReviewAnswers extends React.Component {
   }
 
   render() {
-    if (this.props.loading) {
+    if (this.props.loading || this.state.dataLoading) {
       return <div><Loader /></div>
     }
     const data = this.props.reviewAnswers.statuses
@@ -231,11 +251,19 @@ class QuizReviewAnswers extends React.Component {
 
                 return (
                   <div>
-                    {!rejected && <button className={`btn ${confirmed ? 'btn-danger' : 'btn-primary'} btn-sm pull-xs-right`}>
+                    {!rejected && 
+                      <button 
+                        className={`btn ${confirmed ? 'btn-danger' : 'btn-primary'} btn-sm pull-xs-right`}
+                        onClick={() => this.updateConfirmation({ answerId: row.value._id, confirmed: !confirmed })}
+                        >
                       {confirmed ? 'Remove confirmation' : 'Confirm'}
                     </button>}
-                    {!confirmed && <button className={`btn ${rejected ? 'btn-primary' : 'btn-danger'} btn-sm pull-xs-right`}>
-                      {rejected ? 'Remove rejection' : 'Reject'}
+                    {!confirmed && 
+                      <button 
+                        className={`btn ${rejected ? 'btn-primary' : 'btn-danger'} btn-sm pull-xs-right`}
+                        onClick={() => this.updateRejection({ answerId: row.value._id, rejected: !rejected })}
+                      >
+                        {rejected ? 'Remove rejection' : 'Reject'}
                     </button>}
                   </div>
                 )
@@ -252,7 +280,11 @@ class QuizReviewAnswers extends React.Component {
 /*
 */
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  onFetchQuizReviewAnswers: (quizId, options) => dispatch(fetchQuizReviewAnswers(quizId, options))
+  onFetchQuizReviewAnswers: (quizId, options) => dispatch(fetchQuizReviewAnswers(quizId, options)),
+  onUpdateConfirmation: ({ answerId, confirmed }) => dispatch(updateConfirmation({ answerId, confirmed })),
+  onUpdateRejection: ({ answerId, rejected }) => dispatch(updateRejection({ answerId, rejected })),
+  onUpdateReviewConfirmation: ({ answerId, confirmed }) => dispatch(updateReviewConfirmation({ answerId, confirmed })),
+  onUpdateReviewRejection: ({ answerId, rejected }) => dispatch(updateReviewRejection({ answerId, rejected })),
 })
 
 const mapStateToProps = state => ({

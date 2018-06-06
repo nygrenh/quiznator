@@ -9,6 +9,7 @@ import EditQuiz from './quizzes/quiz/edit-quiz';
 import QuizSettings from './quizzes/quiz/quiz-settings';
 import QuizAnswers from './quizzes/quiz/quiz-answers';
 import QuizReviewAnswers from './quizzes/quiz/quiz-review-answers'
+import QuizAnswerDistribution from './quizzes/quiz/quiz-answer-distribution'
 
 const routes = (
   <Route path="/dashboard" component={Dashboard}>
@@ -20,6 +21,7 @@ const routes = (
         <Route path="settings" component={QuizSettings}/>
         <Route path="answers" component={QuizAnswers}/>
         <Route path="review-answers" component={QuizReviewAnswers}/>
+        <Route path="answer-distribution" component={QuizAnswerDistribution}/>
       </Route>
     </Route>
   </Route>

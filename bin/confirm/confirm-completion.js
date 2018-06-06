@@ -131,13 +131,17 @@ function getProgressWithValidation(answererId, answers, quizzes) {
 
 function updateCompletion(answererId, data) {
   return new Promise((resolve, reject) => {
+    const completed = 
+      data.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
+      data.score >= config.MINIMUM_SCORE_TO_PASS
+
     CourseState.findOneAndUpdate(
       { answererId, 'completion.confirmationSent': false },
       { 
         $set: { 
           completion: { 
             data, 
-            completed: true,
+            completed,
             confirmationSent: false
           } 
         },
@@ -155,16 +159,18 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
   .then(quizIds => {
     console.log('initing...')
 
+    const quizIdsMap = quizIds.map(quizId => mongoose.Types.ObjectId(quizId))
+
     const getAnswers = QuizAnswer.aggregate([{ 
       $match: { 
-        quizId: { $in: quizIds.map(quizId => mongoose.Types.ObjectId(quizId)) }, 
+        quizId: { $in: quizIdsMap }, 
         spamFlags: { $lte: config.MAXIMUM_SPAM_FLAGS_TO_PASS } 
       }
     }, 
     //{ $sample: { size: 10000 } }
     ]).exec()
 
-    const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
+    const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIdsMap }})
 
     // ...check for existing confirmations
     let completed = []
@@ -198,7 +204,7 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
         let percentagesShown = []
 
         return Promise.all(answererIds.map(answererId => {
-          const progress = getProgressWithValidation(answererId, answersForAnswerer.get(answererId)/*answererId*/, quizzes)
+          const progress = getProgressWithValidation(answererId, answersForAnswerer.get(answererId), quizzes)
           //console.log(progress)
           count += 1
           percentage = precise_round(count / answererIds.length * 100, 0)
@@ -209,29 +215,37 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
 
           const score = calculatePercentage(progress.validation.normalizedPoints, progress.validation.maxNormalizedPoints)
           const pointsPercentage = calculatePercentage(progress.validation.points, progress.validation.maxPoints)
+                  
+          const answerValidation = progress.answered.map(entry => ({
+            quizId: entry.quiz._id,
+            points: entry.validation.points,
+            maxPoints: entry.validation.maxPoints,
+            normalizedPoints: entry.validation.normalizedPoints
+          }))
 
-          //console.log(score, progress.validation.progress)  
+          const scoreObject = {
+            answererId,
+            answerValidation,
+            points: progress.validation.points,
+            maxPoints: progress.validation.maxPoints,
+            normalizedPoints: progress.validation.normalizedPoints,
+            maxNormalizedPoints: progress.validation.maxNormalizedPoints,
+            maxCompletedPoints: progress.validation.maxCompletedPoints,
+            maxCompletedNormalizedPoints: progress.validation.maxCompletedNormalizedPoints,
+            progress: progress.validation.progress,
+            score,
+            pointsPercentage,
+            date: Date.now(),
+            latestAnswerDate: progress.latestAnswerDate
+          }
+
           if (progress.validation.progress >= config.MINIMUM_PROGRESS_TO_PASS && score >= config.MINIMUM_SCORE_TO_PASS) {
-            const scoreObject = {
-              answererId,
-              points: progress.validation.points,
-              maxPoints: progress.validation.maxPoints,
-              normalizedPoints: progress.validation.normalizedPoints,
-              maxNormalizedPoints: progress.validation.maxNormalizedPoints,
-              maxCompletedPoints: progress.validation.maxCompletedPoints,
-              maxCompletedNormalizedPoints: progress.validation.maxCompletedNormalizedPoints,
-              progress: progress.validation.progress,
-              score,
-              pointsPercentage,
-              date: Date.now(),
-              latestAnswerDate: progress.latestAnswerDate
-            }
             completed.push(scoreObject)
+          }
 
             //console.log('completion:', answererId)
 
-            return updateCompletion(answererId, scoreObject)
-          }
+          return updateCompletion(answererId, scoreObject)
         }))
       })
       .then(_ => resolve(completed))
