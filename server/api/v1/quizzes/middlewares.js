@@ -110,15 +110,13 @@ function getStrippedQuizzesById(options) {
             submitMessage: undefined
           })
 
-          console.log('data before', quiz._doc.data)
           const returnObjData = Object.assign({}, quiz._doc.data, { 
             meta: returnObjMeta
           })
           const returnObj = Object.assign({}, quiz._doc, { 
             data: returnObjData
           })
-          console.log('data after', returnObj.data)
-
+ 
           return returnObj // fix around spread 
 /*           {
             ...quiz._doc,

@@ -17,7 +17,7 @@ export default createReducer(initialState, {
   },
   [FETCH_REVIEW_ANSWERS_SUCCESS](state, action) {
     const { payload: { data } } = action
-    console.log(action)
+
     return Object.assign({}, state, { 
       loading: false,
       statuses: data
@@ -25,8 +25,6 @@ export default createReducer(initialState, {
   },
   [UPDATE_REVIEW_CONFIRMATION](state, action) {
     const { payload: { data } } = action
-
-    console.log(action)
 
     const { statuses } = state
 
@@ -48,7 +46,6 @@ export default createReducer(initialState, {
   [UPDATE_REVIEW_REJECTION](state, action) {
     const { payload: { data } } = action
 
-    console.log(action)
     const { statuses } = state
 
     const newStatuses = statuses.map(status => {
