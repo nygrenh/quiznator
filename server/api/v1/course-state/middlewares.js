@@ -5,7 +5,13 @@ const CourseState = require('app-modules/models/course-state')
 
 function getCourseState(options) {
   return (req, res, next) => {
-    const getState = CourseState.find({ answererId: options.getAnswererId(req) }).exec()
+    const answererId = options.getAnswererId(req)
+    const courseId = options.getCourseId(req)
+
+    const getState = CourseState.find({ 
+      answererId,
+      courseId 
+    }).exec()
 
     getState
       .then(state => {

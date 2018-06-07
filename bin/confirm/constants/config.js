@@ -12,7 +12,13 @@ const config = {
   COURSE_ID: 'elements-of-ai',
   COURSE_SHORT_ID: 'ai',
   PARTS: 6,
-  SECTIONS_PER_PART: 3
+  SECTIONS_PER_PART: 3,
+  IGNORE_LIST: [
+    '5aec479606ee0000047c5967', // ex 3
+    '5aec60b006ee0000047c599a', // 20
+    '5aec5e7c06ee0000047c5995', // 8
+    '5aec626406ee0000047c599e' // 17
+  ]
 }
 
 const rejectReasons = {

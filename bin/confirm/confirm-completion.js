@@ -123,7 +123,10 @@ function getProgressWithValidation(answererId, answers, quizzes) {
     latestAnswerDate
   }
 
-  returnObject = Object.assign({}, returnObject, validateProgress(progress))
+  returnObject = Object.assign(
+    {}, 
+    returnObject, 
+    validateProgress(progress, config.IGNORE_LIST))
 
   return returnObject // resolve(...)
   //})
@@ -136,7 +139,9 @@ function updateCompletion(answererId, data) {
       data.score >= config.MINIMUM_SCORE_TO_PASS
 
     CourseState.findOneAndUpdate(
-      { answererId, 'completion.confirmationSent': false },
+      { answererId,
+        courseId: config.COURSE_ID,
+        'completion.confirmationSent': false },
       { 
         $set: { 
           completion: { 
@@ -244,7 +249,8 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
             latestAnswerDate: progress.latestAnswerDate
           }
 
-          if (progress.validation.progress >= config.MINIMUM_PROGRESS_TO_PASS && score >= config.MINIMUM_SCORE_TO_PASS) {
+          if (progress.validation.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
+              score >= config.MINIMUM_SCORE_TO_PASS) {
             completed.push(scoreObject)
           }
 

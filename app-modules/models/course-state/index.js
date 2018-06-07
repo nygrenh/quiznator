@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const schema = new mongoose.Schema({
   answererId: { type: String, required: true },
+  courseId: { type: String, required: true },
   completion: { 
     data: { type: mongoose.Schema.Types.Mixed, required: false },
     completed: { type: Boolean, required: false },

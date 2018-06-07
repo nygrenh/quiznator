@@ -4,10 +4,11 @@ const authenticationMiddlewares = require('app-modules/middlewares/authenticatio
 const middlewares = require('./middlewares')
 const TMCMiddlewares = require('app-modules/middlewares/tmc')
 
-router.post('/state',
+router.post('/state/:courseid',
   TMCMiddlewares.getProfile(),
   middlewares.getCourseState({
     getAnswererId: req => req.TMCProfile.username,
+    getCourseId: req => req.params.courseid,
     getBody: req => req.body
   }),
   (req, res, next) => {
@@ -25,4 +26,7 @@ router.post('/distribution',
   }
 )
 
+router.put('/confirmation',
+  authent
+)
 module.exports = router

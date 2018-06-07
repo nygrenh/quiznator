@@ -1,7 +1,15 @@
+const  _ = require('lodash')
 const quizTypes = require('app-modules/constants/quiz-types');
 const { precise_round } = require('app-modules/utils/math-utils')
 
-function validateAnswer(data) {
+const IGNORE_LIST = [
+  '5aec479606ee0000047c5967', // ex 3
+  '5aec60b006ee0000047c599a', // 20
+  '5aec5e7c06ee0000047c5995', // 8
+  '5aec626406ee0000047c599e' // 17
+]
+
+function validateAnswer(data, ignoreList = []) {
   // TODO: some checking
   const { quiz, answer, peerReviews } = data
   // TODO: check for rejected answer
@@ -80,6 +88,11 @@ function validateAnswer(data) {
       break
   }
 
+  if (_.includes(ignoreList, quiz._id.toString())) {
+    points = maxPoints
+    normalizedPoints = 1
+  }
+
   const returnObject = {
     quiz,
     answer,
@@ -94,7 +107,7 @@ function validateAnswer(data) {
   return returnObject
 }
 
-function validateProgress(progress) {
+function validateProgress(progress, ignoreList = []) {
   let totalPoints = 0
   let totalMaxPoints = 0
   let totalCompletedMaxPoints = 0
@@ -104,7 +117,7 @@ function validateProgress(progress) {
   let notAnswered = []
 
   progress.answered && progress.answered.forEach(entry => {
-    const validatedAnswer = validateAnswer(entry)
+    const validatedAnswer = validateAnswer(entry, ignoreList)
 
     totalPoints += validatedAnswer.validation.points
     totalMaxPoints += validatedAnswer.validation.maxPoints
