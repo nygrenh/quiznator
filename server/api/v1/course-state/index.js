@@ -26,7 +26,4 @@ router.post('/distribution',
   }
 )
 
-router.put('/confirmation',
-  authent
-)
 module.exports = router
