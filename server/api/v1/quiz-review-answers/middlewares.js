@@ -1,14 +1,14 @@
 const _ = require('lodash')
-const mongoose = require('mongoose'
-)
+const mongoose = require('mongoose')
+const co = require('co');
+
 const QuizReviewAnswer = require('app-modules/models/quiz-review-answer')
 const Quiz = require('app-modules/models/quiz')
 const QuizAnswer = require('app-modules/models/quiz-answer')
 
 const middlewares = {
   getQuizReviewAnswers,
-  updateQuizAnswerConfirmation,
-  updateQuizAnswerRejection
+  updateQuizReviewAnswerStatus,
 }
 
 
@@ -49,15 +49,42 @@ function getQuizReviewAnswers(options) {
   }
 }
 
-function updateQuizAnswerConfirmation() {
+function updateQuizReviewAnswerStatus() {
   return (req, res, next) => {
-    return next()
-  }
-}
+    co(function* () {
+      const { status } = req.body
+      const { id } = req.params
 
-function updateQuizAnswerRejection() {
-  return (req, res, next) => {
-    return next()
+      console.log(status, id)
+
+      const reviewAnswer = yield QuizReviewAnswer.findOne({ answerId: id })
+
+      if (!reviewAnswer) {
+        return Promise.reject('review answer not found')
+      }
+
+      if (!status.pass && !status.review && !status.rejected) {
+        return Promise.reject('no pass/review/rejected for answer!')
+      }
+
+      if ((status.pass && (status.review || status.rejected))
+      || (status.review && (status.pass || status.rejected))
+      || (status.rejected && (status.review || status.pass))) {
+        return Promise.reject('only one status of pass/review/rejected permitted')
+      }
+
+      reviewAnswer.status.pass = status.pass || false
+      reviewAnswer.status.review = status.review || false
+      reviewAnswer.status.rejected = status.rejected || false
+      reviewAnswer.status.reason = status.reason || null
+
+      yield reviewAnswer.save()
+
+      req.reviewAnswer = reviewAnswer
+
+      return next()
+    })
+    .catch(next)
   }
 }
 

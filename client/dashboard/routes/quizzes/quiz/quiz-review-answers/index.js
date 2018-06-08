@@ -5,7 +5,12 @@ import { FormGroup } from 'reactstrap'
 import { Input, Label, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
 import { updateConfirmation, updateRejection } from 'state/quiz-answers'
-import { fetchQuizReviewAnswers, updateReviewConfirmation, updateReviewRejection } from 'state/quiz-review-answers'
+import { 
+  fetchQuizReviewAnswers, 
+  updateQuizReviewAnswerConfirmation, 
+  updateQuizReviewAnswerRejection,
+  updateQuizReviewAnswerStatus
+} from 'state/quiz-review-answers'
 import { selectQuizReviewAnswers } from 'selectors/quiz-review-answers'
 import Loader from 'components/loader'
 import Truncator from 'components/truncator'
@@ -57,11 +62,13 @@ class QuizReviewAnswers extends React.Component {
   updateConfirmation({ answerId, confirmed }) {
     this.props.onUpdateConfirmation({ answerId, confirmed })
     this.props.onUpdateReviewConfirmation({ answerId, confirmed })
+    this.props.onUpdateReviewStatus({ answerId, status: { pass: confirmed, review: !confirmed }})
   }
 
   updateRejection({ answerId, rejected }) {
     this.props.onUpdateRejection({ answerId, rejected })
     this.props.onUpdateReviewRejection({ answerId, rejected })
+    this.props.onUpdateReviewStatus({ answerId, status: { rejected, review: !rejected/*, reason: null*/ }})
   }
 
   renderStatus(status) {
@@ -281,8 +288,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   onFetchQuizReviewAnswers: (quizId, options) => dispatch(fetchQuizReviewAnswers(quizId, options)),
   onUpdateConfirmation: ({ answerId, confirmed }) => dispatch(updateConfirmation({ answerId, confirmed })),
   onUpdateRejection: ({ answerId, rejected }) => dispatch(updateRejection({ answerId, rejected })),
-  onUpdateReviewConfirmation: ({ answerId, confirmed }) => dispatch(updateReviewConfirmation({ answerId, confirmed })),
-  onUpdateReviewRejection: ({ answerId, rejected }) => dispatch(updateReviewRejection({ answerId, rejected })),
+  onUpdateReviewConfirmation: ({ answerId, confirmed }) => dispatch(updateQuizReviewAnswerConfirmation({ answerId, confirmed })),
+  onUpdateReviewRejection: ({ answerId, rejected }) => dispatch(updateQuizReviewAnswerRejection({ answerId, rejected })),
+  onUpdateReviewStatus: ({ answerId, status }) => dispatch(updateQuizReviewAnswerStatus({ answerId, status }))
 })
 
 const mapStateToProps = state => ({

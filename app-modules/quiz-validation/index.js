@@ -2,13 +2,6 @@ const  _ = require('lodash')
 const quizTypes = require('app-modules/constants/quiz-types');
 const { precise_round } = require('app-modules/utils/math-utils')
 
-const IGNORE_LIST = [
-  '5aec479606ee0000047c5967', // ex 3
-  '5aec60b006ee0000047c599a', // 20
-  '5aec5e7c06ee0000047c5995', // 8
-  '5aec626406ee0000047c599e' // 17
-]
-
 function validateAnswer(data, ignoreList = []) {
   // TODO: some checking
   const { quiz, answer, peerReviews } = data
@@ -88,10 +81,10 @@ function validateAnswer(data, ignoreList = []) {
       break
   }
 
-  if (_.includes(ignoreList, quiz._id.toString())) {
+/*   if (_.includes(ignoreList, quiz._id.toString())) {
     points = maxPoints
     normalizedPoints = 1
-  }
+  } */
 
   const returnObject = {
     quiz,
@@ -108,6 +101,7 @@ function validateAnswer(data, ignoreList = []) {
 }
 
 function validateProgress(progress, ignoreList = []) {
+  // TODO: better way to toggle ignore between alternatives
   let totalPoints = 0
   let totalMaxPoints = 0
   let totalCompletedMaxPoints = 0
@@ -119,10 +113,13 @@ function validateProgress(progress, ignoreList = []) {
   progress.answered && progress.answered.forEach(entry => {
     const validatedAnswer = validateAnswer(entry, ignoreList)
 
-    totalPoints += validatedAnswer.validation.points
-    totalMaxPoints += validatedAnswer.validation.maxPoints
-    totalCompletedMaxPoints += validatedAnswer.validation.maxPoints
-    totalNormalizedPoints += validatedAnswer.validation.normalizedPoints
+
+    if (!_.includes(ignoreList, entry.quiz._id.toString())) {
+      totalPoints += validatedAnswer.validation.points
+      totalMaxPoints += validatedAnswer.validation.maxPoints
+      totalCompletedMaxPoints += validatedAnswer.validation.maxPoints
+      totalNormalizedPoints += validatedAnswer.validation.normalizedPoints
+    }
 
     answered.push(validatedAnswer)
   })
@@ -131,8 +128,12 @@ function validateProgress(progress, ignoreList = []) {
     const { quiz, peerReviews } = entry
     const { items } = quiz.data
 
-    const maxPoints = Math.max(items ? items.length : 0, 1)
-        
+    let maxPoints = 0
+
+    if (!_.includes(ignoreList, quiz._id.toString())) {
+      maxPoints = Math.max(items ? items.length : 0, 1)
+    }
+    
     totalMaxPoints += maxPoints
 
     notAnswered.push({
@@ -144,9 +145,17 @@ function validateProgress(progress, ignoreList = []) {
     })
   })
 
-  const maxNormalizedPoints = (progress.answered || []).length + (progress.notAnswered || []).length 
-  const maxCompletedNormalizedPoints = (progress.answered || []).length
-  const confirmedAmount = (progress.answered || []).filter(entry => entry.answer[0].confirmed).length
+  const maxNormalizedPoints = 
+    (progress.answered || []).length + 
+    (progress.notAnswered || []).length 
+    - ignoreList.length
+  const maxCompletedNormalizedPoints = 
+    (progress.answered || []).length 
+    - _.intersection((progress.answered || []).map(entry => entry.quiz._id.toString()), ignoreList).length
+  const confirmedAmount = 
+    (progress.answered || []).filter(entry => { 
+      return entry.answer[0].confirmed && !_.includes(ignoreList, entry.quiz._id.toString()) 
+    }).length
 
   const progressWithValidation = {
     answered,

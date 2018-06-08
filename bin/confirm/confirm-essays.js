@@ -1,4 +1,6 @@
-require('dotenv').config({ silent: true });
+const resolve = require('path').resolve
+
+require('dotenv').config({ path: resolve('../..', '.env')}) // { silent: true };
 require('app-module-path').addPath(__dirname + '/../../');
 
 const { config, rejectReasons } = require('./constants/config')
@@ -61,7 +63,7 @@ function updateConfirmations(data) {
               pass: entry.pass,
               review: entry.review,
               rejected: entry.fail,
-              reason: entry.fail ? entry.failReason : null
+              reason: entry.reason
             },
             data: {
               peerReviewsGiven: entry.givenCount,
@@ -126,7 +128,7 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
     if ((given.length < config.MINIMUM_PEER_REVIEWS_GIVEN || 
         received.length < config.MINIMUM_PEER_REVIEWS_GIVEN)) {  
       //        spamFlags <= config.MINIMUM_SPAM_FLAGS_TO_FAIL) {
-      // console.log('too few peer reviews: ', answer)
+      //console.log('too few peer reviews: ', answer)
       return
     }
 
@@ -161,11 +163,11 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
     if (received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED &&
         sadFacePercentage >= config.MAXIMUM_SADFACE_PERCENTAGE) {
       fail = true,
-      failReason = rejectReasons.TOO_MANY_SADFACES
+      reason = reasons.TOO_MANY_SADFACES
     }
     if (spamFlags >= config.MINIMUM_SPAM_FLAGS_TO_FAIL) {
       fail = true
-      failReason = rejectReasons.FLAGGED_AS_SPAM
+      reason = reasons.FLAGGED_AS_SPAM
     }
     const review = !pass && !fail 
 
@@ -184,7 +186,7 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
       pass,
       review,
       fail,
-      failReason
+      reason
     }
 
     return reviewObject
@@ -266,8 +268,8 @@ const updateEssays = () => new Promise((resolve, reject) =>
           const getAnswers = QuizAnswer.aggregate([
             { $match: {
               quizId: { $in: essayIds },
-              confirmed: false,
-              rejected: false,
+              //confirmed: false,
+              //rejected: false,
               $or: [
                 { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED} },
                 { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS } }

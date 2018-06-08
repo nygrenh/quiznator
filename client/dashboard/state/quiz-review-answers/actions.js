@@ -1,7 +1,9 @@
-export const FETCH_REVIEW_ANSWERS = 'QUIZ_REVIEW_ANSWERS_FETCH'
-export const FETCH_REVIEW_ANSWERS_SUCCESS = 'QUIZ_REVIEW_ANSWERS_FETCH_SUCCESS'
-export const UPDATE_REVIEW_CONFIRMATION = 'UPDATE_REVIEW_CONFIRMATION'
-export const UPDATE_REVIEW_REJECTION = 'UPDATE_REVIEW_REJECTION'
+export const FETCH_QUIZ_REVIEW_ANSWERS = 'FETCH_QUIZ_REVIEW_ANSWERS'
+export const FETCH_QUIZ_REVIEW_ANSWERS_SUCCESS = 'FETCH_QUIZ_REVIEW_ANSWERS_SUCCESS'
+export const UPDATE_QUIZ_REVIEW_ANSWER_CONFIRMATION = 'UPDATE_QUIZ_REVIEW_ANSWER_CONFIRMATION'
+export const UPDATE_QUIZ_REVIEW_ANSWER_REJECTION = 'UPDATE_QUIZ_REVIEW_ANSWER_REJECTION'
+export const UPDATE_QUIZ_REVIEW_ANSWER_STATUS = 'UPDATE_QUIZ_REVIEW_ANSWER_STATUS'
+export const UPDATE_QUIZ_REVIEW_ANSWER_STATUS_SUCCESS = 'UPDATE_QUIZ_REVIEW_ANSWER_STATUS_SUCCESS'
 
 export function fetchQuizReviewAnswers(quizId, options) {
   return (dispatch, getState) => {
@@ -9,9 +11,9 @@ export function fetchQuizReviewAnswers(quizId, options) {
   }
 }
 
-export function updateReviewConfirmation({ answerId, confirmed }) {
+export function updateQuizReviewAnswerConfirmation({ answerId, confirmed }) {
   return {
-    type: UPDATE_REVIEW_CONFIRMATION,
+    type: UPDATE_QUIZ_REVIEW_ANSWER_CONFIRMATION,
     payload: {
       data: {
         answerId,
@@ -21,9 +23,9 @@ export function updateReviewConfirmation({ answerId, confirmed }) {
   }
 }
 
-export function updateReviewRejection({ answerId, rejected }) {
+export function updateQuizReviewAnswerRejection({ answerId, rejected }) {
   return {
-    type: UPDATE_REVIEW_REJECTION,
+    type: UPDATE_QUIZ_REVIEW_ANSWER_REJECTION,
     payload: {
       data: {
         answerId,
@@ -33,9 +35,24 @@ export function updateReviewRejection({ answerId, rejected }) {
   }
 }
 
+export function updateQuizReviewAnswerStatus({ answerId, status }) {
+  return {
+    type: UPDATE_QUIZ_REVIEW_ANSWER_STATUS,
+    payload: {
+      request: {
+        method: 'PUT',
+        url: `/quiz-review-answers/${answerId}/status`,
+        data: {
+          status
+        }
+      }
+    }
+  }
+}
+
 export function fetchQuizReviewAnswersRequest({ quizId, options }) {
   return {
-    type: FETCH_REVIEW_ANSWERS,
+    type: FETCH_QUIZ_REVIEW_ANSWERS,
     payload: {
       request: {
         method: 'POST',

@@ -3,7 +3,7 @@
 const resolve = require('path').resolve
 require('app-module-path').addPath(__dirname + '/../../');
 
-require('dotenv').config({ silent: true });
+require('dotenv').config({ path: resolve('../..', '.env')}) // { silent: true };
 
 const { config } = require('./constants/config')
 const Promise = require('bluebird');

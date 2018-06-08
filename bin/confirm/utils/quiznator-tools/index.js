@@ -10,7 +10,7 @@ function fetchQuizIds(tags) {
   return new Promise((resolve, reject) => {
     let quizIds = []
 
-    fetch(`${API_URI}/tags/quizids`, {
+    fetch(`${API_URI}/api/v1/tags/quizids`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

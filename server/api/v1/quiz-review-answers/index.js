@@ -16,19 +16,11 @@ router.post('/',
   }
 )
 
-router.put('/:id/confirmed',
+router.put('/:id/status',
   authenticationMiddlewares.authorize(),
-  middlewares.updateQuizAnswerConfirmation(),
+  middlewares.updateQuizReviewAnswerStatus(),
   (req, res, next) => {
-    res.json(req.status)
-  }
-)
-
-router.put(':/id/reject',
-  authenticationMiddlewares.authorize(),
-  middlewares.updateQuizAnswerRejection(),
-  (req, res, next) => {
-    res.json(req.status)
+    res.json(req.reviewAnswer)
   }
 )
 
