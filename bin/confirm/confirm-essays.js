@@ -19,6 +19,10 @@ const { fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
 
+const sleep = require("sleep")
+
+sleep.sleep(5)
+
 mongoose.connect(config.DB_URI, err => {
   if (err) {
     console.log(err)

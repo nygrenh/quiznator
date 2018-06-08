@@ -17,6 +17,9 @@ const Quiz = require('app-modules/models/quiz')
 const { fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, calculatePercentage, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
+const sleep = require("sleep")
+
+sleep.sleep(5)
 
 mongoose.connect(config.DB_URI, err => {
   if (err) {
