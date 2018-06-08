@@ -268,8 +268,8 @@ const updateEssays = () => new Promise((resolve, reject) =>
           const getAnswers = QuizAnswer.aggregate([
             { $match: {
               quizId: { $in: essayIds },
-              //confirmed: false,
-              //rejected: false,
+              confirmed: false,
+              rejected: false,
               $or: [
                 { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED} },
                 { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS } }
