@@ -35,7 +35,7 @@ function getQuizzesByTag(options = {}) {
 
         let query = {}
 
-        if (queryTags.length > 0) {
+        if (!!queryTags && queryTags.length > 0) {
             query = Object.assign({}, query, { tags: { $all: queryTags} }) 
         }
 
@@ -66,7 +66,7 @@ function getQuizIdsByTag(options = {}) {
             queryTags = options.getTags(req)
         }
         
-        if (!queryTags || (!!queryTags && querytags.length == 0)) {
+        if (!queryTags || (!!queryTags && queryTags.length == 0)) {
             return next()
         }
 

@@ -162,7 +162,7 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
                 sadFacePercentage < config.MAXIMUM_SADFACE_PERCENTAGE
                 && spamFlags <= config.MAXIMUM_SPAM_FLAGS_TO_PASS
     let fail = false
-    let failReason = ''
+    let reason = ''
 
     if (received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED &&
         sadFacePercentage >= config.MAXIMUM_SADFACE_PERCENTAGE) {
