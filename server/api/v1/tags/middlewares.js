@@ -66,7 +66,7 @@ function getQuizIdsByTag(options = {}) {
             queryTags = options.getTags(req)
         }
         
-        if (queryTags.length == 0) {
+        if (!queryTags || (!!queryTags && querytags.length == 0)) {
             return next()
         }
 
