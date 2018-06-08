@@ -26,4 +26,4 @@ const reasons = {
   REJECT_TOO_MANY_SADFACES: 'REJECT_TOO_MANY_SADFACES'
 }
 
-module.exports = { config, rejectReasons }
+module.exports = { config, reasons }
