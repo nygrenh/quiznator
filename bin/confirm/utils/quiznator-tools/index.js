@@ -19,7 +19,6 @@ function fetchQuizIds(tags) {
     }).then(res => {
       res.json()
         .then(tagData => {
-          console.log(tagData)
           tagData.forEach(data => {
             if (~data.tags.indexOf(config.COURSE_ID)) {
               data.quizIds.forEach(quizId => quizIds.push(quizId))
