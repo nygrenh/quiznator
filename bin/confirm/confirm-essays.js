@@ -1,6 +1,6 @@
 const resolve = require('path').resolve
 
-require('dotenv').config({ path: resolve('../..', '.env')}) // { silent: true };
+require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
 require('app-module-path').addPath(__dirname + '/../../');
 
 const { config, reasons } = require('./constants/config')
