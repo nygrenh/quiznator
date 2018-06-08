@@ -1,5 +1,5 @@
 const config = {
-  API_URI: process.env.API_URL, // 'http://127.0.0.1:3000/api/v1', // 'http://quiznator.herokuapp.com/api/v1', // process.env.API_URI
+  API_URI: process.env.API_URL, // 'http://127.0.0.1:3000', // 'http://quiznator.herokuapp.com', // process.env.API_URI
   DB_URI: process.env.MONGO_URI, //'mongodb://127.0.0.1:27017/test'
   MINIMUM_PEER_REVIEWS_GIVEN: 3,
   MINIMUM_PEER_REVIEWS_RECEIVED: 3,
