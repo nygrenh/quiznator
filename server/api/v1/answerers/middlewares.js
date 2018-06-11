@@ -168,7 +168,7 @@ function getProgressWithValidation(options) {
           return returnObject
         }), entry => answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered')
 
-        // or some better method
+        // TODO: this WILL go wonky if there's several courses
         CourseState.findOne({ answererId })
           .then(courseState => {
             let returnObject = {

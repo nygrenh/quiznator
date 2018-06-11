@@ -16,7 +16,9 @@ function getCourseState(options) {
     getState
       .then(state => {
 
-        req.state = state
+        if (!!state && typeof state === 'object' && state.length > 0) {
+          req.state = state[0]
+        }
         
         return next()
       })
@@ -45,4 +47,5 @@ function getDistribution(options) {
       })
   }
 }
+
 module.exports = { getCourseState, getDistribution }

@@ -10,7 +10,7 @@ const mongoose = require('mongoose')
       ...
 */
 module.exports = schema => {
-  schema.statics.setCourseState = function(answererId, data = []) {
+/*   schema.statics.setCourseState = function(answererId, courseId, data = []) {
     return this.findOneAndUpdate(
       { answererId }, 
       { $set: { data } }, // looks potentially dangerous
@@ -18,15 +18,15 @@ module.exports = schema => {
     )
   }
 
-  schema.statics.setCompletionState = function(answererId, data) {
+  schema.statics.setCompletionState = function(answererId, courseId, data) {
     return this.findOneAndUpdate(
-      { answererId },
-      { $set: { answererId, completion: { data } } },
+      { answererId, courseId },
+      { $set: { completion: { data } } },
       { new: true, upsert: true }
     )
-  }
+  } */
 
-  schema.statics.getConfirmed = function(answererId) {
-    return this.find({ answererId, data: { completion: { confirmationSent: true } }})
+  schema.statics.getConfirmed = function(answererId, courseId) {
+    return this.find({ answererId, courseId, data: { completion: { confirmationSent: true } }})
   }
 }
