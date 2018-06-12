@@ -7,7 +7,12 @@ module.exports = schema => {
     return this.find({ quizId: options.quizId, giverAnswererId: options.answererId }, { _id: 0, chosenQuizAnswerId: 1 })
       .then(reviews => reviews.map(review => mongoose.Types.ObjectId(review.chosenQuizAnswerId.toString())))
       .then(chosenQuizAnswerIds => {
-        const query = { quizId: mongoose.Types.ObjectId(options.quizId.toString()), answererId: { $ne: options.answererId }, _id: { $nin: chosenQuizAnswerIds } };
+        const query = { 
+          quizId: mongoose.Types.ObjectId(options.quizId.toString()), 
+          answererId: { $ne: options.answererId }, _id: { $nin: chosenQuizAnswerIds }, 
+          rejected: false,
+          confirmed: false
+        };
 
         return mongoose.models.QuizAnswer.findDistinctlyByAnswerer(query, { limit: options.limit + 20, skip: options.skip, sort: { peerReviewCount: 1 } })
           .then(reviews => _.sampleSize(reviews, options.limit));

@@ -50,6 +50,7 @@ function getAnswerers() {
         data: { $first: '$data' }, 
         peerReviewCount: { $first: '$peerReviewCount' },
         confirmed: { $first: '$confirmed' },
+        rejected: { $first: '$rejected' },
       };
 
       let match = { quizId: mongoose.Types.ObjectId(quizId) };
@@ -78,6 +79,7 @@ function getAnswerers() {
           spamFlags:  answer.spamFlags,
           data: answer.data,
           confirmed: answer.confirmed,
+          rejected: answer.rejected,
           receivedPeerReviews: peerReviewsByReceiver[answer._id] || [],
           givenPeerReviewsCount: (peerReviewsByGiver[answer._id] || []).length,
         };
@@ -105,15 +107,17 @@ function getProgressWithValidation(options) {
     const validation = body.validation && !body.stripAnswers || false
     const stripAnswers = body.stripAnswers || false
     const peerReviewsRequiredGiven = body.peerReviewsRequiredGiven || 0
-  
+    const courseId = body.courseId || ''
+
     let quizIds = body.quizIds
     
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
-    const getAnswers = answers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).exec() : new Promise((resolve) => resolve([]))
+    const getAnswers = answers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).sort({ updatedAt: - 1 }).exec() : new Promise((resolve) => resolve([]))
     const getPeerReviewsGiven = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
     const getPeerReviewsReceived = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
 
     let essaysAwaitingPeerReviewsGiven = []
+    let rejected = []
 
     return Promise.all([getQuizzes, getAnswers, getPeerReviewsGiven, getPeerReviewsReceived])
       .spread((quizzes, answers, peerReviewsGiven, peerReviewsReceived) => {
@@ -126,7 +130,11 @@ function getProgressWithValidation(options) {
           
           if (quiz.type === quizTypes.ESSAY && peerReviews) {
             const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
-            const received = peerReviewsReceived.filter(pr => pr.sourceQuizId.equals(quiz._id))
+            const received = answer.length > 0 
+              ? peerReviewsReceived.filter(pr => 
+                  pr.sourceQuizId.equals(quiz._id) &&
+                  pr.chosenQuizAnswerId.equals(answer[0]._id)) 
+              : []
             
             peerReviewsReturned = {
               given,
@@ -135,6 +143,12 @@ function getProgressWithValidation(options) {
 
             if (given.length < peerReviewsRequiredGiven && answer.length > 0)  {
               essaysAwaitingPeerReviewsGiven.push(quiz._id)
+            }
+            if (answer.length > 0 && answer[0].rejected) {
+              rejected.push({
+                quizId: quiz._id,
+                answer: answer[0]
+              })
             }
           }
 
@@ -166,15 +180,18 @@ function getProgressWithValidation(options) {
           } 
 
           return returnObject
-        }), entry => answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered')
+        }), entry => {
+          return entry.answer && entry.answer[0].rejected ? 'rejected' :
+                answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered'
+        })
 
-        // TODO: this WILL go wonky if there's several courses
-        CourseState.findOne({ answererId })
+        CourseState.findOne({ answererId, courseId })
           .then(courseState => {
             let returnObject = {
               answererId,
               courseState: courseState || {},
-              essaysAwaitingPeerReviewsGiven
+              essaysAwaitingPeerReviewsGiven,
+              rejected
             }
 
             if (validation) {
@@ -195,17 +212,6 @@ function getProgressWithValidation(options) {
   }
 }
 
-
-function getUsersToBeConfirmed(quizIds) {
-  return (req, res, next) => {
-    const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
-    const getAnswers = QuizAnswer.find({ answererId: { $in: answererIds }, quizId: { $in: quizIds } }).exec() //: new Promise((resolve) => resolve([]))
-    const getPeerReviewsGiven = PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: { $in: answererIds }}).exec() //: new Promise((resolve) => resolve([]))
-    const getPeerReviewsReceived = PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: { $in: answererIds }}).exec() //: new Promise((resolve) => resolve([]))
-
-    //...go on --- look for confirmations also
-  }  
-}
 
 module.exports = { 
   getAnswerersProgress, 

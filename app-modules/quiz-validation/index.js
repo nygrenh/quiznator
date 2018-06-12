@@ -109,6 +109,7 @@ function validateProgress(progress, ignoreList = []) {
 
   let answered = []
   let notAnswered = []
+  let rejected = []
 
   progress.answered && progress.answered.forEach(entry => {
     const validatedAnswer = validateAnswer(entry, ignoreList)
@@ -145,9 +146,33 @@ function validateProgress(progress, ignoreList = []) {
     })
   })
 
+  progress.rejected && progress.rejected.map(entry => {
+    const { quiz, answer, peerReviews } = entry
+
+    let maxPoints = 0
+
+    if (!_.includes(ignoreList, quiz._id.toString())) {
+      maxPoints = 1
+    }
+
+    totalMaxPoints += maxPoints
+
+    rejected.push({
+      quiz,
+      answer,
+      peerReviews,
+      validation: {
+        points: 0,
+        maxPoints: 1,
+        normalizedPoints: 0
+      }
+    })
+  })
+
   const maxNormalizedPoints = 
     (progress.answered || []).length + 
-    (progress.notAnswered || []).length 
+    (progress.notAnswered || []).length +
+    (progress.rejected || []).length
     - ignoreList.length
   const maxCompletedNormalizedPoints = 
     (progress.answered || []).length 
@@ -160,6 +185,7 @@ function validateProgress(progress, ignoreList = []) {
   const progressWithValidation = {
     answered,
     notAnswered,
+    rejected,
     validation: {
       points: totalPoints,
       maxPoints: totalMaxPoints,

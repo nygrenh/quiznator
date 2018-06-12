@@ -70,6 +70,7 @@ module.exports = schema => {
         answerId: { $first: '$_id' }, 
         createdAt: { $first: '$createdAt' },
         confirmed: { $first: '$confirmed' },
+        rejected: { $first: '$rejected' },
         peerReviewCount: { $first: '$peerReviewCount' }
       }},
     ].filter(p => !!p);
@@ -83,6 +84,7 @@ module.exports = schema => {
           quizId: doc.quizId, 
           createdAt: doc.createdAt,
           confirmed: doc.confirmed,
+          rejected: doc.rejected,
           peerReviewCount: doc.peerReviewCount 
         }));
       })
@@ -146,6 +148,7 @@ module.exports = schema => {
         answerId: { $first: '$_id' }, 
         createdAt: { $first: '$createdAt' },
         confirmed: { $first: '$confirmed' },
+        rejected: { $first: '$rejected' },
         peerReviewCount: { $first: '$peerReviewCount' } } }
     ].filter(p => !!p)
 
@@ -158,6 +161,7 @@ module.exports = schema => {
           quizId: doc.quizId, 
           createdAt: doc.createdAt,
           confirmed: doc.confirmed,
+          rejected: doc.rejected,
           peerReviewCount: doc.peerReviewCount 
         }));
       })

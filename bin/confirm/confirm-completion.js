@@ -30,7 +30,7 @@ sleep.sleep(5)
 
 mongoose.connect(config.DB_URI, err => {
   if (err) {
-    console.log(err)
+    console.error(err)
     process.exit(1)
   }
 })
@@ -78,13 +78,18 @@ function getProgressWithValidation(answererId, answers, quizzes) {
 
     if (answersForQuiz.length > 0) {
       let newestDate = 0
-      
-      answersForQuiz.forEach(answerForQuiz => {
+  
+      answer = [answersForQuiz[0]] // still expecting an array
+      newestDate = answer.updatedAt
+
+      // answers now come sorted by date from backend
+
+/*       answersForQuiz.forEach(answerForQuiz => {
         if (answerForQuiz.updatedAt > newestDate) {
           answer = [answerForQuiz] // expecting [0]...
           newestDate = answerForQuiz.updatedAt
         } 
-      })
+      }) */
       latestAnswerDate = Math.max(newestDate, latestAnswerDate)
     }
 
@@ -132,8 +137,7 @@ function getProgressWithValidation(answererId, answers, quizzes) {
     returnObject, 
     validateProgress(progress, config.IGNORE_LIST))
 
-  return returnObject // resolve(...)
-  //})
+  return returnObject 
 }
 
 function updateCompletion(answererId, data) {
