@@ -278,7 +278,7 @@ const updateEssays = () => new Promise((resolve, reject) =>
               rejected: false,
               $or: [
                 { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED} },
-                { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS } }
+                { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
               ]} },
           //{ $sample: { size: 100 } }
           ]).exec()
