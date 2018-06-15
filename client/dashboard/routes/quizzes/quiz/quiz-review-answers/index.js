@@ -11,7 +11,10 @@ import { 
   updateQuizReviewAnswerRejection,
   updateQuizReviewAnswerStatus
 } from 'state/quiz-review-answers'
+import { updateCourseStateAnswerStatus } from 'state/quiz-answer-distribution'
 import { selectQuizReviewAnswers } from 'selectors/quiz-review-answers'
+import { fetchQuiz } from 'state/edit-quiz'
+import { quizSelector } from 'selectors/edit-quiz';
 import Loader from 'components/loader'
 import Truncator from 'components/truncator'
 import ReactTable from 'react-table'
@@ -30,7 +33,8 @@ class QuizReviewAnswers extends React.Component {
 
   componentDidMount() {
     this.setState({ dataLoading: true })
-    this.props.onFetchQuizReviewAnswers(this.props.params.id, this.state.options)
+    this.props.loadQuiz()
+      .then(_ => this.props.onFetchQuizReviewAnswers(this.props.params.id, this.state.options))
       .then(_ => this.setState({ dataLoading: false }))
   }
 
@@ -154,10 +158,10 @@ class QuizReviewAnswers extends React.Component {
       return <div><Loader /></div>
     }
     const data = this.props.reviewAnswers.statuses
-
+ 
     return (
       <div>
-        {this.renderDropdown()}
+        <span>{this.props.quiz.title}</span>{this.renderDropdown()}
         <ReactTable
           data={data}
           columns={[
@@ -285,15 +289,18 @@ class QuizReviewAnswers extends React.Component {
 /*
 */
 const mapDispatchToProps = (dispatch, ownProps) => ({
+  loadQuiz: () => dispatch(fetchQuiz(ownProps.params.id)),
   onFetchQuizReviewAnswers: (quizId, options) => dispatch(fetchQuizReviewAnswers(quizId, options)),
   onUpdateConfirmation: ({ answerId, confirmed }) => dispatch(updateConfirmation({ answerId, confirmed })),
   onUpdateRejection: ({ answerId, rejected }) => dispatch(updateRejection({ answerId, rejected })),
   onUpdateReviewConfirmation: ({ answerId, confirmed }) => dispatch(updateQuizReviewAnswerConfirmation({ answerId, confirmed })),
   onUpdateReviewRejection: ({ answerId, rejected }) => dispatch(updateQuizReviewAnswerRejection({ answerId, rejected })),
-  onUpdateReviewStatus: ({ answerId, status }) => dispatch(updateQuizReviewAnswerStatus({ answerId, status }))
+  onUpdateReviewStatus: ({ answerId, status }) => dispatch(updateQuizReviewAnswerStatus({ answerId, status })),
+  onUpdateCourseStateAnswerStatus: ({ answerId, courseId, answererId, confirmed, rejected }) => dispatch(updateCourseStateAnswerStatus({ answerId, courseId, answererId, confirmed, rejected }))
 })
 
 const mapStateToProps = state => ({
+  quiz: quizSelector(state),
   reviewAnswers: selectQuizReviewAnswers(state)  
 })
 

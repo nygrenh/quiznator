@@ -16,6 +16,16 @@ router.post('/state/:courseid',
   }
 )
 
+router.post('/stateanswer',
+  authenticationMiddlewares.authorize(),
+  middlewares.updateCourseStateAnswer({
+    getBody: req => req.body
+  }),
+  (req, res, next) => {
+    res.json(req.answerValidation)
+  }
+)
+
 router.post('/distribution',
   authenticationMiddlewares.authorize(),
   middlewares.getDistribution({

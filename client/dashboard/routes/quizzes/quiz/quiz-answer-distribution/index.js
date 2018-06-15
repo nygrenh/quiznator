@@ -8,6 +8,7 @@ import { fetchQuizAnswerDistribution } from 'state/quiz-answer-distribution';
 import { ESSAY } from 'common-constants/quiz-types'
 
 ReactChartkick.addAdapter(Chart)
+
 class QuizAnswerDistribution extends React.Component {
   constructor(props) {
     super(props)
@@ -48,7 +49,7 @@ class QuizAnswerDistribution extends React.Component {
 
   renderEssayStats() {
     const data = this.props.quizAnswerDistribution.answers
-    
+
     if (data.length === 0) {
       return null
     }
@@ -56,7 +57,7 @@ class QuizAnswerDistribution extends React.Component {
     if (data[0].completion.data.answerValidation[0].type !== ESSAY) {
       return null
     }
-
+    
     const confirmed = data.filter(answer => answer.completion.data.answerValidation[0].confirmed).length
     const rejected = data.filter(answer => answer.completion.data.answerValidation[0].rejected).length
 

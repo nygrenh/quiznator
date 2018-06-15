@@ -24,6 +24,7 @@ function getQuizReviewAnswers(options) {
     if (answererId) {
       query.push({ $match: { answererId: answererId } })
     }
+
     if (queryOptions && queryOptions.length > 0) {
       queryOptions.forEach(option => {
         query.push({ $match: { [`status.${option}`]: true } })

@@ -5,7 +5,6 @@ const { precise_round } = require('app-modules/utils/math-utils')
 function validateAnswer(data, ignoreList = []) {
   // TODO: some checking
   const { quiz, answer, peerReviews } = data
-  // TODO: check for rejected answer
   const answerData = answer[0].data
   const { regex, multi, rightAnswer } = quiz.data.meta
   const { items, choices } = quiz.data 
@@ -148,11 +147,12 @@ function validateProgress(progress, ignoreList = []) {
 
   progress.rejected && progress.rejected.map(entry => {
     const { quiz, answer, peerReviews } = entry
+    const { items } = quiz.data
 
     let maxPoints = 0
 
     if (!_.includes(ignoreList, quiz._id.toString())) {
-      maxPoints = 1
+      maxPoints = Math.max(items ? items.length : 0, 1)
     }
 
     totalMaxPoints += maxPoints
@@ -163,12 +163,14 @@ function validateProgress(progress, ignoreList = []) {
       peerReviews,
       validation: {
         points: 0,
-        maxPoints: 1,
+        maxPoints,
         normalizedPoints: 0
       }
     })
   })
 
+  // this looks terrrrible
+  
   const maxNormalizedPoints = 
     (progress.answered || []).length + 
     (progress.notAnswered || []).length +

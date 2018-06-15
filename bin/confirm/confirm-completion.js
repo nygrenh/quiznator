@@ -36,6 +36,7 @@ mongoose.connect(config.DB_URI, err => {
 })
 
 let tags = []
+let doubleCount = 0
 
 _.map(_.range(1, config.PARTS + 1), (part) => {
   _.map(_.range(1, config.SECTIONS_PER_PART + 1), (section) => {
@@ -75,12 +76,12 @@ function getProgressWithValidation(answererId, answers, quizzes) {
     let answer = answersForQuiz //answers[quiz._id] || []
 
     //console.log(answers)
-
+    
     if (answersForQuiz.length > 0) {
       let newestDate = 0
   
-      answer = [answersForQuiz[0]] // still expecting an array
-      newestDate = answer.updatedAt
+      //answer = [answersForQuiz[0]] // still expecting an array
+      newestDate = answer[0].updatedAt
 
       // answers now come sorted by date from backend
 
@@ -98,7 +99,7 @@ function getProgressWithValidation(answererId, answers, quizzes) {
     /*          if (quiz.type === quizTypes.ESSAY) {
             const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
             const received = peerReviewsReceived.filter(pr => pr.sourceQuizId.equals(quiz._id))
-            
+          
             peerReviewsReturned = {
               given,
               received
@@ -159,7 +160,7 @@ function updateCompletion(answererId, data) {
           } 
         },
       },
-      { new: true, upsert: true } // 
+      { new: true, upsert: true } 
     ).exec()
     // TODO: actually check if already set
     // - confirmationSent/date/whatever...
@@ -177,7 +178,11 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
     const getAnswers = QuizAnswer.aggregate([{ 
       $match: { 
         quizId: { $in: quizIdsMap }, 
-        spamFlags: { $lte: config.MAXIMUM_SPAM_FLAGS_TO_PASS } 
+//        spamFlags: { $lte: config.MAXIMUM_SPAM_FLAGS_TO_PASS } 
+      }
+    }, {
+      $sort: {
+        createdAt: -1
       }
     }, 
     //{ $sample: { size: 10000 } }
@@ -198,8 +203,6 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
         let answersForAnswerer = new Map()
 
         answers.forEach(answer => {
-        /*           console.log(answersForAnswerer)
-          sleep.sleep(2) */
           if (!answersForAnswerer.has(answer.answererId)) {
             answersForAnswerer.set(answer.answererId, new Map())
           }
@@ -210,6 +213,7 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
           value.push(answer)
           answersForAnswerer.get(answer.answererId).set(answer.quizId.toString(), value)
         })
+
 
         console.log('Ready initing, start crunching')    
         let count = 0
@@ -232,6 +236,7 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
           const answerValidation = progress.answered.map(entry => {
             return ({
               quizId: entry.quiz._id,
+              answerId: entry.answer[0]._id,
               points: entry.validation.points,
               maxPoints: entry.validation.maxPoints,
               normalizedPoints: entry.validation.normalizedPoints,

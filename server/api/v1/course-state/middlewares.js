@@ -1,6 +1,7 @@
 const Promise = require('bluebird')
-const mongoose = require('mongoose'
-)
+const mongoose = require('mongoose')
+const errors = require('app-modules/errors');
+
 const CourseState = require('app-modules/models/course-state')
 
 function getCourseState(options) {
@@ -20,6 +21,44 @@ function getCourseState(options) {
           req.state = state[0]
         }
         
+        return next()
+      })
+  }
+}
+
+function updateCourseStateAnswer(options) {
+  return (req, res, next) => {
+    const body = options.getBody(req)
+
+    const { answererId, courseId, answerId, confirmed, rejected } = body
+
+    if (confirmed && rejected) {
+      return next(new errors.InvalidRequestError('cannot be both confirmed and rejected'))
+    }
+
+    if (!answererId || !courseId || !answerId) {
+      return next(new errors.InvalidRequestError('not enough parameters'))
+    }
+
+    CourseState.findOneAndUpdate({
+      answererId,
+      courseId,
+      "completion.data.answerValidation": {
+        $elemMatch: {
+          answerId: mongoose.Types.ObjectId(answerId)
+        }
+      }
+      }, {
+        $set: { 
+          'completion.data.answerValidation.$.confirmed': confirmed,
+          'completion.data.answerValidation.$.rejected': rejected,
+        }
+      }, {
+        new: true
+      }).exec()
+      .then(answerValidation => {
+        req.answerValidation = answerValidation
+
         return next()
       })
   }
@@ -48,4 +87,4 @@ function getDistribution(options) {
   }
 }
 
-module.exports = { getCourseState, getDistribution }
+module.exports = { getCourseState, getDistribution, updateCourseStateAnswer }

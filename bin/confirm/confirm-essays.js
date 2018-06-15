@@ -120,27 +120,28 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
       latestAnswerDate = Math.max(newestDate, latestAnswerDate)
     }
 
-    if (!peerReviewsGiven || !peerReviewsReceived || (!answer || (!!answer && answer.length === 0))) {
+    if (!answer || (!!answer && answer.length === 0)) {
       return
     }
 
-    const given = peerReviewsGiven.get(quizId.toString()) || []
-    const received = peerReviewsReceived.get(quizId.toString()) || []
+    // this was too strict and chucked out spam
+  /*     if (!peerReviewsGiven || !peerReviewsReceived || (!answer || (!!answer && answer.length === 0))) {
+      return
+    } */
+
+    const given = !!peerReviewsGiven ? (peerReviewsGiven.get(quizId.toString()) || []) : []
+    const received = !!peerReviewsReceived ? (peerReviewsReceived.get(quizId.toString()) || []) : []
 
     const spamFlags = answer[0].spamFlags
     
-    if ((given.length < config.MINIMUM_PEER_REVIEWS_GIVEN || 
+/*     if ((given.length < config.MINIMUM_PEER_REVIEWS_GIVEN || 
         received.length < config.MINIMUM_PEER_REVIEWS_GIVEN)) {  
       //        spamFlags <= config.MINIMUM_SPAM_FLAGS_TO_FAIL) {
       //console.log('too few peer reviews: ', answer)
       return
-    }
+    } */
 
     
-    /* const beforeSadFacePercentage = (_.mean(received.map(review => 
-      _.values(review.grading)
-        .filter(v => v === 1).length)) / 4 * 100) || 0 */
-
     // don't take sad faces into account if the review is < GRADE_CUTOFF_POINT times average grade
     // (or, as it is now, median)
 
@@ -161,6 +162,7 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
                 received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED && // averageGrade >= 12
                 sadFacePercentage < config.MAXIMUM_SADFACE_PERCENTAGE
                 && spamFlags <= config.MAXIMUM_SPAM_FLAGS_TO_PASS
+
     let fail = false
     let reason = ''
 
@@ -284,9 +286,6 @@ const updateEssays = () => new Promise((resolve, reject) =>
           const getPeerReviews = PeerReview.find({ 
             sourceQuizId: { $in: essayIds }, 
           }).exec() 
-          /*         const getPeerReviewsReceived = PeerReview.find({ 
-          sourceQuizId: { $in: essayIds }, 
-        }).exec()  */
     
           return Promise.all([getAnswers, getPeerReviews])
             .spread((answers, peerReviews) => {
