@@ -175,8 +175,16 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
       fail = true
       reason = reasons.FLAGGED_AS_SPAM
     }
+
     const review = !pass && !fail 
 
+    // not spam but not enough reviews? let's ignore it
+    if (review && 
+      given.length < config.MINIMUM_PEER_REVIEWS_GIVEN &&
+      received.length < config.MINIMUM_PEER_REVIEWS_RECEIVED) {
+      return
+    }
+    
     const reviewObject = {
       answererId,
       quizId: quizId,

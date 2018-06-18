@@ -4,15 +4,19 @@ const { precise_round } = require('app-modules/utils/math-utils')
 
 function validateAnswer(data, ignoreList = []) {
   // TODO: some checking
+  if (!data) {
+    throw new Error('no data for validation')
+  }
+  
   const { quiz, answer, peerReviews } = data
-  const answerData = answer[0].data
-  const { regex, multi, rightAnswer } = quiz.data.meta
-  const { items, choices } = quiz.data 
+  const answerData = _.get(answer, '[0].data', {})
+  const { regex, multi, rightAnswer } = _.get(quiz, 'data.meta', {})
+  const { items, choices } = _.get(quiz, 'data', {}) 
 
   let points = 0
   let normalizedPoints = 0
 
-  const maxPoints = Math.max(items ? items.length : 0, 1)
+  let maxPoints = 1 
 
   switch (quiz.type) {
     case quizTypes.ESSAY:
@@ -40,6 +44,7 @@ function validateAnswer(data, ignoreList = []) {
           } 
           return (rightAnswer[item.id] || []).indexOf(answerData[item.id]) >= 0
         }).filter(v => v).length)
+      maxPoints = items.length
       normalizedPoints = points / maxPoints
       break
     case quizTypes.MULTIPLE_CHOICE:
@@ -74,6 +79,7 @@ function validateAnswer(data, ignoreList = []) {
           answerData[item.id].trim().toLowerCase() === rightAnswer[item.id].trim().toLowerCase()
         ).filter(v => v).length
       }
+      maxPoints = items.length
       normalizedPoints = points / maxPoints
       break
     default:
@@ -131,7 +137,11 @@ function validateProgress(progress, ignoreList = []) {
     let maxPoints = 0
 
     if (!_.includes(ignoreList, quiz._id.toString())) {
-      maxPoints = Math.max(items ? items.length : 0, 1)
+      if (~[quizTypes.RADIO_MATRIX, quizTypes.MULTIPLE_OPEN].indexOf(quiz.type)) {
+        maxPoints = items.length
+      } else {
+        maxPoints = 1
+      }
     }
     
     totalMaxPoints += maxPoints
@@ -152,7 +162,11 @@ function validateProgress(progress, ignoreList = []) {
     let maxPoints = 0
 
     if (!_.includes(ignoreList, quiz._id.toString())) {
-      maxPoints = Math.max(items ? items.length : 0, 1)
+      if (~[quizTypes.RADIO_MATRIX, quizTypes.MULTIPLE_OPEN].indexOf(quiz.type)) {
+        maxPoints = items.length
+      } else {
+        maxPoints = 1
+      }
     }
 
     totalMaxPoints += maxPoints
@@ -170,7 +184,7 @@ function validateProgress(progress, ignoreList = []) {
   })
 
   // this looks terrrrible
-  
+
   const maxNormalizedPoints = 
     (progress.answered || []).length + 
     (progress.notAnswered || []).length +

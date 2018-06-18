@@ -43,6 +43,7 @@ function validateMultipleChoiceAnswerData(data, quiz) {
   }
 }
 
+// TODO: this validation is not updated properly
 function validateRadioMatrixAnswerData(data, quiz) {
   const rightAnswer = _get(quiz, 'data.meta.rightAnswer')
 
