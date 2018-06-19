@@ -6,19 +6,32 @@ const CourseState = require('app-modules/models/course-state')
 
 function getCourseState(options) {
   return (req, res, next) => {
-    const answererId = options.getAnswererId(req)
-    const courseId = options.getCourseId(req)
+    const query = {
+      courseId: options.getCourseId(req)
+    }
 
-    const getState = CourseState.find({ 
-      answererId,
-      courseId 
-    }).exec()
+    const answererId = options.getAnswererId(req)
+    if (answererId) {
+      query.answererId = answererId
+    }
+
+    const allInfo = options.getAllInfo(req)
+    const filter = !allInfo ? {
+      answererId: true,
+      "completion.completed": true,
+    } : undefined
+
+    const getState = CourseState.find(query, filter).exec()
 
     getState
       .then(state => {
 
         if (!!state && typeof state === 'object' && state.length > 0) {
-          req.state = state[0]
+          if (answererId) {
+            req.state = state[0]
+          } else {
+            req.state = state
+          }
         }
         
         return next()

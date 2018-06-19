@@ -9,6 +9,20 @@ router.post('/state/:courseid',
   middlewares.getCourseState({
     getAnswererId: req => req.TMCProfile.username,
     getCourseId: req => req.params.courseid,
+    getAllInfo: () => true,
+    getBody: req => req.body
+  }),
+  (req, res, next) => {
+    res.json(req.state)
+  }
+)
+
+router.post('/all/:courseid',
+  authenticationMiddlewares.authorize(),
+  middlewares.getCourseState({
+    getAnswererId: () => undefined,
+    getCourseId: req => req.params.courseid,
+    getAllInfo: req => req.query.allInfo,
     getBody: req => req.body
   }),
   (req, res, next) => {
