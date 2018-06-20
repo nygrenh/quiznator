@@ -105,7 +105,7 @@ function validateAnswer(data, ignoreList = []) {
   return returnObject
 }
 
-function validateProgress(progress, ignoreList = []) {
+function validateProgress(progress) {
   // TODO: better way to toggle ignore between alternatives
   let totalPoints = 0
   let totalMaxPoints = 0
@@ -115,16 +115,19 @@ function validateProgress(progress, ignoreList = []) {
   let answered = []
   let notAnswered = []
   let rejected = []
+  let ignored = []
 
   progress.answered && progress.answered.forEach(entry => {
-    const validatedAnswer = validateAnswer(entry, ignoreList)
-
-
-    if (!_.includes(ignoreList, entry.quiz._id.toString())) {
+    const validatedAnswer = validateAnswer(entry/*, ignoreList*/)
+    
+    if (!_.includes(entry.quiz.tags, 'ignore')) {
+/*     if (!_.includes(ignoreList, entry.quiz._id.toString())) { */
       totalPoints += validatedAnswer.validation.points
       totalMaxPoints += validatedAnswer.validation.maxPoints
       totalCompletedMaxPoints += validatedAnswer.validation.maxPoints
       totalNormalizedPoints += validatedAnswer.validation.normalizedPoints
+    } else {
+      ignored.push(entry.quiz._id.toString())
     }
 
     answered.push(validatedAnswer)
@@ -136,12 +139,14 @@ function validateProgress(progress, ignoreList = []) {
 
     let maxPoints = 0
 
-    if (!_.includes(ignoreList, quiz._id.toString())) {
+    if (!_.includes(entry.quiz.tags, 'ignore')) {
       if (~[quizTypes.RADIO_MATRIX, quizTypes.MULTIPLE_OPEN].indexOf(quiz.type)) {
         maxPoints = items.length
       } else {
         maxPoints = 1
       }
+    } else {
+      ignored.push(entry.quiz._id.toString())
     }
     
     totalMaxPoints += maxPoints
@@ -161,12 +166,14 @@ function validateProgress(progress, ignoreList = []) {
 
     let maxPoints = 0
 
-    if (!_.includes(ignoreList, quiz._id.toString())) {
+    if (!_.includes(entry.quiz.tags, 'ignore')) {
       if (~[quizTypes.RADIO_MATRIX, quizTypes.MULTIPLE_OPEN].indexOf(quiz.type)) {
         maxPoints = items.length
       } else {
         maxPoints = 1
       }
+    } else {
+      ignored.push(entry.quiz._id.toString())
     }
 
     totalMaxPoints += maxPoints
@@ -189,15 +196,17 @@ function validateProgress(progress, ignoreList = []) {
     (progress.answered || []).length + 
     (progress.notAnswered || []).length +
     (progress.rejected || []).length
-    - ignoreList.length
+    - ignored.length 
   const maxCompletedNormalizedPoints = 
     (progress.answered || []).length 
-    - _.intersection((progress.answered || []).map(entry => entry.quiz._id.toString()), ignoreList).length
+    - _.intersection((progress.answered || []).map(entry => entry.quiz._id.toString()), ignored).length
   const confirmedAmount = 
     (progress.answered || []).filter(entry => { 
-      return entry.answer[0].confirmed && !_.includes(ignoreList, entry.quiz._id.toString()) 
+      return entry.answer[0].confirmed && !_.includes(entry.quiz.tags, 'ignore')  
     }).length
-
+  const score = maxNormalizedPoints > 0 ? precise_round(totalNormalizedPoints / maxNormalizedPoints * 100, 2) : 0
+  const pointsPercentage = totalMaxPoints > 0 ? precise_round(totalPoints / totalMaxPoints * 100, 2) : 0
+  
   const progressWithValidation = {
     answered,
     notAnswered,
@@ -210,6 +219,8 @@ function validateProgress(progress, ignoreList = []) {
       normalizedPoints: precise_round(totalNormalizedPoints, 2),
       maxNormalizedPoints,
       maxCompletedNormalizedPoints,
+      score,
+      pointsPercentage,
       progress: precise_round(confirmedAmount / maxNormalizedPoints * 100, 2),
     }
   }

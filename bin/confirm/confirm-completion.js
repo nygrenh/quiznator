@@ -5,7 +5,7 @@ require('app-module-path').addPath(__dirname + '/../../');
 
 require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
 
-const { config } = require('./constants/config')
+const { config } = require('app-modules/constants/course-config')
 const Promise = require('bluebird');
 const _ = require('lodash');
 const mongoose = require('mongoose');
@@ -136,7 +136,7 @@ function getProgressWithValidation(answererId, answers, quizzes) {
   returnObject = Object.assign(
     {}, 
     returnObject, 
-    validateProgress(progress, config.IGNORE_LIST))
+    validateProgress(progress))
 
   return returnObject 
 }

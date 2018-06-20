@@ -2,7 +2,7 @@ require('dotenv').config({ silent: true });
 
 const fetchPonyfill = require('fetch-ponyfill')
 const { fetch } = fetchPonyfill()
-const { config } = require('../../constants/config')
+const { config } = require('app-modules/constants/course-config')
 
 const API_URI = config.API_URI
 

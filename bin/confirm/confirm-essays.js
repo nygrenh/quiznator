@@ -3,7 +3,7 @@ const resolve = require('path').resolve
 require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
 require('app-module-path').addPath(__dirname + '/../../');
 
-const { config, reasons } = require('./constants/config')
+const { config, reasons } = require('app-modules/constants/course-config')
 const Promise = require('bluebird')
 const _ = require('lodash')
 const mongoose = require('mongoose')
