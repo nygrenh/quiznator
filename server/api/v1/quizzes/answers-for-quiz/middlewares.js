@@ -72,7 +72,7 @@ function createQuizAnswerWithValidation(options) {
 
     newQuizAnswer
       .save()
-      .then(() => {
+      .then((newAnswer) => {
         const getQuizzes = Quiz.findAnswerable({ _id: quizId })
         const getPeerReviewsGiven = PeerReview.find({ sourceQuizId: quizId, giverAnswererId: answererId }).exec()
         const getPeerReviewsReceived = PeerReview.find({ sourceQuizId: quizId, targetAnswererId: answererId }).exec()
@@ -92,16 +92,16 @@ function createQuizAnswerWithValidation(options) {
 
             const validatedAnswer = validateAnswer({
               quiz,
-              answer: [newQuizAnswer], // expects [0]
+              answer: [newAnswer], // expects [0]
               peerReviews: peerReviewsReturned
             })
 
-            const extendNewQuizAnswer = Object.assign({}, newQuizAnswer._doc, 
+            const extendNewAnswer = Object.assign({}, newAnswer._doc, 
             {
               peerReviews: validatedAnswer.peerReviews,
               validation: validatedAnswer.validation
             })
-            req.newQuizAnswer = extendNewQuizAnswer
+            req.newQuizAnswer = extendNewAnswer
             /*{ 
               ...newQuizAnswer._doc,
               peerReviews: validatedAnswer.peerReviews,
