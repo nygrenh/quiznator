@@ -18,7 +18,7 @@ function getCourseState(options) {
     const allInfo = options.getAllInfo(req)
     const filter = !allInfo ? {
       answererId: true,
-      "completion.completed": true,
+      "completion.completed": true
     } : undefined
 
     const getState = CourseState.find(query, filter).exec()
@@ -36,6 +36,7 @@ function getCourseState(options) {
         
         return next()
       })
+      .catch(next)
   }
 }
 
@@ -74,6 +75,7 @@ function updateCourseStateAnswer(options) {
 
         return next()
       })
+      
   }
 }
 
