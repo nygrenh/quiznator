@@ -357,12 +357,14 @@ const updateEssays = () => new Promise((resolve, reject) =>
         })
     })
     .then(returned => resolve(returned))
+    .catch(err => reject(err))
 )
 
 updateEssays()
   .then(returned => new Promise((resolve, reject) => 
     updateConfirmations(returned)
       .then(_ => resolve(returned))))
+      .catch(err => reject(err))
   .then(returned => {
     //console.log(JSON.stringify(returned))
     console.log('\ntotal passed/failed/review', returned.passed.length, returned.failed.length, returned.review.length)
@@ -370,7 +372,7 @@ updateEssays()
     //return json
   })
   .catch(err => {
-    console.log(err)
+    console.error('error', err)
     process.exit(1)
     //return err
   })

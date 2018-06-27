@@ -284,12 +284,18 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
         }))
       })
       .then(_ => resolve(completed))
+      .catch(err => reject(err))
   }))
 
 
-getCompleted().then(response => {
-/*   console.log('\n', JSON.stringify(response)) */
-  console.log(response.length + ' completed')
-  process.exit(0)
-})
+getCompleted()
+  .then(response => {
+  /*   console.log('\n', JSON.stringify(response)) */
+    console.log(response.length + ' completed')
+    process.exit(0)
+  })
+  .catch(err => {
+    console.error('error', err)
+    process.exit(1)
+  })
 
