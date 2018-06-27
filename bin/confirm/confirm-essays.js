@@ -40,7 +40,8 @@ _.map(_.range(1, config.PARTS + 1), (part) => {
 
 function updateConfirmations(data) {
   return new Promise((resolve, reject) => {
-    const allData = _.flattenDeep([data.passed, data.failed, data.review])
+    const allData = _.flatten(_.concat(data.passed, data.failed, data.review))
+    
     let count = 0
     let percentage = 0
     let percentagesShown = []
@@ -48,8 +49,8 @@ function updateConfirmations(data) {
     return Promise.all(allData.map(entry => {
   /*       const answer = entry.answer[0] */
       const { quizId, answererId } = entry
-      
-      const answerId = entry.answer[0]._id
+
+      const answerId = entry.answer._id // [0]._id
 
       return QuizAnswer.findById(answerId)
         .then(answer => {
@@ -106,21 +107,25 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
   const essaysForAnswerer = _.groupBy(essayIds.map(quizId => {
     const answersForQuiz = answers.get(quizId.toString()) || []
 
-    let answer = answersForQuiz
+    if (answersForQuiz.length === 0) {
+      return
+    }
 
-    if (answersForQuiz.length > 0) {
-      let newestDate = 0
-    
+    let answer = _.get(answersForQuiz, 0, null)
+    let newestDate = answer ? answer.updatedAt : 0
+
+    if (answersForQuiz.length > 1) {
       answersForQuiz.forEach(answerForQuiz => {
         if (answerForQuiz.updatedAt > newestDate) {
-          answer = [answerForQuiz] // expecting [0]...
+          answer = answerForQuiz // [] ? // expecting [0]...
           newestDate = answerForQuiz.updatedAt
         } 
       })
-      latestAnswerDate = Math.max(newestDate, latestAnswerDate)
     }
 
-    if (!answer || (!!answer && answer.length === 0)) {
+    latestAnswerDate = Math.max(newestDate, latestAnswerDate)
+
+    if (!answer) { // || (!!answer && answer.length === 0)) {
       return
     }
 
@@ -132,7 +137,7 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
     const given = !!peerReviewsGiven ? (peerReviewsGiven.get(quizId.toString()) || []) : []
     const received = !!peerReviewsReceived ? (peerReviewsReceived.get(quizId.toString()) || []) : []
 
-    const spamFlags = answer[0].spamFlags
+    const spamFlags = answer.spamFlags // [0].spamFlags
     
 /*     if ((given.length < config.MINIMUM_PEER_REVIEWS_GIVEN || 
         received.length < config.MINIMUM_PEER_REVIEWS_GIVEN)) {  
@@ -160,15 +165,15 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
 
     const pass = given.length >= config.MINIMUM_PEER_REVIEWS_GIVEN && 
                 received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED && // averageGrade >= 12
-                sadFacePercentage < config.MAXIMUM_SADFACE_PERCENTAGE
-                && spamFlags <= config.MAXIMUM_SPAM_FLAGS_TO_PASS
+                sadFacePercentage < config.MAXIMUM_SADFACE_PERCENTAGE &&
+                spamFlags <= config.MAXIMUM_SPAM_FLAGS_TO_PASS
 
     let fail = false
     let reason = ''
 
     if (received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED &&
         sadFacePercentage >= config.MAXIMUM_SADFACE_PERCENTAGE) {
-      fail = true,
+      fail = true
       reason = reasons.TOO_MANY_SADFACES
     }
     if (spamFlags >= config.MINIMUM_SPAM_FLAGS_TO_FAIL) {
@@ -205,9 +210,14 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
 
     return reviewObject
 
-  }).filter(v => !!v), entry => 
-    entry.pass ? 'pass'
-      : (entry.review ? 'review' : 'fail'))  
+  }).filter(v => !!v), entry => {
+    // just to make sure 
+    if (entry.pass) { return 'pass' }
+    if (entry.fail) { return 'fail' }
+    return 'review'
+  })
+/*     entry.pass ? 'pass'
+      : (entry.review ? 'review' : 'fail')) */  
 
   return essaysForAnswerer
 }
@@ -280,14 +290,19 @@ const updateEssays = () => new Promise((resolve, reject) =>
           const essayIds = essays.map(quiz => quiz._id)
 
           const getAnswers = QuizAnswer.aggregate([
-            { $match: {
+            { 
+              $match: {
               quizId: { $in: essayIds },
               confirmed: false,
               rejected: false,
               $or: [
-                { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED} },
+                { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED } },
                 { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
-              ]} },
+              ]} 
+            },
+            { 
+              $sort: { createdAt: -1 } 
+            }
           //{ $sample: { size: 100 } }
           ]).exec()
 
@@ -303,7 +318,11 @@ const updateEssays = () => new Promise((resolve, reject) =>
             
               console.log('In total, there are', answererIds.length, 'answerers and', answerQuizIds.length, 'essays to check.')
 
-              const { answersForAnswerer, peerReviewsGivenForAnswerer, peerReviewsReceivedForAnswerer } = initMaps({ answers, peerReviews })
+              const { 
+                answersForAnswerer, 
+                peerReviewsGivenForAnswerer, 
+                peerReviewsReceivedForAnswerer } = 
+              initMaps({ answers, peerReviews })
 
               const gradedEssays = answererIds.map(answererId => {
                 counter += 1
@@ -321,11 +340,11 @@ const updateEssays = () => new Promise((resolve, reject) =>
               
                 return essaysForAnswerer
               }).filter(v => !!v) //, essays => answererId) // groupBy
-
+              
               const returned = {
-                passed: gradedEssays.filter(v => !!v.pass).map(essay => essay.pass),
-                failed: gradedEssays.filter(v => !!v.fail).map(essay => essay.fail),
-                review: gradedEssays.filter(v => !!v.review).map(essay => essay.review)
+                passed: gradedEssays.filter(v => v.pass).map(essay => essay.pass),
+                failed: gradedEssays.filter(v => v.fail).map(essay => essay.fail),
+                review: gradedEssays.filter(v => v.review).map(essay => essay.review)
               }
             
               //console.log(JSON.stringify(returned))

@@ -117,6 +117,7 @@ function getProgressWithValidation(options) {
     const getPeerReviewsReceived = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
 
     let essaysAwaitingPeerReviewsGiven = []
+    let essaysAwaitingConfirmation = []
     let rejected = []
 
     return Promise.all([getQuizzes, getAnswers, getPeerReviewsGiven, getPeerReviewsReceived])
@@ -128,27 +129,35 @@ function getProgressWithValidation(options) {
 
           let peerReviewsReturned = {}
           
-          if (quiz.type === quizTypes.ESSAY && peerReviews) {
-            const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
-            const received = answer.length > 0 
-              ? peerReviewsReceived.filter(pr => 
-                  pr.sourceQuizId.equals(quiz._id) &&
-                  pr.chosenQuizAnswerId.equals(answer[0]._id)) 
-              : []
-            
-            peerReviewsReturned = {
-              given,
-              received
+          if (quiz.type === quizTypes.ESSAY) { 
+            if (peerReviews){
+              const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
+              const received = answer.length > 0 
+                ? peerReviewsReceived.filter(pr => 
+                    pr.sourceQuizId.equals(quiz._id) &&
+                    pr.chosenQuizAnswerId.equals(answer[0]._id)) 
+                : []
+              
+              peerReviewsReturned = {
+                given,
+                received
+              }
+
+              if (given.length < peerReviewsRequiredGiven && answer.length > 0)  {
+                essaysAwaitingPeerReviewsGiven.push(quiz._id)
+              }
             }
 
-            if (given.length < peerReviewsRequiredGiven && answer.length > 0)  {
-              essaysAwaitingPeerReviewsGiven.push(quiz._id)
-            }
-            if (answer.length > 0 && answer[0].rejected) {
-              rejected.push({
-                quizId: quiz._id,
-                answer: answer[0]
-              })
+            if (answer.length > 0) {
+              if (answer[0].rejected) {
+                rejected.push({
+                  quizId: quiz._id,
+                  answer: answer[0]
+                })
+              }
+              if (!answer[0].rejected && !answer[0].confirmed) {
+                essaysAwaitingConfirmation.push(quiz._id)
+              }
             }
           }
 
@@ -191,6 +200,7 @@ function getProgressWithValidation(options) {
               answererId,
               courseState: courseState || {},
               essaysAwaitingPeerReviewsGiven,
+              essaysAwaitingConfirmation,
               rejected
             }
 
