@@ -147,25 +147,36 @@ function updateCompletion(answererId, data) {
       data.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
       data.score >= config.MINIMUM_SCORE_TO_PASS
 
-    CourseState.findOneAndUpdate(
+    CourseState.findOne( // andupdate
       { answererId,
-        courseId: config.COURSE_ID,
-        'completion.confirmationSent': false },
-      { 
-        $set: { 
-          completion: { 
-            data, 
-            completed,
-            confirmationSent: false
-          } 
-        },
-      },
-      { new: true, upsert: true } 
-    ).exec()
-    // TODO: actually check if already set
-    // - confirmationSent/date/whatever...
-    // - don't update if confirmation already sent?
-      .then(state => resolve(state))
+        courseId: config.COURSE_ID
+      }
+    ).then(courseState => {
+      let completionData = {
+        data,
+        completed,
+        confirmationSent: false
+      }
+
+      if (!courseState) {
+        newCourseState = CourseState({ 
+          answererId,
+          courseId: config.COURSE_ID,
+          completion: completionData
+        })
+        return newCourseState.save()
+      } else if (!!courseState && 
+        !!courseState.completion && 
+        !courseState.completion.confirmationSent) {
+
+          courseState.completion = completionData
+
+          return courseState.save()
+      }
+
+      return courseState
+    })
+    .then(state => resolve(state))
   })
 }
 
