@@ -299,3 +299,5 @@ getCompleted()
     process.exit(1)
   })
 
+setInterval(() => {}, 600000000)
+

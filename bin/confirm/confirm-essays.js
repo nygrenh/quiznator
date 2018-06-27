@@ -368,13 +368,14 @@ updateEssays()
   .then(returned => {
     //console.log(JSON.stringify(returned))
     console.log('\ntotal passed/failed/review', returned.passed.length, returned.failed.length, returned.review.length)
-    process.exit(0)
+    //process.exit(0)
     //return json
   })
   .catch(err => {
     console.error('error', err)
     process.exit(1)
-    //return err
+    //return err)
   })
 
+setInterval(() => {}, 600000000)
 
