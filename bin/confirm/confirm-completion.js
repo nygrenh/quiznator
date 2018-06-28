@@ -253,6 +253,8 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
               normalizedPoints: entry.validation.normalizedPoints,
               confirmed: entry.answer[0].confirmed,
               rejected: entry.answer[0].rejected,
+              peerReviewCount: entry.answer[0].peerReviewCount,
+              spamFlags: entry.answer[0].spamFlags,
               type: entry.quiz.type
             })
           })

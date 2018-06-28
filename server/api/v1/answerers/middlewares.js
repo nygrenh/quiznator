@@ -188,6 +188,7 @@ function getProgressWithValidation(options) {
             peerReviews: peerReviewsReturned
           } 
 
+          //console.log('and will return', returnObject)
           return returnObject
         }), entry => {
           return entry.answer && entry.answer[0].rejected ? 'rejected' :
