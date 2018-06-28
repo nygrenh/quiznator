@@ -151,8 +151,13 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
     // (or, as it is now, median)
 
     const grades = _.sortBy(received.map(review => ({ sum: _.sum(_.values(review.grading)), grading: review.grading })), ['sum'])    
-    const medianGrade = median(grades.map(grade => grade.sum))
-    const filteredAverageGrades = grades.filter(grade => grade.sum >= (config.GRADE_CUTOFF_POINT * medianGrade))
+    let filteredAverageGrades = grades
+    
+    // no use calculating the median from less than three 
+    if (config.MINIMUM_PEER_REVIEWS_RECEIVED >= 3) {
+      const medianGrade = median(grades.map(grade => grade.sum))
+      filteredAverageGrades = grades.filter(grade => grade.sum >= (config.GRADE_CUTOFF_POINT * medianGrade))
+    }
 
     // hard coded: expects 4 questions on a scale of 1-5...
     const sadFacePercentage = _.mean(filteredAverageGrades.map(grade => 
@@ -377,5 +382,5 @@ updateEssays()
     //return err)
   })
 
-setInterval(() => {}, 600000000)
+setInterval(() => {}, 60000)
 
