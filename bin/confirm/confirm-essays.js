@@ -382,5 +382,5 @@ updateEssays()
     //return err)
   })
 
-setInterval(() => {}, 60000)
+setInterval(() => {}, 1000)
 

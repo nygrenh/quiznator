@@ -301,5 +301,5 @@ getCompleted()
     process.exit(1)
   })
 
-setInterval(() => {}, 60000)
+setInterval(() => {}, 1000)
 
