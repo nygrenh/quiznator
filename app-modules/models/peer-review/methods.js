@@ -4,18 +4,31 @@ const errors = require('app-modules/errors');
 
 module.exports = schema => {
   schema.statics.findPeerReviewsForAnswerer = function(options) {
+    // find peer reviews for given quiz and given answerer as giver
     return this.find({ quizId: options.quizId, giverAnswererId: options.answererId }, { _id: 0, chosenQuizAnswerId: 1 })
+      // return chosen quiz answerids
+      // map received answerids to objectid
       .then(reviews => reviews.map(review => mongoose.Types.ObjectId(review.chosenQuizAnswerId.toString())))
       .then(chosenQuizAnswerIds => {
+        // query for given quizid, NOT current answererid and NOT IN already reviewed ids, NOT confirmed/rejected
         const query = { 
           quizId: mongoose.Types.ObjectId(options.quizId.toString()), 
-          answererId: { $ne: options.answererId }, _id: { $nin: chosenQuizAnswerIds }, 
-          rejected: false,
-          confirmed: false
+          answererId: { $ne: options.answererId }, 
+          _id: { $nin: chosenQuizAnswerIds }, 
+/*           rejected: false,
+          confirmed: false */
         };
 
-        return mongoose.models.QuizAnswer.findDistinctlyByAnswerer(query, { limit: options.limit + 20, skip: options.skip, sort: { peerReviewCount: 1 } })
+        // get limit + 20 quiz answers by query, sorted by peer review count ascending
+        return mongoose.models.QuizAnswer.findDistinctlyByAnswerer(query, 
+          { 
+            limit: options.limit + 20, 
+            skip: options.skip, 
+            sort: { peerReviewCount: 1 } 
+          })
           .then(reviews => _.sampleSize(reviews, options.limit));
+
+        // TODO: get reviewable from those from required -1 
       });
   }
 

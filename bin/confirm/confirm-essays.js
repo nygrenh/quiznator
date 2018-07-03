@@ -23,7 +23,13 @@ const sleep = require("sleep")
 
 sleep.sleep(5)
 
-mongoose.connect(config.DB_URI, err => {
+mongoose.connect(config.DB_URI, {
+  useMongoClient: true
+})
+
+var db = mongoose.connection
+
+db.on('error', err => {
   if (err) {
     console.log(err)
     process.exit(1)
@@ -37,6 +43,73 @@ _.map(_.range(1, config.PARTS + 1), (part) => {
     tags.push(`${config.COURSE_SHORT_ID}_${part}_${section}`)
   })
 })
+
+// utility function to create multi-dimensional maps for answerers
+function initMaps({ answers, peerReviews, reviewAnswers }) {
+  function setValue({ outerMap, outerMapKey, innerMapKey, value }) {
+    if (!outerMap.has(outerMapKey)) {
+      outerMap.set(outerMapKey, new Map())
+    }
+    if (!outerMap.get(outerMapKey).has(innerMapKey)) {
+      outerMap.get(outerMapKey).set(innerMapKey, [])
+    }
+    let newValues = outerMap.get(outerMapKey).get(innerMapKey)
+    newValues.push(value)
+    outerMap.get(outerMapKey).set(innerMapKey, newValues)
+  }
+
+  let answersForAnswerer = new Map()
+
+  answers.forEach(answer => {
+    setValue({ 
+      outerMap: answersForAnswerer, 
+      outerMapKey: answer.answererId, 
+      innerMapKey: answer.quizId.toString(),
+      value: answer
+    })
+  })
+
+  let peerReviewsGivenForAnswerer = new Map()
+  let peerReviewsReceivedForAnswerer = new Map()
+
+  peerReviews.forEach(review => {
+    setValue({ 
+      outerMap: peerReviewsGivenForAnswerer, 
+      outerMapKey: review.giverAnswererId, 
+      innerMapKey: review.sourceQuizId.toString(),
+      value: review
+    })
+    setValue({ 
+      outerMap: peerReviewsReceivedForAnswerer, 
+      outerMapKey: review.targetAnswererId, 
+      // specific quiz:
+      //innerMapKey: review.sourceQuizId.toString(),
+      // specific answer:
+      innerMapKey: review.chosenQuizAnswerId.toString(),
+      value: review
+    })
+  })
+
+  let reviewAnswersForAnswerer = new Map()
+
+  reviewAnswers.forEach(reviewAnswer => {
+    setValue({
+      outerMap: reviewAnswersForAnswerer,
+      outerMapKey: reviewAnswer.answererId,
+      innerMapKey: reviewAnswer.quizId.toString(),
+      value: reviewAnswer
+    })
+  })
+
+  return {
+    answersForAnswerer,
+    peerReviewsGivenForAnswerer,
+    peerReviewsReceivedForAnswerer,
+    reviewAnswersForAnswerer
+  }
+}
+
+/////
 
 function updateConfirmations(data) {
   return new Promise((resolve, reject) => {
@@ -60,6 +133,7 @@ function updateConfirmations(data) {
         })
         .then(savedAnswer => {
           //console.log(savedAnswer)
+          //console.log('entry', entry)
           const data = {
             quizId,
             answerId,
@@ -101,7 +175,7 @@ function updateConfirmations(data) {
   })
 }
 
-function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven, peerReviewsReceived }) {
+function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven, peerReviewsReceived, reviewAnswers }) {
   let latestAnswerDate = 0
 
   const essaysForAnswerer = _.groupBy(essayIds.map(quizId => {
@@ -112,15 +186,19 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
     }
 
     let answer = _.get(answersForQuiz, 0, null)
-    let newestDate = answer ? answer.updatedAt : 0
+    let newestDate = answer ? answer.createdAt : 0
 
     if (answersForQuiz.length > 1) {
       answersForQuiz.forEach(answerForQuiz => {
-        if (answerForQuiz.updatedAt > newestDate) {
+        if (answerForQuiz.createdAt > newestDate) {
           answer = answerForQuiz // [] ? // expecting [0]...
-          newestDate = answerForQuiz.updatedAt
+          newestDate = answerForQuiz.createdAt
         } 
       })
+
+/*       console.log(answererId, `had ${answersForQuiz.length} answers for ${quizId}`)
+      answersForQuiz.forEach(a => console.log(a.createdAt))
+      console.log('I was wise enough to pick', answer.createdAt) */
     }
 
     latestAnswerDate = Math.max(newestDate, latestAnswerDate)
@@ -129,23 +207,13 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
       return
     }
 
-    // this was too strict and chucked out spam
-  /*     if (!peerReviewsGiven || !peerReviewsReceived || (!answer || (!!answer && answer.length === 0))) {
-      return
-    } */
-
     const given = !!peerReviewsGiven ? (peerReviewsGiven.get(quizId.toString()) || []) : []
-    const received = !!peerReviewsReceived ? (peerReviewsReceived.get(quizId.toString()) || []) : []
+    // only specific quiz:
+    //const received = !!peerReviewsReceived ? (peerReviewsReceived.get(quizId.toString()) || []) : []
+    // specific answer:
+    const received = !!peerReviewsReceived ? (peerReviewsReceived.get(answer._id.toString()) || []) : []
 
     const spamFlags = answer.spamFlags // [0].spamFlags
-    
-/*     if ((given.length < config.MINIMUM_PEER_REVIEWS_GIVEN || 
-        received.length < config.MINIMUM_PEER_REVIEWS_GIVEN)) {  
-      //        spamFlags <= config.MINIMUM_SPAM_FLAGS_TO_FAIL) {
-      //console.log('too few peer reviews: ', answer)
-      return
-    } */
-
     
     // don't take sad faces into account if the review is < GRADE_CUTOFF_POINT times average grade
     // (or, as it is now, median)
@@ -168,7 +236,7 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
         grade => grade.sum
       )) / 20 * 100 : 0 
 
-    const pass = given.length >= config.MINIMUM_PEER_REVIEWS_GIVEN && 
+    let pass = given.length >= config.MINIMUM_PEER_REVIEWS_GIVEN && 
                 received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED && // averageGrade >= 12
                 sadFacePercentage < config.MAXIMUM_SADFACE_PERCENTAGE &&
                 spamFlags <= config.MAXIMUM_SPAM_FLAGS_TO_PASS
@@ -179,14 +247,14 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
     if (received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED &&
         sadFacePercentage >= config.MAXIMUM_SADFACE_PERCENTAGE) {
       fail = true
-      reason = reasons.TOO_MANY_SADFACES
+      reason = reasons.REJECT_TOO_MANY_SADFACES
     }
     if (spamFlags >= config.MINIMUM_SPAM_FLAGS_TO_FAIL) {
       fail = true
-      reason = reasons.FLAGGED_AS_SPAM
+      reason = reasons.REJECT_FLAGGED_AS_SPAM
     }
 
-    const review = !pass && !fail 
+    let review = !pass && !fail 
 
     // not spam but not enough reviews? let's ignore it
     if (review && 
@@ -194,7 +262,46 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
       received.length < config.MINIMUM_PEER_REVIEWS_RECEIVED)) {
       return
     }
-    
+
+    const reviewAnswerForAnswer = reviewAnswers ? 
+      _.get((reviewAnswers.get(quizId.toString()) || []).filter(r => r.answerId === answer._id.toString()), 0, null)
+      : null
+    const status = _.get(reviewAnswerForAnswer, 'status', {})
+
+    // state manually set? let's not override it
+    if ((answer.confirmed || status.pass) && !pass) {
+      pass = true
+      review = false
+      fail = false
+      reason = reasons.PASS_BY_REVIEWER
+    } else if ((answer.rejected || status.fail) && !fail) {
+      pass = false
+      review = false
+      fail = true
+      reason = reasons.REJECT_BY_REVIEWER
+    } 
+
+    if (reviewAnswerForAnswer) {
+      // ignore if 
+      //   passing and confirmed equal
+        if ((status.pass === pass && status.pass === answer.confirmed) && 
+        //   review statuses equal
+          (status.review === review && 
+            // if review is true, neither confirmed nor rejected is set
+            ((status.review && !answer.confirmed && !answer.rejected) ||
+            // if review is false, exactly one of confirmed and rejected are set
+            (!status.review && (
+              (answer.confirmed && !answer.rejected) ||
+              (!answer.confirmed && answer.rejected)
+            )))
+          ) && 
+            //   rejected and fail equal
+          (status.rejected === fail && status.rejected === answer.rejected)) {
+          // let's not update if not anything to update
+          return
+        }
+    }
+
     const reviewObject = {
       answererId,
       quizId: quizId,
@@ -227,54 +334,6 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
   return essaysForAnswerer
 }
 
-function initMaps({ answers, peerReviews }) {
-  function setValue({ outerMap, outerMapKey, innerMapKey, value }) {
-    if (!outerMap.has(outerMapKey)) {
-      outerMap.set(outerMapKey, new Map())
-    }
-    if (!outerMap.get(outerMapKey).has(innerMapKey)) {
-      outerMap.get(outerMapKey).set(innerMapKey, [])
-    }
-    let newValues = outerMap.get(outerMapKey).get(innerMapKey)
-    newValues.push(value)
-    outerMap.get(outerMapKey).set(innerMapKey, newValues)
-  }
-
-  let answersForAnswerer = new Map()
-
-  answers.forEach(answer => {
-    setValue({ 
-      outerMap: answersForAnswerer, 
-      outerMapKey: answer.answererId, 
-      innerMapKey: answer.quizId.toString(),
-      value: answer
-    })
-  })
-
-  let peerReviewsGivenForAnswerer = new Map()
-  let peerReviewsReceivedForAnswerer = new Map()
-
-  peerReviews.forEach(review => {
-    setValue({ 
-      outerMap: peerReviewsGivenForAnswerer, 
-      outerMapKey: review.giverAnswererId, 
-      innerMapKey: review.sourceQuizId.toString(),
-      value: review
-    })
-    setValue({ 
-      outerMap: peerReviewsReceivedForAnswerer, 
-      outerMapKey: review.targetAnswererId, 
-      innerMapKey: review.sourceQuizId.toString(),
-      value: review
-    })
-  })
-
-  return {
-    answersForAnswerer,
-    peerReviewsGivenForAnswerer,
-    peerReviewsReceivedForAnswerer
-  }
-}
 
 const updateEssays = () => new Promise((resolve, reject) => 
   fetchQuizIds(tags)
@@ -297,49 +356,63 @@ const updateEssays = () => new Promise((resolve, reject) =>
           const getAnswers = QuizAnswer.aggregate([
             { 
               $match: {
-              quizId: { $in: essayIds },
-              confirmed: false,
-              rejected: false,
-              $or: [
-                { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED } },
-                { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
-              ]} 
+                quizId: { $in: essayIds },
+                //confirmed: false,
+                //rejected: false,
+                $or: [
+                  { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED } },
+                  { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
+                ]
+              } 
             },
             { 
               $sort: { createdAt: -1 } 
             }
-          //{ $sample: { size: 100 } }
+            //{ $sample: { size: 100 } }
           ]).exec()
+
+          const getReviewAnswers = QuizReviewAnswer.aggregate([
+            {
+              $sort: { createdAt: -1 }
+            }
+          ])
 
           const getPeerReviews = PeerReview.find({ 
             sourceQuizId: { $in: essayIds }, 
           }).exec() 
     
-          return Promise.all([getAnswers, getPeerReviews])
-            .spread((answers, peerReviews) => {
+          return Promise.all([getAnswers, getPeerReviews, getReviewAnswers])
+            .spread((answers, peerReviews, reviewAnswers) => {
             
               const answerQuizIds = answers.map(answer => answer.quizId.toString());
               const answererIds = _.uniq(answers.map(answer => answer.answererId))
             
-              console.log('In total, there are', answererIds.length, 'answerers and', answerQuizIds.length, 'essays to check.')
-
               const { 
                 answersForAnswerer, 
                 peerReviewsGivenForAnswerer, 
-                peerReviewsReceivedForAnswerer } = 
-              initMaps({ answers, peerReviews })
+                peerReviewsReceivedForAnswerer,
+                reviewAnswersForAnswerer } = 
+              initMaps({ answers, peerReviews, reviewAnswers })
+
+              const totalAnswers = _.sum(answererIds.map(answererId => 
+                answersForAnswerer.get(answererId).size))
+
+              console.log('In total, there are', answersForAnswerer.size, 'answerers and', totalAnswers, 'essays to check.')
+              //console.log('In total, there are', answererIds.length, 'answerers and', answerQuizIds.length, 'essays to check.')
 
               const gradedEssays = answererIds.map(answererId => {
                 counter += 1
 /*                 if (counter % 100 === 0) {
                   console.log('At answerer #', counter)
-                } */
+                } 
+*/
 
                 const essaysForAnswerer = getEssaysForAnswerer({ 
                   answers: answersForAnswerer.get(answererId),
                   essayIds,
                   peerReviewsGiven: peerReviewsGivenForAnswerer.get(answererId),
                   peerReviewsReceived: peerReviewsReceivedForAnswerer.get(answererId),
+                  reviewAnswers: reviewAnswersForAnswerer.get(answererId),
                   answererId
                 })
               
@@ -368,8 +441,8 @@ const updateEssays = () => new Promise((resolve, reject) =>
 updateEssays()
   .then(returned => new Promise((resolve, reject) => 
     updateConfirmations(returned)
-      .then(_ => resolve(returned))))
-      .catch(err => reject(err))
+      .then(_ => resolve(returned))
+      .catch(err => reject(err))))
   .then(returned => {
     //console.log(JSON.stringify(returned))
     console.log('\ntotal passed/failed/review', returned.passed.length, returned.failed.length, returned.review.length)

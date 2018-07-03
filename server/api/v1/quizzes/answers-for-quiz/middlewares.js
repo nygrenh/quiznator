@@ -1,5 +1,6 @@
 const Promise = require('bluebird');
 const pick = require('lodash.pick');
+const _ = require('lodash')
 
 const quizTypes = require('app-modules/constants/quiz-types');
 const { precise_round} = require('app-modules/utils/math-utils')
@@ -99,8 +100,12 @@ function createQuizAnswerWithValidation(options) {
             const extendNewAnswer = Object.assign({}, newAnswer._doc, 
             {
               peerReviews: validatedAnswer.peerReviews,
-              validation: validatedAnswer.validation
+              validation: 
+                Object.assign({}, validatedAnswer.validation,
+                  { rightAnswer: _.get(quiz, 'data.meta.rightAnswer', undefined) }
+                )
             })
+
             req.newQuizAnswer = extendNewAnswer
             /*{ 
               ...newQuizAnswer._doc,

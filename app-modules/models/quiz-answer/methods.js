@@ -1,6 +1,7 @@
 const QuizAnswerSpamFlag = require('./quiz-answer-spam-flag');
 const mongoose = require('mongoose');
 const _ = require('lodash')
+const Promise = require('bluebird')
 
 module.exports = schema => {
 
@@ -37,7 +38,16 @@ module.exports = schema => {
     let pipeline = [
       { $match: query },
       { $sort: { createdAt: - 1 } },
-      { $group: { _id: '$answererId', data: { $first: '$data' }, quizId: { $first: '$quizId' }, answerId: { $first: '$_id' }, createdAt: { $first: '$createdAt' }, peerReviewCount: { $first: '$peerReviewCount' } } },
+      { $group: { 
+        _id: '$answererId', 
+        data: { $first: '$data' }, 
+        quizId: { $first: '$quizId' }, 
+        answerId: { $first: '$_id' }, 
+        createdAt: { $first: '$createdAt' }, 
+        confirmed: { $first: '$confirmed' }, //
+        rejected: { $first: '$rejected' },  //
+        peerReviewCount: { $first: '$peerReviewCount' } 
+      } },
       options.sort ? { $sort: options.sort } : null,
       options.skip ? { $skip: options.skip } : null,
       options.limit ? { $limit: options.limit } : null
@@ -45,8 +55,57 @@ module.exports = schema => {
 
     return this.aggregate(pipeline)
       .then(data => {
-        return data.map(doc => ({ _id: doc.answerId, answererId: doc._id, data: doc.data, quizId: doc.quizId, createdAt: doc.createdAt, peerReviewCount: doc.peerReviewCount }));
-      });
+        return this.aggregate([
+          {
+            $match: { 
+              answererId: { $in: data.map(doc => doc._id) },
+              quizId: { $in: _.uniq(data.map(doc => doc.quizId)) }
+            }
+          },
+          { 
+            $sort: {
+              createdAt: -1
+            }
+          },
+          { 
+            $group: {
+              _id: "$answererId",
+              confirmed: { $first: '$confirmed' },
+              rejected: { $first: '$rejected' }
+            }
+          }
+        ]).exec()
+          .then(answers => {
+            return data
+              .filter(doc => {
+                const filtered = answers
+                  .filter(answer => answer._id === doc._id)
+                if (filtered.length === 0) {
+                  return true // this should never happen
+                }
+                if (filtered[0].confirmed || filtered[0].rejected) {
+                  /* the newest answer for this user for
+                    this quiz has been confirmed/rejected, don't
+                    offer this or other 
+                  */
+                  return false
+                }
+
+                return true
+              })
+          })
+        })
+      .then(data => {
+        return data
+          .map(doc => ({ 
+            _id: doc.answerId, 
+            answererId: doc._id, 
+            data: doc.data, 
+            quizId: doc.quizId, 
+            createdAt: doc.createdAt, 
+            peerReviewCount: doc.peerReviewCount 
+          }))
+      })
   }
 
   schema.statics.getLatestDistinctAnswer = function(answererId, quizzes, options = {}) {

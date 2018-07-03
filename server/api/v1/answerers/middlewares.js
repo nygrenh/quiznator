@@ -101,10 +101,10 @@ function getProgressWithValidation(options) {
 
     const body = options.getBody(req)
     
-    const quizzes = body.quizzes || true
-    const answers = body.answers || false
-    const peerReviews = body.peerReviews || false
-    const validation = body.validation && !body.stripAnswers || false
+    const fetchQuizzes = body.quizzes || true
+    const fetchAnswers = body.answers || false
+    const fetchPeerReviews = body.peerReviews || false
+    const fetchValidation = body.validation && !body.stripAnswers || false
     const stripAnswers = body.stripAnswers || false
     const peerReviewsRequiredGiven = body.peerReviewsRequiredGiven || 0
     const courseId = body.courseId || ''
@@ -112,9 +112,9 @@ function getProgressWithValidation(options) {
     let quizIds = body.quizIds
     
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
-    const getAnswers = answers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).sort({ updatedAt: - 1 }).exec() : new Promise((resolve) => resolve([]))
-    const getPeerReviewsGiven = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
-    const getPeerReviewsReceived = peerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
+    const getAnswers = fetchAnswers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).sort({ createdAt: - 1 }).exec() : new Promise((resolve) => resolve([]))
+    const getPeerReviewsGiven = fetchPeerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
+    const getPeerReviewsReceived = fetchPeerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
 
     let essaysAwaitingPeerReviewsGiven = []
     let essaysAwaitingConfirmation = []
@@ -130,7 +130,7 @@ function getProgressWithValidation(options) {
           let peerReviewsReturned = {}
           
           if (quiz.type === quizTypes.ESSAY) { 
-            if (peerReviews){
+            if (fetchPeerReviews){
               const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
               const received = answer.length > 0 
                 ? peerReviewsReceived.filter(pr => 
@@ -174,7 +174,7 @@ function getProgressWithValidation(options) {
             })
             const newQuiz = Object.assign({}, quiz._doc, 
               { data: {
-                meta: docMeta
+                meta: newQuizMeta
               }}
             )
             returnedQuiz = newQuiz
@@ -205,7 +205,7 @@ function getProgressWithValidation(options) {
               rejected
             }
 
-            if (validation) {
+            if (fetchValidation) {
               returnObject = Object.assign({}, returnObject, validateProgress(progress))
             } else {
               returnObject = Object.assign({}, returnObject, { 
@@ -214,6 +214,12 @@ function getProgressWithValidation(options) {
               })
             }
 
+            /* 
+              TODO: 
+                - change to return answers as one array
+                - answered/not answered/rejected as arrays of quizids (like the essay ones now)
+                - update validateprogress and others that are reliant on this structure
+            */
             req.validation = returnObject
 
             return next()

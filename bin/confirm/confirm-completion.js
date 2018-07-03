@@ -28,15 +28,20 @@ const sleep = require("sleep")
 sleep.sleep(5)
 
 
-mongoose.connect(config.DB_URI, err => {
+mongoose.connect(config.DB_URI, {
+  useMongoClient: true
+})
+
+var db = mongoose.connection
+
+db.on('error', err => {
   if (err) {
-    console.error(err)
+    console.log(err)
     process.exit(1)
   }
 })
 
 let tags = []
-let doubleCount = 0
 
 _.map(_.range(1, config.PARTS + 1), (part) => {
   _.map(_.range(1, config.SECTIONS_PER_PART + 1), (section) => {
@@ -81,7 +86,7 @@ function getProgressWithValidation(answererId, answers, quizzes) {
       let newestDate = 0
   
       //answer = [answersForQuiz[0]] // still expecting an array
-      newestDate = answer[0].updatedAt
+      newestDate = answer[0].createdAt
 
       // answers now come sorted by date from backend
 

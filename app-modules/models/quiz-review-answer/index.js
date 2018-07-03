@@ -8,7 +8,7 @@ const schema = new mongoose.Schema({
     pass: { type: mongoose.Schema.Types.Boolean, required: false }, 
     review: { type: mongoose.Schema.Types.Boolean, required: false },
     rejected: { type: mongoose.Schema.Types.Boolean, required: false },
-    reason: { type: mongoose.Schema.Types.String, required: false }
+    reason: { type: String, required: false }
   },
   data: { type: mongoose.Schema.Types.Mixed, required: true },
 })
