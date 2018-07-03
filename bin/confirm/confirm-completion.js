@@ -289,17 +289,19 @@ const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
       .catch(err => reject(err))
   }))
 
+setTimeout(() => {
+  getCompleted()
+    .then(response => {
+    /*   console.log('\n', JSON.stringify(response)) */
+      console.log(response.length + ' completed')
+      // process.exit(0)
+    })
+    .catch(err => {
+      console.error('error', err)
+      process.exit(1)
+    })
+}, 2000)
 
-getCompleted()
-  .then(response => {
-  /*   console.log('\n', JSON.stringify(response)) */
-    console.log(response.length + ' completed')
-    // process.exit(0)
-  })
-  .catch(err => {
-    console.error('error', err)
-    process.exit(1)
-  })
 
 setInterval(() => {}, 1000)
 
