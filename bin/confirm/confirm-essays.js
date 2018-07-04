@@ -257,6 +257,8 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
     let review = !pass && !fail 
 
     // not spam but not enough reviews? let's ignore it
+    // TODO: this means confirmed/rejected under limits
+    // won't be updated - a corner case but a case nonetheless
     if (review && 
       (given.length < config.MINIMUM_PEER_REVIEWS_GIVEN ||
       received.length < config.MINIMUM_PEER_REVIEWS_RECEIVED)) {

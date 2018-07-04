@@ -56,8 +56,6 @@ function updateQuizReviewAnswerStatus() {
       const { status } = req.body
       const { id } = req.params
 
-      console.log(status, id)
-
       const reviewAnswer = yield QuizReviewAnswer.findOne({ answerId: id })
 
       if (!reviewAnswer) {

@@ -10,7 +10,7 @@ module.exports = schema => {
       // map received answerids to objectid
       .then(reviews => reviews.map(review => mongoose.Types.ObjectId(review.chosenQuizAnswerId.toString())))
       .then(chosenQuizAnswerIds => {
-        // query for given quizid, NOT current answererid and NOT IN already reviewed ids, NOT confirmed/rejected
+        // query for given quizid, NOT current answererid and NOT IN already reviewed ids
         const query = { 
           quizId: mongoose.Types.ObjectId(options.quizId.toString()), 
           answererId: { $ne: options.answererId }, 

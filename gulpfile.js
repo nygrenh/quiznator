@@ -32,7 +32,7 @@ gulp.task('assets', makeAssetTask({
 
 gulp.task('scripts.dashboard', makeScripTask({
   webpackConfig: makeWebpackConfig({
-    entry: path.join(__dirname, 'client', 'dashboard', 'index.js'),
+    entry: path.join(__dirname,  'client', 'dashboard', 'index.js'),
     output: scriptsDist,
     fileName: 'dashboard',
     modules: [clientCommonModules, path.join(__dirname, 'client', 'dashboard')],

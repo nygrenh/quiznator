@@ -19,6 +19,7 @@ import Loader from 'components/loader'
 import Truncator from 'components/truncator'
 import ReactTable from 'react-table'
 import "react-table/react-table.css"
+import { reasons } from 'common-constants/reasons'
 
 class QuizReviewAnswers extends React.Component {
   constructor(props) {
@@ -66,13 +67,23 @@ class QuizReviewAnswers extends React.Component {
   updateConfirmation({ answerId, confirmed }) {
     this.props.onUpdateConfirmation({ answerId, confirmed })
     this.props.onUpdateReviewConfirmation({ answerId, confirmed })
-    this.props.onUpdateReviewStatus({ answerId, status: { pass: confirmed, review: !confirmed }})
+    this.props.onUpdateReviewStatus({ answerId, status: { 
+      pass: confirmed, 
+      review: !confirmed,
+      rejected: false,
+      reason: confirmed ? reasons.PASS_BY_REVIEWER : undefined
+    }})
   }
 
   updateRejection({ answerId, rejected }) {
     this.props.onUpdateRejection({ answerId, rejected })
     this.props.onUpdateReviewRejection({ answerId, rejected })
-    this.props.onUpdateReviewStatus({ answerId, status: { rejected, review: !rejected/*, reason: null*/ }})
+    this.props.onUpdateReviewStatus({ answerId, status: { 
+      rejected, 
+      review: !rejected,
+      pass: false,
+      reason: rejected ? reasons.REJECT_BY_REVIEWER : undefined 
+    }})
   }
 
   renderStatus(status) {
