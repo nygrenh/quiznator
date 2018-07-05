@@ -152,6 +152,7 @@ function updateCompletion(answererId, data) {
       data.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
       data.score >= config.MINIMUM_SCORE_TO_PASS
 
+    if (answererId === '')
     CourseState.findOne( // andupdate
       { answererId,
         courseId: config.COURSE_ID
@@ -169,11 +170,10 @@ function updateCompletion(answererId, data) {
           courseId: config.COURSE_ID,
           completion: completionData
         })
+        
         return newCourseState.save()
-      } else if (!!courseState && 
-        !!courseState.completion && 
-        !courseState.completion.confirmationSent) {
-
+      } else if (!_.get(courseState, 'completion.confirmationSent')) {
+          // don't change data if confirmation already sent
           courseState.completion = completionData
 
           return courseState.save()
@@ -185,7 +185,9 @@ function updateCompletion(answererId, data) {
   })
 }
 
-const getCompleted = () => new Promise((resolve, reject) => fetchQuizIds(tags)
+const getCompleted = () => 
+  new Promise((resolve, reject) => 
+  fetchQuizIds(tags)
   .then(quizIds => {
     console.log('initing...')
 

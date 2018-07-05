@@ -101,14 +101,8 @@ function getStrippedQuizzesById(options) {
     return Quiz.findAnswerable({ _id: { $in: quizIds }})
       .then(quizzes => {
         const strippedQuizzes = quizzes.map(quiz => {
-          const returnObjMeta = Object.assign({}, quiz._doc.data.meta, {
-            errors: undefined,
-            successes: undefined,
-            error: undefined,
-            success: undefined,
-            rightAnswer: undefined,
-            submitMessage: undefined
-          })
+          const returnObjMeta = Object.assign({}, 
+            _.omit(quiz._doc.data.meta, ['errors', 'successes', 'error', 'success', 'rightAnswer', 'submitMessage']))
 
           const returnObjData = Object.assign({}, quiz._doc.data, { 
             meta: returnObjMeta

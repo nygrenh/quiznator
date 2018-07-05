@@ -115,6 +115,7 @@ function validateAnswer(data, ignoreList = []) {
     peerReviews,
     validation: {
       messages,
+      rightAnswer,
       points,
       maxPoints,
       normalizedPoints: precise_round(normalizedPoints, 2)
@@ -361,6 +362,11 @@ function validateProgress(progress) {
     (progress.answered || []).filter(entry => { 
       return entry.answer[0].confirmed && !_.includes(entry.quiz.tags, 'ignore')  
     }).length
+  const confirmedIgnoredAmount = 
+    (progress.answered || []).filter(entry => { 
+      return entry.answer[0].confirmed && _.includes(entry.quiz.tags, 'ignore')  
+    }).length
+  const ignoredAmount = ignored.length
   const score = maxNormalizedPoints > 0 ? precise_round(totalNormalizedPoints / maxNormalizedPoints * 100, 2) : 0
   const pointsPercentage = totalMaxPoints > 0 ? precise_round(totalPoints / totalMaxPoints * 100, 2) : 0
   
@@ -373,6 +379,8 @@ function validateProgress(progress) {
       maxPoints: totalMaxPoints,
       maxCompletedPoints: totalCompletedMaxPoints,
       confirmedAmount,
+      ignoredAmount,
+      confirmedIgnoredAmount,
       normalizedPoints: precise_round(totalNormalizedPoints, 2),
       maxNormalizedPoints,
       maxCompletedNormalizedPoints,

@@ -3,6 +3,7 @@ const router = require('express').Router({ mergeParams: true });
 const authenticationMiddlewares = require('app-modules/middlewares/authentication');
 const TMCMiddlewares = require('app-modules/middlewares/tmc');
 const middlewares = require('./middlewares');
+const answererMiddlewares = require('../../answerers/middlewares')
 
 function getSearchFilters(filters) {
   return {
@@ -53,7 +54,9 @@ router.post('/validate',
     getAnswererId: req => req.TMCProfile.username,
     getQuizId: req => req.params.id
   }),
+  // or add just the progress middleware here?
   (req, res, next) => {
+    // TODO: add to this if progress updated 
     res.json(req.newQuizAnswer)
   })
 

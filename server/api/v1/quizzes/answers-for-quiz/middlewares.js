@@ -71,6 +71,10 @@ function createQuizAnswerWithValidation(options) {
 
     const newQuizAnswer = new QuizAnswer(attributes);
 
+    // TODO: add to options the flag to revalidate all
+    // and return progress with course state
+    //  -- do we update course state in that?
+    
     newQuizAnswer
       .save()
       .then((newAnswer) => {

@@ -104,7 +104,7 @@ function getProgressWithValidation(options) {
     const fetchQuizzes = body.quizzes || true
     const fetchAnswers = body.answers || false
     const fetchPeerReviews = body.peerReviews || false
-    const fetchValidation = body.validation && !body.stripAnswers || false
+    const fetchValidation = body.validation || false
     const stripAnswers = body.stripAnswers || false
     const peerReviewsRequiredGiven = body.peerReviewsRequiredGiven || 0
     const courseId = body.courseId || ''
@@ -124,6 +124,8 @@ function getProgressWithValidation(options) {
       .spread((quizzes, answers, peerReviewsGiven, peerReviewsReceived) => {
         const answerQuizIds = answers.map(answer => answer.quizId.toString());
         
+        const isAnswered = (quizId) => ~answerQuizIds.indexOf(quizId)
+
         const progress = _.groupBy(quizzes.map(quiz => {
           const answer = answers.filter(answer => answer.quizId.equals(quiz._id))
 
@@ -163,19 +165,17 @@ function getProgressWithValidation(options) {
 
           let returnedQuiz
 
-          if (stripAnswers) {
+          if (stripAnswers && !isAnswered(quiz._id.toString())) {
             // spread fix
-            const newQuizMeta = Object.assign({}, quiz._doc.data.meta, {
-              errors: undefined,
-              successes: undefined,
-              error: undefined,
-              success: undefined,
-              rightAnswer: undefined
-            })
+            // TODO: update to return right answers only
+            // for answered?
+            const newQuizMeta = Object.assign({}, 
+              _.omit(quiz._doc.data.meta, ['errors', 'successes', 'error', 'success', 'rightAnswer', 'submitMessage'])
+)
             const newQuiz = Object.assign({}, quiz._doc, 
-              { data: {
+              { data: Object.assign({}, quiz._doc.data, { 
                 meta: newQuizMeta
-              }}
+              })}
             )
             returnedQuiz = newQuiz
           } else {
@@ -192,7 +192,7 @@ function getProgressWithValidation(options) {
           return returnObject
         }), entry => {
           return entry.answer && entry.answer[0].rejected ? 'rejected' :
-                answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered'
+                isAnswered(entry.quiz._id.toString()) ? 'answered' : 'notAnswered'
         })
 
         CourseState.findOne({ answererId, courseId })
