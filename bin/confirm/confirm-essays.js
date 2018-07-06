@@ -371,7 +371,9 @@ const updateEssays = () => new Promise((resolve, reject) =>
               $sort: { createdAt: -1 } 
             }
             //{ $sample: { size: 100 } }
-          ]).exec()
+          ])
+          .allowDiskUse(true)
+          .exec()
 
           const getReviewAnswers = QuizReviewAnswer.aggregate([
             {

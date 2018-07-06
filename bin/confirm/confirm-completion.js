@@ -127,7 +127,7 @@ function getProgressWithValidation(answererId, answers, quizzes) {
 
     return returnObject
   }), entry => {
-    return entry.answer && entry.answer[0].rejected ? 'rejected' :
+    return _.get(entry, 'answer[0].rejected') ? 'rejected' :
           ~answerQuizIds.indexOf(entry.quiz._id.toString()) ? 'answered' : 'notAnswered'
   })
 
