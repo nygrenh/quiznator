@@ -11,7 +11,7 @@ const schema = new mongoose.Schema({
     reason: { type: String, required: false }
   },
   data: { type: mongoose.Schema.Types.Mixed, required: true },
-})
+}, { timestamps: true })
 
 require('./methods')(schema)
 

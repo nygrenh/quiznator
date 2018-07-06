@@ -355,7 +355,16 @@ const updateEssays = () => new Promise((resolve, reject) =>
           const essays = quizzes.filter(quiz => quiz.type === quizTypes.ESSAY)
           const essayIds = essays.map(quiz => quiz._id)
 
-          const getAnswers = QuizAnswer.aggregate([
+          const getAnswers = QuizAnswer.find({
+            quizId: { $in: essayIds },
+            $or: [
+              { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED } },
+              { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
+            ]
+          }).exec()
+
+          // aggregate chokes on memory?
+/*           const getAnswers = QuizAnswer.aggregate([
             { 
               $match: {
                 quizId: { $in: essayIds },
@@ -373,23 +382,33 @@ const updateEssays = () => new Promise((resolve, reject) =>
             //{ $sample: { size: 100 } }
           ])
           .allowDiskUse(true)
-          .exec()
+          .exec() */
 
-          const getReviewAnswers = QuizReviewAnswer.aggregate([
+          const getReviewAnswers = QuizReviewAnswer.find({}).exec()
+ /*          const getReviewAnswers = QuizReviewAnswer.aggregate([
             {
               $sort: { createdAt: -1 }
             }
           ])
           .allowDiskUse(true)
           .exec()
-
+ */
           const getPeerReviews = PeerReview.find({ 
             sourceQuizId: { $in: essayIds }, 
           }).exec() 
     
           return Promise.all([getAnswers, getPeerReviews, getReviewAnswers])
             .spread((answers, peerReviews, reviewAnswers) => {
-            
+
+              // newest first
+              answers.sort((a, b) => b.createdAt - a.createdAt)
+              reviewAnswers.sort((a, b) => {
+                if (!a.createdAt || !b.createdAt) { 
+                  return 0
+                }
+                return b.createdAt - a.createdAt
+              })
+              
               const answerQuizIds = answers.map(answer => answer.quizId.toString());
               const answererIds = _.uniq(answers.map(answer => answer.answererId))
             
