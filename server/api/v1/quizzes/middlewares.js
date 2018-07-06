@@ -1,4 +1,5 @@
 const pick = require('lodash.pick');
+const _ = require('lodash')
 const Promise = require('bluebird');
 
 const errors = require('app-modules/errors');

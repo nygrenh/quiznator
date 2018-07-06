@@ -101,13 +101,14 @@ function getProgressWithValidation(options) {
 
     const body = options.getBody(req)
     
-    const fetchQuizzes = body.quizzes || true
-    const fetchAnswers = body.answers || false
-    const fetchPeerReviews = body.peerReviews || false
-    const fetchValidation = body.validation || false
-    const stripAnswers = body.stripAnswers || false
-    const peerReviewsRequiredGiven = body.peerReviewsRequiredGiven || 0
-    const courseId = body.courseId || ''
+    const fetchQuizzes = _.get(body, 'quizzes', true)
+    const fetchAnswers = _.get(body, 'answers', false)
+    const fetchPeerReviews = _.get(body, 'peerReviews', false)
+    const fetchValidation = _.get(body, 'validation', false)
+    const onlyUpdate = _.get(body, 'onlyUpdate', false)
+    const stripAnswers = _.get(body, 'stripAnswers', false)
+    const peerReviewsRequiredGiven = _.get(body, 'peerReviewsRequiredGiven', 0)
+    const courseId = _.get(body, 'courseId', '')
 
     let quizIds = body.quizIds
     
@@ -207,6 +208,18 @@ function getProgressWithValidation(options) {
 
             if (fetchValidation) {
               returnObject = Object.assign({}, returnObject, validateProgress(progress))
+              
+              if (onlyUpdate) {
+                returnObject.answered = _.get(returnObject, 'answered', []).map(entry => {
+                  return {
+                    ...entry,
+                    quiz: _.pick(entry.quiz, ['_id']),
+                    answer: entry.answer.map(answer => _.omit(answer, ['updatedAt', 'createdAt']),
+                    validation: undefined,
+                  }
+                })
+                returnObject.notAnswered = _.get(returnObject, 'notAnswered', []).map(entry => ({ quiz: { _id: entry.quiz._id.toString() } }))
+              }
             } else {
               returnObject = Object.assign({}, returnObject, { 
                 answered: progress.answered, 
@@ -224,6 +237,7 @@ function getProgressWithValidation(options) {
 
             return next()
           })
+          .catch(err => next(err))
         
       })
   }

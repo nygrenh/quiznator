@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const errors = require('app-modules/errors');
 
 const CourseState = require('app-modules/models/course-state')
+const QuizAnswer = require('app-modules/models/quiz-answer')
 
 function getCourseState(options) {
   return (req, res, next) => {

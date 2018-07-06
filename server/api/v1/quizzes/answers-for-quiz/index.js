@@ -1,4 +1,5 @@
 const router = require('express').Router({ mergeParams: true });
+const _ = require('lodash')
 
 const authenticationMiddlewares = require('app-modules/middlewares/authentication');
 const TMCMiddlewares = require('app-modules/middlewares/tmc');

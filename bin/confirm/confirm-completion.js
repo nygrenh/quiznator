@@ -126,7 +126,10 @@ function getProgressWithValidation(answererId, answers, quizzes) {
     } 
 
     return returnObject
-  }), entry => answerQuizIds.indexOf(entry.quiz._id.toString()) >= 0 ? 'answered' : 'notAnswered')
+  }), entry => {
+    return entry.answer && entry.answer[0].rejected ? 'rejected' :
+          ~answerQuizIds.indexOf(entry.quiz._id.toString()) ? 'answered' : 'notAnswered'
+  })
 
   if (isNaN(latestAnswerDate)) { // hmm
     latestAnswerDate = 0
@@ -152,7 +155,6 @@ function updateCompletion(answererId, data) {
       data.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
       data.score >= config.MINIMUM_SCORE_TO_PASS
 
-    if (answererId === '')
     CourseState.findOne( // andupdate
       { answererId,
         courseId: config.COURSE_ID
