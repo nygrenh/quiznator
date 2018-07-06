@@ -380,6 +380,8 @@ const updateEssays = () => new Promise((resolve, reject) =>
               $sort: { createdAt: -1 }
             }
           ])
+          .allowDiskUse(true)
+          .exec()
 
           const getPeerReviews = PeerReview.find({ 
             sourceQuizId: { $in: essayIds }, 
