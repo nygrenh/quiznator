@@ -22,7 +22,7 @@ module.exports = schema => {
         // get limit + 20 quiz answers by query, sorted by peer review count ascending
         return mongoose.models.QuizAnswer.findDistinctlyByAnswerer(query, 
           { 
-            limit: options.limit + 20, 
+            limit: options.limit + 40, 
             skip: options.skip, 
             sort: { peerReviewCount: 1 } 
           })

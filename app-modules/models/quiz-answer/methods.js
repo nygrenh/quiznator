@@ -54,7 +54,8 @@ module.exports = schema => {
     ].filter(p => !!p);
 
     return this.aggregate(pipeline)
-      .then(data => {
+/*       .then(data => {
+        // find and group all answers  
         return this.aggregate([
           {
             $match: { 
@@ -84,18 +85,18 @@ module.exports = schema => {
                   return true // this should never happen
                 }
                 if (filtered[0].confirmed || filtered[0].rejected) {
-                  /* the newest answer for this user for
-                    this quiz has been confirmed/rejected, don't
-                    offer this or other 
-                  */
+                  // the newest answer for this user for
+                  // this quiz has been confirmed/rejected, don't
+                  //  offer this or other 
+                  
                   return false
                 }
 
                 return true
               })
           })
-        })
-      .then(data => {
+        })*/      
+        .then(data => {
         return data
           .map(doc => ({ 
             _id: doc.answerId, 

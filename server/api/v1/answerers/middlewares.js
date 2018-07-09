@@ -170,9 +170,15 @@ function getProgressWithValidation(options) {
             // spread fix
             // TODO: update to return right answers only
             // for answered?
-            const newQuizMeta = Object.assign({}, 
-              _.omit(quiz._doc.data.meta, ['errors', 'successes', 'error', 'success', 'rightAnswer', 'submitMessage'])
-)
+            const newQuizMeta = _.omit(quiz._doc.data.meta, 
+              ['errors', 
+              'successes', 
+              'error', 
+              'success', 
+              'rightAnswer', 
+              'submitMessage'
+              ])
+
             const newQuiz = Object.assign({}, quiz._doc, 
               { data: Object.assign({}, quiz._doc.data, { 
                 meta: newQuizMeta
@@ -189,7 +195,6 @@ function getProgressWithValidation(options) {
             peerReviews: peerReviewsReturned
           } 
 
-          //console.log('and will return', returnObject)
           return returnObject
         }), entry => {
           return entry.answer && entry.answer[0].rejected ? 'rejected' :
@@ -219,6 +224,7 @@ function getProgressWithValidation(options) {
                   }
                 })
                 returnObject.notAnswered = _.get(returnObject, 'notAnswered', []).map(entry => ({ quiz: { _id: entry.quiz._id.toString() } }))
+
               }
             } else {
               returnObject = Object.assign({}, returnObject, { 
@@ -237,10 +243,14 @@ function getProgressWithValidation(options) {
 
             return next()
           })
-          .catch(err => next(err))
+          .catch(err => {
+            return next(err)
+          })
         
       })
-      .catch(err => next(err))
+      .catch(err => {
+        return next(err)
+      })
   }
 }
 
