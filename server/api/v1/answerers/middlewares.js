@@ -214,7 +214,7 @@ function getProgressWithValidation(options) {
                   return {
                     ...entry,
                     quiz: _.pick(entry.quiz, ['_id']),
-                    answer: entry.answer.map(answer => _.omit(answer, ['updatedAt', 'createdAt']),
+                    answer: entry.answer.map(answer => _.omit(answer, ['updatedAt', 'createdAt'])),
                     validation: undefined,
                   }
                 })
