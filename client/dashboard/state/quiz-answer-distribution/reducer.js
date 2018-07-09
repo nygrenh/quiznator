@@ -3,6 +3,7 @@ import { 
   UPDATE_COURSE_STATE_ANSWER_STATUS, UPDATE_COURSE_STATE_ANSWER_STATUS_SUCCESS
 } from './actions'
 import { createReducer } from 'redux-create-reducer'
+import _ from 'lodash'
 
 const initialState = {
   loading: true,
@@ -27,11 +28,8 @@ export default createReducer(initialState, {
   [UPDATE_COURSE_STATE_ANSWER_STATUS_SUCCESS](state, action) {
     const { payload: { data } } = action
 
-    let newAnswers = []
+    let newAnswers = _.get(data, 'completion.data.answerValidation', [])
 
-    if (data && data.completion && data.completion.data && data.completion.data.answerValidation) {
-      newAnswers = data.completion.data.answerValidation
-    }
     return Object.assign({}, state, {
       loading: false,
       answers: newAnswers

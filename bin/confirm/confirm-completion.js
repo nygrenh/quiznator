@@ -127,8 +127,8 @@ function getProgressWithValidation(answererId, answers, quizzes) {
 
     return returnObject
   }), entry => {
-    return _.get(entry, 'answer[0].rejected') ? 'rejected' :
-          ~answerQuizIds.indexOf(entry.quiz._id.toString()) ? 'answered' : 'notAnswered'
+    return ~answerQuizIds.indexOf(entry.quiz._id.toString()) ? 'answered' : 'notAnswered'
+    // had: _.get(entry, 'answer[0].rejected') ? 'rejected' :
   })
 
   if (isNaN(latestAnswerDate)) { // hmm
@@ -253,20 +253,20 @@ const getCompleted = () =>
           const score = calculatePercentage(progress.validation.normalizedPoints, progress.validation.maxNormalizedPoints)
           const pointsPercentage = calculatePercentage(progress.validation.points, progress.validation.maxPoints)
                   
-          const answerValidation = progress.answered.map(entry => {
-            return ({
-              quizId: entry.quiz._id,
-              answerId: entry.answer[0]._id,
-              points: entry.validation.points,
-              maxPoints: entry.validation.maxPoints,
-              normalizedPoints: entry.validation.normalizedPoints,
-              confirmed: entry.answer[0].confirmed,
-              rejected: entry.answer[0].rejected,
-              peerReviewCount: entry.answer[0].peerReviewCount,
-              spamFlags: entry.answer[0].spamFlags,
-              type: entry.quiz.type
-            })
+          const mapEntry = entry => ({
+            quizId: entry.quiz._id,
+            answerId: entry.answer[0]._id,
+            points: entry.validation.points,
+            maxPoints: entry.validation.maxPoints,
+            normalizedPoints: entry.validation.normalizedPoints,
+            confirmed: entry.answer[0].confirmed,
+            rejected: entry.answer[0].rejected,
+            peerReviewCount: entry.answer[0].peerReviewCount,
+            spamFlags: entry.answer[0].spamFlags,
+            type: entry.quiz.type
           })
+
+          const answerValidation = progress.answered.map(entry => mapEntry(entry))
 
           const scoreObject = {
             answererId,

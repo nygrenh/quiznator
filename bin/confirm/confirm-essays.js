@@ -128,7 +128,7 @@ function updateConfirmations(data) {
       return QuizAnswer.findById(answerId)
         .then(answer => {
           answer.confirmed = entry.pass ? true : false
-          answer.rejected = entry.fail ? true: false
+          answer.rejected = entry.fail ? true : false
           return answer.save()
         })
         .then(savedAnswer => {
