@@ -196,7 +196,7 @@ function getProgressWithValidation(options) {
                 isAnswered(entry.quiz._id.toString()) ? 'answered' : 'notAnswered'
         })
 
-        CourseState.findOne({ answererId, courseId })
+        return CourseState.findOne({ answererId, courseId })
           .then(courseState => {
             let returnObject = {
               answererId,
@@ -240,6 +240,7 @@ function getProgressWithValidation(options) {
           .catch(err => next(err))
         
       })
+      .catch(err => next(err))
   }
 }
 
