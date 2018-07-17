@@ -146,7 +146,8 @@ function getProgressWithValidation(options) {
                 received
               }
 
-              if (given.length < peerReviewsRequiredGiven && answer.length > 0 && !answer[0].rejected) {
+              if (given.length < peerReviewsRequiredGiven && answer.length > 0 && 
+                  (!answer[0].rejected && !answer[0].confirmed)) {
                 essaysAwaitingPeerReviewsGiven.push(quiz._id)
               }
             }

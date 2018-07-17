@@ -46,7 +46,8 @@ module.exports = schema => {
         createdAt: { $first: '$createdAt' }, 
         confirmed: { $first: '$confirmed' }, //
         rejected: { $first: '$rejected' },  //
-        peerReviewCount: { $first: '$peerReviewCount' } 
+        peerReviewCount: { $first: '$peerReviewCount' },
+        spamFlags: { $first: '$spamFlags' }
       } },
       options.sort ? { $sort: options.sort } : null,
       options.skip ? { $skip: options.skip } : null,
@@ -54,8 +55,12 @@ module.exports = schema => {
     ].filter(p => !!p);
 
     return this.aggregate(pipeline)
-/*       .then(data => {
+      .then(data => {
+        if (!options.filterDuplicates) {
+          return Promise.resolve(data)
+        }
         // find and group all answers  
+
         return this.aggregate([
           {
             $match: { 
@@ -72,31 +77,35 @@ module.exports = schema => {
             $group: {
               _id: "$answererId",
               confirmed: { $first: '$confirmed' },
-              rejected: { $first: '$rejected' }
-            }
+              rejected: { $first: '$rejected' },
+              peerReviewCount: { $first: '$peerReviewCount' },
+              spamFlags: { $first: '$spamFlags' },
+              createdAt: { $first: '$createdAt' }
+            } // this gets only the newest answer states
           }
         ]).exec()
           .then(answers => {
-            return data
+            return Promise.resolve(data
               .filter(doc => {
                 const filtered = answers
-                  .filter(answer => answer._id === doc._id)
+                  .filter(answer => answer._id === doc._id) 
+                  // note: both _id here === answererId
                 if (filtered.length === 0) {
                   return true // this should never happen
                 }
+
                 if (filtered[0].confirmed || filtered[0].rejected) {
                   // the newest answer for this user for
                   // this quiz has been confirmed/rejected, don't
                   //  offer this or other 
-                  
                   return false
                 }
 
                 return true
-              })
+              }))
           })
-        })*/      
-        .then(data => {
+        })      
+      .then(data => {
         return data
           .map(doc => ({ 
             _id: doc.answerId, 
@@ -104,7 +113,8 @@ module.exports = schema => {
             data: doc.data, 
             quizId: doc.quizId, 
             createdAt: doc.createdAt, 
-            peerReviewCount: doc.peerReviewCount 
+            peerReviewCount: doc.peerReviewCount,
+            spamFlags: doc.spamFlags
           }))
       })
   }

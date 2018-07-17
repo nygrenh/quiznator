@@ -20,7 +20,18 @@ router.get('/:answererId',
   TMCMiddlewares.isUser(req => req.params.answererId),
   middlewares.getPeerReviewsForAnswerer({
     getAnswererId: req => req.params.answererId,
-    getQuizId: req => req.params.id
+    getQuizId: req => req.params.id,
+  }),
+  (req, res, next) => {
+    res.json(req.peerReviews);
+  });
+
+router.get('/:answererId/v2',
+  TMCMiddlewares.isUser(req => req.params.answererId),
+  middlewares.getPeerReviewsForAnswerer({
+    getAnswererId: req => req.params.answererId,
+    getQuizId: req => req.params.id,
+    filter: true
   }),
   (req, res, next) => {
     res.json(req.peerReviews);
