@@ -195,7 +195,11 @@ const getCompleted = () =>
 
     const quizIdsMap = quizIds.map(quizId => mongoose.Types.ObjectId(quizId))
 
-    const getAnswers = QuizAnswer.aggregate([{ 
+    const getAnswers = QuizAnswer
+      .find({ quizId: { $in: quizIdsMap }})
+      .sort({ createdAt: -1 })
+      .exec() 
+/*    const getAnswers = QuizAnswer.aggregate([{ 
       $match: { 
         quizId: { $in: quizIdsMap }, 
 //        spamFlags: { $lte: config.MAXIMUM_SPAM_FLAGS_TO_PASS } 
@@ -206,7 +210,7 @@ const getCompleted = () =>
       }
     }, 
     //{ $sample: { size: 10000 } }
-    ]).exec()
+    ]).exec()*/
 
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIdsMap }})
 
