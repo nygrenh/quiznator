@@ -69,7 +69,7 @@ function getQuizIdsByTag(options = {}) {
         if (!queryTags || (!!queryTags && queryTags.length == 0)) {
             return next()
         }
-
+    
         Quiz
             .getIdsByTags(queryTags)
             .then(quizIds => {

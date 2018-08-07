@@ -34,27 +34,6 @@ function validateAnswer(data, ignoreList = []) {
     case quizTypes.RADIO_MATRIX:
       messages = validateRadioMatrixData(quiz, answerData)
       points = Object.keys(messages).filter(key => !messages[key].error).length
-
-/*       points = multi
-        ? (items.map(item => {
-            const userAnswer = typeof answerData[item.id] === 'string' ? [answerData[item.id]] : answerData[item.id]
-
-            if (!answerData[item.id] || (!!answerData[item.id] && answerData[item.id].length === 0)) {
-              return false
-            } 
-            return userAnswer
-              .map(k => (rightAnswer[item.id] || []).indexOf(k) >= 0)
-              .every(v => !!v)
-            && (rightAnswer[item.id] || [])
-              .map(k => userAnswer.indexOf(k) >= 0)
-              .every(v => !!v)
-          }).filter(v => v).length)
-        : (items.map(item => {
-          if (!answerData[item.id] || (!!answerData[item.id] && answerData[item.id].length === 0)) {
-            return false
-          } 
-          return (rightAnswer[item.id] || []).indexOf(answerData[item.id]) >= 0
-        }).filter(v => v).length) */
       maxPoints = items.length
       normalizedPoints = points / maxPoints
       break
@@ -67,36 +46,11 @@ function validateAnswer(data, ignoreList = []) {
     case quizTypes.OPEN:
       messages = validateOpenData(quiz, answerData)
       points = 1 * !messages.error
-/*       if (regex) {
-        try {
-          let re = new RegExp(rightAnswer)
-          points = !!re.exec(answerData.trim().toLowerCase()) ? 1 : 0
-        } catch(err) {
-          // points 0
-        }
-      } else {
-        points = answerData.trim().toLowerCase() === rightAnswer.trim().toLowerCase() ? 1 : 0
-      } */
       normalizedPoints = points
       break
     case quizTypes.MULTIPLE_OPEN:
       messages = validateMultipleOpenData(quiz, answerData)
       points = Object.keys(messages).filter(key => !messages[key].error).length
-
-/*       if (regex) {
-        points = items.map(item => {
-          try {
-            let re = new RegExp(rightAnswer[item.id])
-            return !!re.exec(answerData[item.id].trim().toLowerCase())
-          } catch(err) {
-            return false
-          }
-        }).filter(v => v).length              
-      } else {
-        points = items.map(item => 
-          answerData[item.id].trim().toLowerCase() === rightAnswer[item.id].trim().toLowerCase()
-        ).filter(v => v).length
-      } */
       maxPoints = items.length
       normalizedPoints = points / maxPoints
       break

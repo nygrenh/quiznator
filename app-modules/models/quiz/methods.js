@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const hl = require('highland');
+const hash = require('object-hash')
+
+const { redisify } = require('app-modules/utils/redis')
 
 mongoose.Promise = require('bluebird').Promise
 
@@ -164,16 +167,23 @@ module.exports = schema => {
       { $group: { _id: '$tags', quizIds: { $push: '$_id' } } }
     ]
 
-    return this.aggregate(aggregation)
+    const query = () => this.aggregate(aggregation)
       .exec()
-      .then(results => { 
-        return results.map(doc => {
+      .then(results => results.map(doc => {
           return {
             tags: doc._id,
             quizIds: doc.quizIds
           }
-        })
-      })
+        }))
+
+    const REDIS_PREFIX = 'QUIZIDS_BY_TAG'
+    const REDIS_EXPIRE_TIME = 60
+        
+    return redisify(query(), {
+      prefix: REDIS_PREFIX,
+      expireTime: REDIS_EXPIRE_TIME,
+      key: hash(aggregation)
+    })
   }
 
   schema.statics.getByIds = function(quizIds) {
