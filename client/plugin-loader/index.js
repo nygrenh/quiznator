@@ -4,7 +4,7 @@
     var headTag = document.getElementsByTagName('head')[0];
     var scriptTag = document.createElement('script');
     var styleTag = document.createElement('link');
-    var pendingEvents = 2;
+    var pendingEvents = 2; 
     var loadedEvent = new Event('quiznatorLoaded');
 
     scriptTag.onload = function() {

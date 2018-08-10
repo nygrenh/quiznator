@@ -66,7 +66,12 @@ const main = async () => {
     return answererId
   })).filter(k => !!k)
 
-  answererMap = _(answererMap).countBy().map((v, k) => ({ name: k, count: v})).sortBy('count').reverse().value()
+  answererMap = _(answererMap)
+    .countBy()
+    .map((v, k) => ({ name: k, count: v}))
+    .sortBy('count')
+    .reverse()
+    .value()
   
   answererMap.forEach(a => console.log(a))
   process.exit(0)
