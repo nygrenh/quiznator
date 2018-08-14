@@ -160,11 +160,13 @@ function updateCompletion(answererId, data) {
         courseId: config.COURSE_ID
       }
     ).then(courseState => {
-      let completionDate 
+      let completionDate
 
       if (!_.get(courseState, 'completion.completed') && completed) {
         // either new coursestate or hadn't previously completed but has now
         completionDate = Date.now()
+      } else {
+        completionDate = _.get(courseState, 'completion.completionDate', null)        
       }
 
       let completionData = {
