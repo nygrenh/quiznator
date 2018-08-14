@@ -193,6 +193,7 @@ function updateCompletion(answererId, data) {
       return courseState
     })
     .then(state => resolve(state))
+    .catch(err => reject(err))
   })
 }
 
