@@ -82,7 +82,7 @@ const main = async () => {
       }
     }))
 
-    const sortedAnswers = _.sortBy(answers, 'answer.updatedAt')
+    const sortedAnswers = _.sortBy(answers, 'answer.createdAt')
 
     let normalizedPoints = 0
     let completed = 0
@@ -91,10 +91,10 @@ const main = async () => {
     let prevDate = 0
 
     sortedAnswers.some((entry) => {
-      if (prevDate > entry.answer.updatedAt) {
+      if (prevDate > entry.answer.createdAt) {
         throw new Error('you fail as a human being')
       }
-      prevDate = entry.answer.updatedAt
+      prevDate = entry.answer.createdAt
       // exclude ignored
       if (_.includes(countableQuizIds, entry.answer.quizId.toString())) {
         normalizedPoints += entry.validation.normalizedPoints
@@ -106,7 +106,7 @@ const main = async () => {
 
       if (progress >= config.MINIMUM_PROGRESS_TO_PASS &&
           score >= config.MINIMUM_SCORE_TO_PASS) {
-          completionDate = entry.answer.updatedAt
+          completionDate = entry.answer.createdAt
           console.log(courseState.answererId)
     
           return true
