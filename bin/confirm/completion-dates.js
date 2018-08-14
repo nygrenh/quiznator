@@ -120,6 +120,7 @@ const main = async () => {
 
     return Promise.resolve()
   }))
+  .then(() => console.log("DONE"))
   //.catch(err => console.warn(err))
 }
 
