@@ -72,6 +72,7 @@ function initMaps({ answers, peerReviews, reviewAnswers }) {
   let peerReviewsGivenForAnswerer = new Map()
   let peerReviewsReceivedForAnswerer = new Map()
 
+  // NOTE: sourcequizid/quizid flipped!
   peerReviews.forEach(review => {
     setValue({ 
       outerMap: peerReviewsGivenForAnswerer, 
@@ -272,14 +273,10 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
 
     // state manually set? let's not override it
     if ((answer.confirmed || status.pass) && !pass) {
-      pass = true
-      review = false
-      fail = false
+      [pass, review, fail] = [true, false, false]
       reason = reasons.PASS_BY_REVIEWER
     } else if ((answer.rejected || status.fail) && !fail) {
-      pass = false
-      review = false
-      fail = true
+      [pass, review, fail] = [false, false, true]
       reason = reasons.REJECT_BY_REVIEWER
     } 
 
@@ -362,27 +359,6 @@ const updateEssays = () => new Promise((resolve, reject) =>
               { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
             ]
           }).exec()
-
-          // aggregate chokes on memory?
-/*           const getAnswers = QuizAnswer.aggregate([
-            { 
-              $match: {
-                quizId: { $in: essayIds },
-                //confirmed: false,
-                //rejected: false,
-                $or: [
-                  { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED } },
-                  { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
-                ]
-              } 
-            },
-            { 
-              $sort: { createdAt: -1 } 
-            }
-            //{ $sample: { size: 100 } }
-          ])
-          .allowDiskUse(true)
-          .exec() */
 
           const getReviewAnswers = QuizReviewAnswer.find({}).exec()
  /*          const getReviewAnswers = QuizReviewAnswer.aggregate([

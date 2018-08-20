@@ -123,8 +123,11 @@ function getQuizsAnswersBatch(options) {
         answererId: { $first: '$answererId' }, 
         answerId: { $first: '$_id' }, 
         createdAt: { $first: '$createdAt' },
+        updatedAt: { $first: '$updatedAt' },
         confirmed: { $first: '$confirmed' },
-        peerReviewCount: { $first: '$peerReviewCount' }
+        rejected: { $first: '$rejected' },
+        peerReviewCount: { $first: '$peerReviewCount' },
+        spamFlags: { $first: '$spamFlags' }
       }},
     ].filter(p => !!p)      
 
@@ -136,8 +139,11 @@ function getQuizsAnswersBatch(options) {
           data: doc.data, 
           quizId: doc.quizId, 
           createdAt: doc.createdAt,
+          updatedAt: doc.updatedAt,
           confirmed: doc.confirmed,
-          peerReviewCount: doc.peerReviewCount 
+          rejected: doc.rejected,
+          peerReviewCount: doc.peerReviewCount,
+          spamFlags: doc.spamFlags 
         })))
         return next()
       })

@@ -129,6 +129,7 @@ function getProgressWithValidation(options) {
 
         const progress = _.groupBy(quizzes.map(quiz => {
           const answer = answers.filter(answer => answer.quizId.equals(quiz._id))
+          const awaitingConfirmation = answer.length > 0 && (!answer[0].rejected && !answer[0].confirmed)
 
           let peerReviewsReturned = {}
           
@@ -146,8 +147,7 @@ function getProgressWithValidation(options) {
                 received
               }
 
-              if (given.length < peerReviewsRequiredGiven && answer.length > 0 && 
-                  (!answer[0].rejected && !answer[0].confirmed)) {
+              if (given.length < peerReviewsRequiredGiven && awaitingConfirmation) {
                 essaysAwaitingPeerReviewsGiven.push(quiz._id)
               }
             }
@@ -159,7 +159,7 @@ function getProgressWithValidation(options) {
                   answer: answer[0]
                 })
               }
-              if (!answer[0].rejected && !answer[0].confirmed) {
+              if (awaitingConfirmation) {
                 essaysAwaitingConfirmation.push(quiz._id)
               }
             }

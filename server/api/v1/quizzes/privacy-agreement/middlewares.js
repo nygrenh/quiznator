@@ -77,7 +77,7 @@ function getAcceptedAgreementByKey(options) {
 
                 req.agreement = agreement;
 
-                 return next();
+                return next();
             })
             .catch(err => next(err));
     }

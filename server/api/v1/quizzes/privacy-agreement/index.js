@@ -6,6 +6,8 @@ const TMCMiddlewares = require('app-modules/middlewares/tmc');
 const quizanswersMiddlewares = require('../answers-for-quiz/middlewares');
 const privacyAgreementMiddlewares = require('./middlewares');
 
+// userId seems to mean answererId here, btw
+
 router.get('/:userId',
     TMCMiddlewares.isUser(req => req.params.userId),
     privacyAgreementMiddlewares.getPrivacyAgreements({

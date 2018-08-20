@@ -218,7 +218,6 @@ function validateMultipleOpenData(quiz, data) {
 }
 
 function validateProgress(progress) {
-  // TODO: better way to toggle ignore between alternatives
   let totalPoints = 0
   let totalMaxPoints = 0
   let totalCompletedMaxPoints = 0
@@ -227,70 +226,76 @@ function validateProgress(progress) {
   let answered = []
   let notAnswered = []
   let rejected = []
-  let ignored = []
 
-  progress.answered && progress.answered.forEach(entry => {
+  const combinedProgress = _.flatten(
+    _.concat(
+      _.get(progress, 'answered', []),
+      _.get(progress, 'notAnswered', []),
+      _.get(progress, 'rejected', [])
+    )
+  )
+
+  const ignored = combinedProgress
+    .filter(entry => _.includes(_.get(entry, 'quiz.tags', []), 'ignore'))
+    .map(e => e.quiz._id.toString())
+  const isIgnored = (quiz) => _.includes(ignored, quiz._id.toString())
+
+  answered = _.get(progress, 'answered', []).map(entry => {
     const validatedAnswer = validateAnswer(entry/*, ignoreList*/)
+    const { quiz } = entry
     
-    if (!_.includes(entry.quiz.tags, 'ignore')) {
-/*     if (!_.includes(ignoreList, entry.quiz._id.toString())) { */
+    if (!isIgnored(quiz)) {
       totalPoints += validatedAnswer.validation.points
       totalMaxPoints += validatedAnswer.validation.maxPoints
       totalCompletedMaxPoints += validatedAnswer.validation.maxPoints
       totalNormalizedPoints += validatedAnswer.validation.normalizedPoints
-    } else {
-      ignored.push(entry.quiz._id.toString())
     }
 
-    answered.push(validatedAnswer)
+    return validatedAnswer
   })
   
-  progress.notAnswered && progress.notAnswered.map(entry => {
+  notAnswered = _.get(progress, 'notAnswered', []).map(entry => {
     const { quiz, peerReviews } = entry
     const { items } = quiz.data
 
     let maxPoints = 0
 
-    if (!_.includes(entry.quiz.tags, 'ignore')) {
+    if (!isIgnored(quiz)) {
       if (~[quizTypes.RADIO_MATRIX, quizTypes.MULTIPLE_OPEN].indexOf(quiz.type)) {
         maxPoints = items.length
       } else {
         maxPoints = 1
       }
-    } else {
-      ignored.push(entry.quiz._id.toString())
     }
     
     totalMaxPoints += maxPoints
 
-    notAnswered.push({
+    return {
       quiz,
       peerReviews,
       validation: {
         maxPoints
       }
-    })
+    }
   })
 
-  progress.rejected && progress.rejected.map(entry => {
+  reject = _.get(progress, 'rejected', []).map(entry => {
     const { quiz, answer, peerReviews } = entry
     const { items } = quiz.data
 
     let maxPoints = 0
 
-    if (!_.includes(entry.quiz.tags, 'ignore')) {
+    if (!isIgnored(quiz)) {
       if (~[quizTypes.RADIO_MATRIX, quizTypes.MULTIPLE_OPEN].indexOf(quiz.type)) {
         maxPoints = items.length
       } else {
         maxPoints = 1
       }
-    } else {
-      ignored.push(entry.quiz._id.toString())
     }
 
     totalMaxPoints += maxPoints
 
-    rejected.push({
+    return {
       quiz,
       answer,
       peerReviews,
@@ -299,7 +304,7 @@ function validateProgress(progress) {
         maxPoints,
         normalizedPoints: 0
       }
-    })
+    }
   })
 
   // this looks terrrrible
@@ -313,13 +318,9 @@ function validateProgress(progress) {
     (progress.answered || []).length 
     - _.intersection((progress.answered || []).map(entry => entry.quiz._id.toString()), ignored).length
   const confirmedAmount = 
-    (progress.answered || []).filter(entry => { 
-      return entry.answer[0].confirmed && !_.includes(entry.quiz.tags, 'ignore')  
-    }).length
+    (progress.answered || []).filter(entry => entry.answer[0].confirmed && !isIgnored(entry.quiz)).length
   const confirmedIgnoredAmount = 
-    (progress.answered || []).filter(entry => { 
-      return entry.answer[0].confirmed && _.includes(entry.quiz.tags, 'ignore')  
-    }).length
+    (progress.answered || []).filter(entry => entry.answer[0].confirmed && isIgnored(entry.quiz)).length
   const ignoredAmount = ignored.length
   const score = maxNormalizedPoints > 0 ? precise_round(totalNormalizedPoints / maxNormalizedPoints * 100, 2) : 0
   const pointsPercentage = totalMaxPoints > 0 ? precise_round(totalPoints / totalMaxPoints * 100, 2) : 0

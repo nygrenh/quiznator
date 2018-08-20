@@ -77,7 +77,7 @@ module.exports = schema => {
             rejected: false,
             peerReviewCount: { $lt: minimumPeerReviews },
           }), {
-            sort: { peerReviewCount: -1 },
+            sort: { peerReviewCount: -1, createdAt: 1 },
             limit: limit + poolSize,
             skip: skip,
             filterDuplicates: true
@@ -87,7 +87,7 @@ module.exports = schema => {
             peerReviewCount: { $gte: minimumPeerReviews },
             rejected: false
           }), {
-            sort: { peerReviewCount: 1 },
+            sort: { peerReviewCount: 1, createdAt: 1 },
             limit: limit + poolSize,
             skip: skip,
             //filterDuplicates: true 
