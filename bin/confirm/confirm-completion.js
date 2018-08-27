@@ -156,14 +156,19 @@ function updateCompletion(data) {
         })
         
         return newCourseState.save()
-      } else if (!_.get(courseState, 'completion.confirmationSent')) {
-          // don't change data if confirmation already sent
-          courseState.completion = completionData
+      }
+      
+      if (!_.get(courseState, 'completion.confirmationSent')) {
+        // don't change data if confirmation already sent
+        courseState.completion = completionData
 
-          return courseState.save()
+        return courseState.save()
       }
 
-      return courseState
+      // let's update the completion answer date at least
+      courseState.completion.completionAnswersDate = completionAnswersDate
+
+      return courseState.save()
     })
     .then(state => resolve(state))
     .catch(err => reject(err))
@@ -236,6 +241,7 @@ const getCompleted = async () => {
 /*   return Promise.all([getQuizzes, getAnswers])
     .spread(async (quizzes, answers) => { */
       const countableQuizIds = quizzes.filter(quiz => !_.includes(quiz.tags, 'ignore')).map(quiz => quiz._id.toString())
+      
       const maxCountableNormalizedPoints = countableQuizIds.length
     
       const answererIds = _.uniq(answers.map(answer => answer.answererId))
@@ -276,7 +282,7 @@ const getCompleted = async () => {
         const sortedAnswers = _.sortBy(answerValidation, 'createdAt')
 
         let partialNormalizedPoints = 0
-        let partialCompletedAmount = 0
+        let partialConfirmedAmount = 0
         let partialCompleted = false
         let completionAnswersDate = null
 
@@ -284,21 +290,21 @@ const getCompleted = async () => {
 
         sortedAnswers.some((entry => {
           if (prevDate > entry.createdAt) {
-            throw new Error('answer sorting is borked?')
+            return Promise.reject(new Error('answer sorting is borked?'))
           }
 
           prevDate = entry.createdAt
 
           if (_.includes(countableQuizIds, entry.quizId.toString())) {
             partialNormalizedPoints += entry.normalizedPoints
-            partialCompletedAmount += entry.confirmed ? 1 : 0
+            partialConfirmedAmount += entry.confirmed ? 1 : 0
           }
 
-          let partialProgress = calculatePercentage(partialCompletedAmount, maxCountableNormalizedPoints)
+          let partialProgress = calculatePercentage(partialConfirmedAmount, maxCountableNormalizedPoints)
           let partialScore = calculatePercentage(partialNormalizedPoints, maxCountableNormalizedPoints)
 
           if (partialProgress > 100 || partialScore > 100) {
-            throw new Error('your progress/score calculations are wrong', progress, partialProgress, partialScore)
+            return Promise.reject(new Error('your progress/score calculations are wrong', progress, partialProgress, partialScore))
           }
 
           if (partialProgress >= config.MINIMUM_PROGRESS_TO_PASS &&
@@ -306,6 +312,10 @@ const getCompleted = async () => {
             completionAnswersDate = entry.createdAt
             partialCompleted = true
             
+            if (partialProgress > progress.validation.progress || partialScore > score) {
+              console.log('%s official p/s %d/%d partial p/s %d/%d', answererId, progress.validation.progress, score, partialProgress, partialScore)
+            }
+
             return true
           }
 
