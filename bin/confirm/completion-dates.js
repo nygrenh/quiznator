@@ -63,14 +63,16 @@ const main = async () => {
 
   console.log('got %d states...', courseStates.length)
 
+  let count = 0
+
   return await Promise.all(courseStates.map(async (courseState) => {
     // reset completion date if user hasn't completed the course
-    if (!courseState.completion.completed) {
+/*     if (!courseState.completion.completed) {
       courseState.completion.completionDate = null
       await courseState.save()
 
       return Promise.resolve()
-    }
+    } */
 
     // group users answer validation and answers 
     const answers = await Promise.all(courseState.completion.data.answerValidation.map(async (entry) => {
@@ -85,7 +87,8 @@ const main = async () => {
     const sortedAnswers = _.sortBy(answers, 'answer.createdAt')
 
     let normalizedPoints = 0
-    let completed = 0
+    let completedAmount = 0
+    let completed = false
     let completionDate = null
 
     let prevDate = 0
@@ -98,15 +101,17 @@ const main = async () => {
       // exclude ignored
       if (_.includes(countableQuizIds, entry.answer.quizId.toString())) {
         normalizedPoints += entry.validation.normalizedPoints
-        completed += entry.answer.confirmed ? 1 : 0
+        completedAmount += entry.answer.confirmed ? 1 : 0
       }
 
-      let progress = precise_round(completed / maxNormalizedPoints * 100, 2)
+      let progress = precise_round(completedAmount / maxNormalizedPoints * 100, 2)
       let score = precise_round(normalizedPoints / maxNormalizedPoints * 100, 2)
 
       if (progress >= config.MINIMUM_PROGRESS_TO_PASS &&
           score >= config.MINIMUM_SCORE_TO_PASS) {
           completionDate = entry.answer.createdAt
+          completed = true
+          count++
           console.log(courseState.answererId)
     
           return true
@@ -116,12 +121,13 @@ const main = async () => {
     })
 
     courseState.completion.completionDate = completionDate
-    await courseState.save()
+    courseState.completion.completed = completed
+    //await courseState.save()
 
     return Promise.resolve()
   }))
-  .then(() => console.log("DONE"))
-  //.catch(err => console.warn(err))
+  .then(() => console.log("DONE: " + count))
+  .catch(err => console.warn(err))
 }
 
 main()

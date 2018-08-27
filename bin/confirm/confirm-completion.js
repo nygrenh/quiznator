@@ -55,37 +55,20 @@ _.map(_.range(1, config.PARTS + 1), (part) => {
   - 
 */
 function getProgressWithValidation(answererId, answers, quizzes) {
-  //return new Promise((resolve, reject) => {
-  //const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
   const quizIds = quizzes.map(quiz => quiz._id)
-  //const getAnswers = QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).exec()
-  //const getPeerReviewsGiven = PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec() 
-  //const getPeerReviewsReceived = PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() 
 
   let essaysAwaitingPeerReviewsGiven = []
   let latestAnswerDate = 0
 
-  /*     return getAnswers
-      .then(answers => { */
-  //return Promise.all([getAnswers/*, getPeerReviewsGiven, getPeerReviewsReceived*/])
-  //  .spread((answers/*, peerReviewsGiven, peerReviewsReceived*/) => {
-
   const answerQuizIds = Array.from(answers.keys()) // map(answer => answer.quizId.toString());
 
   const progress = _.groupBy(quizzes.map(quiz => {
-    /*           const answersForQuiz = answers.filter(answer => answer.quizId.equals(quiz._id))
-
-          let answer = answersForQuiz
-                    */
     let answersForQuiz = answers.get(quiz._id.toString()) || []
     let answer = answersForQuiz //answers[quiz._id] || []
 
-    //console.log(answers)
-    
     if (answersForQuiz.length > 0) {
       let newestDate = 0
   
-      //answer = [answersForQuiz[0]] // still expecting an array
       newestDate = answer[0].createdAt
 
       // answers now come sorted by date from backend
@@ -99,30 +82,9 @@ function getProgressWithValidation(answererId, answers, quizzes) {
       latestAnswerDate = Math.max(newestDate, latestAnswerDate)
     }
 
-    let peerReviewsReturned = undefined
-          
-    /*          if (quiz.type === quizTypes.ESSAY) {
-            const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
-            const received = peerReviewsReceived.filter(pr => pr.sourceQuizId.equals(quiz._id))
-          
-            peerReviewsReturned = {
-              given,
-              received
-            }
-
-            if (given.length < MINIMUM_PEER_REVIEWS_GIVEN && answer.length > 0)  {
-              essaysAwaitingPeerReviewsGiven.push(quiz._id)
-            }
-          }*/
-
-    let returnedQuiz
-
-    returnedQuiz = quiz
-
     let returnObject = {
-      quiz: returnedQuiz,
+      quiz,
       answer: answers && answer.length > 0 ? answer : [],
-      peerReviews: peerReviewsReturned
     } 
 
     return returnObject
@@ -149,11 +111,17 @@ function getProgressWithValidation(answererId, answers, quizzes) {
   return returnObject 
 }
 
-function updateCompletion(answererId, data) {
+function updateCompletion(data) {
   return new Promise((resolve, reject) => {
+    const { answererId, scoreObject, completionAnswersDate, partialCompleted } = data
+
     const completed = 
-      data.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
-      data.score >= config.MINIMUM_SCORE_TO_PASS
+      scoreObject.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
+      scoreObject.score >= config.MINIMUM_SCORE_TO_PASS
+
+    if (partialCompleted !== completed) {
+      console.log('Answerer', answererId, 'has differing states for completion')
+    }
 
     CourseState.findOne( // andupdate
       { answererId,
@@ -170,9 +138,10 @@ function updateCompletion(answererId, data) {
       }
 
       let completionData = {
-        data,
+        data: scoreObject,
         completed,
         completionDate,
+        completionAnswersDate,
         confirmationSent: false
       }
 
@@ -198,6 +167,39 @@ function updateCompletion(answererId, data) {
     .catch(err => reject(err))
   })
 }
+
+const mapAnswers = (answers) => {
+  const answersForAnswerer = new Map()
+
+  answers.forEach(answer => {
+    if (!answersForAnswerer.has(answer.answererId)) {
+      answersForAnswerer.set(answer.answererId, new Map())
+    }
+    if (!answersForAnswerer.get(answer.answererId).has(answer.quizId.toString())) {
+      answersForAnswerer.get(answer.answererId).set(answer.quizId.toString(), [])
+    }
+    let value = answersForAnswerer.get(answer.answererId).get(answer.quizId.toString())
+    value.push(answer)
+    answersForAnswerer.get(answer.answererId).set(answer.quizId.toString(), value)
+  })
+
+  return answersForAnswerer
+}
+
+const mapEntry = (entry) => ({
+  quizId: entry.quiz._id,
+  answerId: entry.answer[0]._id,
+  points: entry.validation.points,
+  maxPoints: entry.validation.maxPoints,
+  normalizedPoints: entry.validation.normalizedPoints,
+  confirmed: entry.answer[0].confirmed,
+  rejected: entry.answer[0].rejected,
+  peerReviewCount: entry.answer[0].peerReviewCount,
+  spamFlags: entry.answer[0].spamFlags,
+  type: entry.quiz.type,
+  createdAt: entry.answer[0].createdAt,
+  updatedAt: entry.answer[0].updatedAt
+})
 
 const getCompleted = () => 
   new Promise((resolve, reject) => 
@@ -225,36 +227,24 @@ const getCompleted = () =>
     ]).exec()*/
 
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIdsMap }})
-
     // ...check for existing confirmations
     let completed = []
     
     return Promise.all([getQuizzes, getAnswers])
       .spread((quizzes, answers) => {
+        const countableQuizIds = quizzes.filter(quiz => !_.includes(quiz.tags, 'ignore')).map(quiz => quiz._id.toString())
+        const maxCountableNormalizedPoints = countableQuizIds.length
+      
         const answererIds = _.uniq(answers.map(answer => answer.answererId))
         //const quizIds = _.uniq(answers.map(answer => answer._doc.quizId.toString()))
 
         console.log(answererIds.length + ' unique answerers, '+ answers.length + ' answers to trawl through...')
 
-        let answersForAnswerer = new Map()
-
-        answers.forEach(answer => {
-          if (!answersForAnswerer.has(answer.answererId)) {
-            answersForAnswerer.set(answer.answererId, new Map())
-          }
-          if (!answersForAnswerer.get(answer.answererId).has(answer.quizId.toString())) {
-            answersForAnswerer.get(answer.answererId).set(answer.quizId.toString(), [])
-          }
-          let value = answersForAnswerer.get(answer.answererId).get(answer.quizId.toString())
-          value.push(answer)
-          answersForAnswerer.get(answer.answererId).set(answer.quizId.toString(), value)
-        })
-
+        let answersForAnswerer = mapAnswers(answers)
 
         console.log('Ready initing, start crunching')    
+
         let count = 0
-        let percentage = 0
-        let percentagesShown = []
 
         return Promise.all(answererIds.map(answererId => {
           const progress = getProgressWithValidation(answererId, answersForAnswerer.get(answererId), quizzes)
@@ -269,20 +259,45 @@ const getCompleted = () =>
           const score = calculatePercentage(progress.validation.normalizedPoints, progress.validation.maxNormalizedPoints)
           const pointsPercentage = calculatePercentage(progress.validation.points, progress.validation.maxPoints)
                   
-          const mapEntry = entry => ({
-            quizId: entry.quiz._id,
-            answerId: entry.answer[0]._id,
-            points: entry.validation.points,
-            maxPoints: entry.validation.maxPoints,
-            normalizedPoints: entry.validation.normalizedPoints,
-            confirmed: entry.answer[0].confirmed,
-            rejected: entry.answer[0].rejected,
-            peerReviewCount: entry.answer[0].peerReviewCount,
-            spamFlags: entry.answer[0].spamFlags,
-            type: entry.quiz.type
-          })
+
+          // go through answers in submission order and determine the date when the answerer
+          // could have been potentially have completed  
 
           const answerValidation = progress.answered.map(entry => mapEntry(entry))
+          const sortedAnswers = _.sortBy(answerValidation, 'createdAt')
+
+          let partialNormalizedPoints = 0
+          let partialCompletedAmount = 0
+          let partialCompleted = false
+          let completionAnswersDate = null
+
+          let prevDate = 0
+
+          sortedAnswers.some((entry => {
+            if (prevDate > entry.createdAt) {
+              throw new Error('answer sorting is borked?')
+            }
+
+            prevDate = entry.createdAt
+
+            if (_.includes(countableQuizIds, entry.quizId.toString())) {
+              partialNormalizedPoints += entry.normalizedPoints
+              partialCompletedAmount += entry.confirmed ? 1 : 0
+            }
+
+            let partialProgress = calculatePercentage(partialCompletedAmount, maxCountableNormalizedPoints)
+            let partialScore = calculatePercentage(partialNormalizedPoints, maxCountableNormalizedPoints)
+
+            if (partialProgress >= config.MINIMUM_PROGRESS_TO_PASS &&
+                partialScore >= config.MINIMUM_SCORE_TO_PASS) {
+              completionAnswersDate = entry.createdAt
+              partialCompleted = true
+              
+              return true
+            }
+
+            return false
+          }))
 
           const scoreObject = {
             answererId,
@@ -307,7 +322,12 @@ const getCompleted = () =>
 
             //console.log('completion:', answererId)
 
-          return updateCompletion(answererId, scoreObject)
+          return updateCompletion({
+            answererId,
+            scoreObject,
+            completionAnswersDate,
+            partialCompleted
+          })
         }))
       })
       .then(_ => resolve(completed))

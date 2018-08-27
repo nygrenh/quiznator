@@ -10,7 +10,6 @@ function createPeerReviewForQuiz(options) {
     const quizId = options.getQuizId(req);
     const attributes = Object.assign({}, options.getAttributes(req), { quizId, giverAnswererId: options.getGiverAnswererId(req) });
 
-    console.log('attributes', attributes)
     const newPeerReview = new PeerReview(attributes);
 
     newPeerReview.save()
