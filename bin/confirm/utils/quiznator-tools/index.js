@@ -16,17 +16,18 @@ function fetchQuizIds(tags) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ tags })
-    }).then(res => {
-      res.json()
-        .then(tagData => {
-          tagData.forEach(data => {
-            if (~data.tags.indexOf(config.COURSE_ID)) {
-              data.quizIds.forEach(quizId => quizIds.push(quizId))
-            }
-          })
-          resolve(quizIds)
-        })
-    }).catch(err => reject(new Error(err)))
+    })
+    .then(res => res.json())
+    .then(tagData => {
+      tagData.forEach(data => {
+        if (~data.tags.indexOf(config.COURSE_ID)) {
+          data.quizIds.forEach(quizId => quizIds.push(quizId))
+        }
+      })
+
+      resolve(quizIds)
+    })
+    .catch(err => (console.error(err), reject(new Error(err))))
   })
 }
 
