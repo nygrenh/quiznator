@@ -205,7 +205,8 @@ const mapEntry = (entry) => ({
   spamFlags: entry.answer[0].spamFlags,
   type: entry.quiz.type,
   createdAt: entry.answer[0].createdAt,
-  updatedAt: entry.answer[0].updatedAt
+  updatedAt: entry.answer[0].updatedAt,
+  earliestCreatedAt: entry.answer[entry.answer.length - 1].createdAt
 })
 
 const getCompleted = async () => {
@@ -257,9 +258,11 @@ const getCompleted = async () => {
 
       const completed = await Promise.all(answererIds.map(async (answererId) => {
         //console.log(answererId)
+        const currentAnswers = answersForAnswerer.get(answererId)
+
         const progress = getProgressWithValidation({
           answererId, 
-          answers: answersForAnswerer.get(answererId), 
+          answers: currentAnswers, 
           quizzes
         })
 
@@ -279,7 +282,8 @@ const getCompleted = async () => {
         // could have been potentially have completed  
 
         const answerValidation = progress.answered.map(entry => mapEntry(entry))
-        const sortedAnswers = _.sortBy(answerValidation, 'createdAt')
+
+        const sortedAnswers = _.sortBy(answerValidation, 'earliestCreatedAt') //createdAt
 
         let partialNormalizedPoints = 0
         let partialConfirmedAmount = 0
@@ -288,39 +292,41 @@ const getCompleted = async () => {
 
         let prevDate = 0
 
-        sortedAnswers.some((entry => {
-          if (prevDate > entry.createdAt) {
-            return Promise.reject(new Error('answer sorting is borked?'))
-          }
-
-          prevDate = entry.createdAt
-
-          if (_.includes(countableQuizIds, entry.quizId.toString())) {
-            partialNormalizedPoints += entry.normalizedPoints
-            partialConfirmedAmount += entry.confirmed ? 1 : 0
-          }
-
-          let partialProgress = calculatePercentage(partialConfirmedAmount, maxCountableNormalizedPoints)
-          let partialScore = calculatePercentage(partialNormalizedPoints, maxCountableNormalizedPoints)
-
-          if (partialProgress > 100 || partialScore > 100) {
-            return Promise.reject(new Error('your progress/score calculations are wrong', progress, partialProgress, partialScore))
-          }
-
-          if (partialProgress >= config.MINIMUM_PROGRESS_TO_PASS &&
-              partialScore >= config.MINIMUM_SCORE_TO_PASS) {
-            completionAnswersDate = entry.createdAt
-            partialCompleted = true
-            
-            if (partialProgress > progress.validation.progress || partialScore > score) {
-              console.log('%s official p/s %d/%d partial p/s %d/%d', answererId, progress.validation.progress, score, partialProgress, partialScore)
+        if (score >= config.MINIMUM_SCORE_TO_PASS) {
+          sortedAnswers.some((entry => {
+            if (prevDate > entry.earliestCreatedAt) { // createdAt
+              return Promise.reject(new Error('answer sorting is borked?'))
             }
 
-            return true
-          }
+            prevDate = entry.earliestCreatedAt // createdAt
 
-          return false
-        }))
+            if (_.includes(countableQuizIds, entry.quizId.toString())) {
+              partialNormalizedPoints += entry.normalizedPoints
+              partialConfirmedAmount += entry.confirmed ? 1 : 0
+            }
+
+            let partialProgress = calculatePercentage(partialConfirmedAmount, maxCountableNormalizedPoints)
+            let partialScore = calculatePercentage(partialNormalizedPoints, maxCountableNormalizedPoints)
+
+            if (partialProgress > 100 || partialScore > 100) {
+              return Promise.reject(new Error('your progress/score calculations are wrong', progress, partialProgress, partialScore))
+            }
+
+            if (partialProgress >= config.MINIMUM_PROGRESS_TO_PASS) {
+//                partialScore >= config.MINIMUM_SCORE_TO_PASS) {
+              completionAnswersDate = entry.earliestCreatedAt // createdAt
+              partialCompleted = true
+              
+              if (partialProgress > progress.validation.progress || partialScore > score) {
+                console.log('%s official p/s %d/%d partial p/s %d/%d', answererId, progress.validation.progress, score, partialProgress, partialScore)
+              }
+
+              return true
+            }
+
+            return false
+          }))
+        }
 
         const scoreObject = {
           answererId,
@@ -359,7 +365,7 @@ const getCompleted = async () => {
 
         return
       }))
-      .then(results => results.filter(v => !!v))
+      .then(results => (results || []).filter(v => !!v))
       .catch(err => Promise.reject(err))
 
       return completed
