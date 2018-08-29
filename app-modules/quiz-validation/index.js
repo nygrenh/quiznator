@@ -279,7 +279,7 @@ function validateProgress(progress) {
     }
   })
 
-  reject = _.get(progress, 'rejected', []).map(entry => {
+  rejected = _.get(progress, 'rejected', []).map(entry => {
     const { quiz, answer, peerReviews } = entry
     const { items } = quiz.data
 
