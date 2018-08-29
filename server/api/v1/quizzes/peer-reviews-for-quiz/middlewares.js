@@ -83,6 +83,7 @@ function getPeerReviewsForAnswerer(options) {
         answererId, 
         limit: 2, 
         skip: 0,
+        poolSize: 60,
         minimumPeerReviews: config.MINIMUM_PEER_REVIEWS_RECEIVED,
         maxSpam: config.MINIMUM_SPAM_FLAGS_TO_FAIL - 1
       })
