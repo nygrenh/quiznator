@@ -111,4 +111,36 @@ function getPeerReviewsForAnswerer(options) {
   }
 }
 
-module.exports = { getPeerReviewsForAnswerer, createPeerReviewForQuiz, getPeerReviewsGivenByAnswerer, getPeerReviewsGivenByAnswererAndActualQuiz };
+function getFairPeerReviewsForAnswerer(options) {
+  return (req, res, next) => {
+    const quizId = options.getQuizId(req);
+    const answererId = options.getAnswererId(req);
+
+    let findPeerReviews = Promise.resolve({})
+
+    findPeerReviews = PeerReview.findPeerReviewsForAnswererv3({ 
+      quizId, 
+      answererId, 
+      limit: 2, 
+      skip: 0,
+      poolSize: 60,
+      minimumPeerReviews: config.MINIMUM_PEER_REVIEWS_RECEIVED,
+      maxSpam: config.MINIMUM_SPAM_FLAGS_TO_FAIL - 1,
+      quizIdSwapped: true
+    })
+
+    const findQuiz = Quiz.findOne({ _id: quizId });
+
+    Promise.all([findPeerReviews, findQuiz])
+      .spread((peerReviews, quiz) => {
+        req.peerReviews = {
+          quiz,
+          peerReviews
+        };
+
+        return next();
+      })
+      .catch(err => next(err));
+  }
+}
+module.exports = { getPeerReviewsForAnswerer, getFairPeerReviewsForAnswerer, createPeerReviewForQuiz, getPeerReviewsGivenByAnswerer, getPeerReviewsGivenByAnswererAndActualQuiz };

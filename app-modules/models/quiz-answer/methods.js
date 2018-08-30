@@ -61,11 +61,12 @@ module.exports = schema => {
         }
         // find and group all answers  
 
+
         return this.aggregate([
           {
             $match: { 
               answererId: { $in: data.map(doc => doc._id) },
-              quizId: { $in: _.uniq(data.map(doc => doc.quizId)) }
+              quizId: _.get(data, '[0].quizId', null)
             }
           },
           { 
@@ -85,7 +86,7 @@ module.exports = schema => {
           }
         ]).exec()
           .then(answers => {
-            return Promise.resolve(data
+            const ret = data
               .filter(doc => {
                 const filtered = answers
                   .filter(answer => answer._id === doc._id) 
@@ -102,7 +103,9 @@ module.exports = schema => {
                 }
 
                 return true
-              }))
+              })
+
+            return Promise.resolve(ret)
           })
         })      
       .then(data => {
@@ -204,7 +207,7 @@ module.exports = schema => {
 
   schema.statics.getByQuizIds = function(quizIds, answererId) {
     if (!answererId || !quizIds || (!!quizIds && quizIds.length === 0)) {
-      return Promise.esolve({})
+      return Promise.resolve({})
     }
 
     let pipeline = [

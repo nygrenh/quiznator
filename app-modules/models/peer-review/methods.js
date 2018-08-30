@@ -64,6 +64,7 @@ module.exports = schema => {
       // map received answerids to objectid
       .then(reviews => reviews.map(review => mongoose.Types.ObjectId(review.chosenQuizAnswerId.toString())))
       .then(chosenQuizAnswerIds => {
+        
         const basicQuery = {
           quizId: mongoose.Types.ObjectId(quizId.toString()),
           answererId: { $ne: answererId },
@@ -106,6 +107,69 @@ module.exports = schema => {
             return _.sampleSize(reviews, limit)
           })
       })
+  }
+
+  schema.statics.findPeerReviewsForAnswererv3 = async function(options) {
+    const {
+      answererId, 
+      quizId, 
+      limit = 2, 
+      skip = 0, 
+      minimumGivenPeerReviews = 3,
+      minimumReceivedPeerReviews = 2, 
+      maxSpam = 2,
+      poolSize = 20,
+      quizIdSwapped = false
+    } = options
+
+    // get peer reviews per answerer, sorted by given reviews
+    const peerReviewsPerAnswerer = await this.aggregate([
+      quizIdSwapped 
+        ? { $match: { sourceQuizId: mongoose.Types.ObjectId(quizId) } }
+        : { $match: { quizId: mongoose.Types.ObjectId(quizId) } },
+      { $group: { 
+        _id: "$giverAnswererId", 
+        answerIds: { $addToSet: "$chosenQuizAnswerId" }, 
+        reviews: { $sum: 1 } } 
+      },
+      { $sort: { reviews: -1 } }
+    ]).exec()
+    const peerReviewsGroupedPerAnswerer = _.groupBy(peerReviewsPerAnswerer, '_id')
+    const chosenQuizAnswerIds = _.get(peerReviewsGroupedPerAnswerer[answererId], 'answerIds', []).map(id => mongoose.Types.ObjectId(id))
+    const peerReviewAnswererIds = Object.keys(peerReviewsGroupedPerAnswerer).filter(id => id !== answererId)
+
+    // get answers with not enough peer reviews, not spam and not already peer reviewed by this answerer 
+    const query = {
+      quizId: mongoose.Types.ObjectId(quizId.toString()),
+      answererId: { $in: peerReviewAnswererIds },
+      spamFlags: { $lte: maxSpam },
+      _id: { $nin: chosenQuizAnswerIds },
+      peerReviewCount: { $lt: minimumReceivedPeerReviews }
+    }
+
+    const answers = await QuizAnswer.findDistinctlyByAnswerer(query, {
+      sort: { peerReviewCount: -1 },
+      //filterDuplicates: true
+    })
+
+    const answersPerAnswerer = _.groupBy(answers, 'answererId')
+    const answererIds = Object.keys(answersPerAnswerer)
+
+    const reviews = peerReviewsPerAnswerer
+      .reduce((obj, entry) => {
+        if (_.includes(answererIds, entry._id) && entry.reviews >= minimumGivenPeerReviews) {
+          obj.push(answersPerAnswerer[entry._id][0])
+        }
+
+        return obj
+      }, [])
+      .slice(limit + poolSize)
+
+    if (reviews.length < limit) {
+      return this.findPeerReviewsForAnswerer(options)
+    }
+
+    return Promise.resolve(_.sampleSize(reviews, limit)) 
   }
 
   schema.statics.findPeerReviewsGivenToAnswerer = function(options) {

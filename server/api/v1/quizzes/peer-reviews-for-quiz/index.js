@@ -37,6 +37,16 @@ router.get('/:answererId/v2',
     res.json(req.peerReviews);
   });
 
+router.get('/:answererId/v3',
+  TMCMiddlewares.isUser(req => req.params.answererId),
+  middlewares.getFairPeerReviewsForAnswerer({
+    getAnswererId: req => req.params.answererId,
+    getQuizId: req => req.params.id,
+  }),
+  (req, res, next) => {
+    res.json(req.peerReviews);
+  });
+
 router.get('/:answererId/given-reviews',
   validatorMiddlewares.validateQuery({
     limit: { numericality: true }
