@@ -163,7 +163,7 @@ module.exports = schema => {
 
         return obj
       }, [])
-      .slice(limit + poolSize)
+      .slice(0, limit + poolSize)
 
     if (reviews.length < limit) {
       return this.findPeerReviewsForAnswerer(options)

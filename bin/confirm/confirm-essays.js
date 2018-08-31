@@ -112,71 +112,72 @@ function initMaps({ answers, peerReviews, reviewAnswers }) {
 
 /////
 
-function updateConfirmations(data) {
-  return new Promise((resolve, reject) => {
-    const allData = _.flatten(_.concat(data.passed, data.failed, data.review))
-    
-    let count = 0
-    let percentage = 0
-    let percentagesShown = []
+async function updateConfirmations(data) {
+/*   return new Promise((resolve, reject) => { */
+  const allData = _.flatten(_.concat(data.passed, data.failed, data.review))
+  
+  let count = 0
+  let percentage = 0
+  let percentagesShown = []
 
-    return Promise.all(allData.map(entry => {
-  /*       const answer = entry.answer[0] */
-      const { quizId, answererId } = entry
+  return await Promise.all(allData.map(async entry => {
+/*       const answer = entry.answer[0] */
+    const { quizId, answererId } = entry
 
-      const answerId = entry.answer._id // [0]._id
+    const answerId = entry.answer._id // [0]._id
 
-      return QuizAnswer.findById(answerId)
-        .then(answer => {
-          answer.confirmed = entry.pass ? true : false
-          answer.rejected = entry.fail ? true : false
-          return answer.save()
-        })
-        .then(savedAnswer => {
-          //console.log(savedAnswer)
-          //console.log('entry', entry)
-          const data = {
-            quizId,
-            answerId,
-            answererId,
-            status: {
-              pass: entry.pass,
-              review: entry.review,
-              rejected: entry.fail,
-              reason: entry.reason
-            },
-            data: {
-              peerReviewsGiven: entry.givenCount,
-              peerReviewsReceived: entry.receivedCount,
-              spamFlags: entry.spamFlags,
-              grades: entry.grades,
-              gradePercentage: entry.gradePercentage,
-              sadFacePercentage: entry.sadFacePercentage,
+    const answer = await QuizAnswer.findById(answerId)
 
-            }
-          }
+    if (!answer) {
+      return
+    }
 
-          count += 1
-          percentage = precise_round(count / allData.length * 100, 0)
+    answer.confirmed = entry.pass ? true : false
+    answer.rejected = entry.fail ? true : false
+
+    const savedAnswer = await answer.save()
+
+    const data = {
+      quizId,
+      answerId,
+      answererId,
+      status: {
+        pass: entry.pass,
+        review: entry.review,
+        rejected: entry.fail,
+        reason: entry.reason
+      },
+      data: {
+        peerReviewsGiven: entry.givenCount,
+        peerReviewsReceived: entry.receivedCount,
+        spamFlags: entry.spamFlags,
+        grades: entry.grades,
+        gradePercentage: entry.gradePercentage,
+        sadFacePercentage: entry.sadFacePercentage,
+      }
+    }
+
+    count += 1
+    percentage = precise_round(count / allData.length * 100, 0)
 /*           if (!_.includes(percentagesShown, percentage)) {
-            percentagesShown.push(percentage)
-            printProgress(percentage)
-          } */
+      percentagesShown.push(percentage)
+      printProgress(percentage)
+    } */
 
-          return QuizReviewAnswer.findOneAndUpdate(
-            { answerId },
-            { $set: data },
-            { new: true, upsert: true}
-          )
-        })
-    }))
-      .then(_ => {
-        return resolve()
-      })
-  })
+    await QuizReviewAnswer.findOneAndUpdate(
+      { answerId },
+      { $set: data },
+      { new: true, upsert: true}
+    )
+  }))
+  .then(() => Promise.resolve())
+  .catch(err => Promise.reject(err))
+  //})
 }
 
-function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven, peerReviewsReceived, reviewAnswers }) {
+function getEssaysForAnswerer(data) {
+  const { answers, answererId, essayIds, peerReviewsGiven, peerReviewsReceived, reviewAnswers } = data
+
   let latestAnswerDate = 0
 
   const essaysForAnswerer = _.groupBy(essayIds.map(quizId => {
@@ -334,117 +335,98 @@ function getEssaysForAnswerer({ answers, answererId, essayIds, peerReviewsGiven
 }
 
 
-const updateEssays = () => new Promise((resolve, reject) => 
-  fetchQuizIds(tags)
-    .then(quizIds => {
-      if (quizIds.length === 0) { //} || answererIds.length === 0) {
-        return reject(new Error('no quizids'))
-      }
+const updateEssays = async () => {
+  try {
+    const quizIds = await fetchQuizIds(tags) 
 
-      const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
+    if (quizIds.length === 0) { //} || answererIds.length === 0) {
+      return Promise.reject(new Error('no quizids'))
+    }
+
+        
+    console.log('initing...')
+
+    let counter = 0
+        
+    const quizzes = await Quiz.findAnswerable({ _id: { $in: quizIds }})
+
+    const essays = quizzes.filter(quiz => quiz.type === quizTypes.ESSAY)
+    const essayIds = essays.map(quiz => quiz._id)
+
+    const answers = await QuizAnswer.find({
+      quizId: { $in: essayIds },
+      $or: [
+        { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED } },
+        { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
+      ]
+    }).exec()
+
+    const reviewAnswers = await QuizReviewAnswer.find({}).exec()
+
+    const peerReviews = await PeerReview.find({ 
+      sourceQuizId: { $in: essayIds }, 
+    }).exec() 
       
-      console.log('initing...')
-
-      let counter = 0
-
-      return getQuizzes
-        .then(quizzes => {
-          const essays = quizzes.filter(quiz => quiz.type === quizTypes.ESSAY)
-          const essayIds = essays.map(quiz => quiz._id)
-
-          const getAnswers = QuizAnswer.find({
-            quizId: { $in: essayIds },
-            $or: [
-              { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED } },
-              { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
-            ]
-          }).exec()
-
-          const getReviewAnswers = QuizReviewAnswer.find({}).exec()
- /*          const getReviewAnswers = QuizReviewAnswer.aggregate([
-            {
-              $sort: { createdAt: -1 }
-            }
-          ])
-          .allowDiskUse(true)
-          .exec()
- */
-          const getPeerReviews = PeerReview.find({ 
-            sourceQuizId: { $in: essayIds }, 
-          }).exec() 
-    
-          return Promise.all([getAnswers, getPeerReviews, getReviewAnswers])
-            .spread((answers, peerReviews, reviewAnswers) => {
-
-              // newest first
-              answers.sort((a, b) => b.createdAt - a.createdAt)
-              reviewAnswers.sort((a, b) => {
-                if (!a.createdAt || !b.createdAt) { 
-                  return 0
-                }
-                return b.createdAt - a.createdAt
-              })
-              
-              const answerQuizIds = answers.map(answer => answer.quizId.toString());
-              const answererIds = _.uniq(answers.map(answer => answer.answererId))
-            
-              const { 
-                answersForAnswerer, 
-                peerReviewsGivenForAnswerer, 
-                peerReviewsReceivedForAnswerer,
-                reviewAnswersForAnswerer } = 
-              initMaps({ answers, peerReviews, reviewAnswers })
-
-              const totalAnswers = _.sum(answererIds.map(answererId => 
-                answersForAnswerer.get(answererId).size))
-
-              console.log('In total, there are', answersForAnswerer.size, 'answerers and', totalAnswers, 'essays to check.')
-              //console.log('In total, there are', answererIds.length, 'answerers and', answerQuizIds.length, 'essays to check.')
-
-              const gradedEssays = answererIds.map(answererId => {
-                counter += 1
-/*                 if (counter % 100 === 0) {
-                  console.log('At answerer #', counter)
-                } 
-*/
-
-                const essaysForAnswerer = getEssaysForAnswerer({ 
-                  answers: answersForAnswerer.get(answererId),
-                  essayIds,
-                  peerReviewsGiven: peerReviewsGivenForAnswerer.get(answererId),
-                  peerReviewsReceived: peerReviewsReceivedForAnswerer.get(answererId),
-                  reviewAnswers: reviewAnswersForAnswerer.get(answererId),
-                  answererId
-                })
-              
-                return essaysForAnswerer
-              }).filter(v => !!v) //, essays => answererId) // groupBy
-              
-              const returned = {
-                passed: gradedEssays.filter(v => v.pass).map(essay => essay.pass),
-                failed: gradedEssays.filter(v => v.fail).map(essay => essay.fail),
-                review: gradedEssays.filter(v => v.review).map(essay => essay.review)
-              }
-            
-              //console.log(JSON.stringify(returned))
-              //return JSON.stringify(returned)
-            
-              // TODO: unconfirm failed
-              return returned
-            
-            })
-        })
+    // newest first
+    answers.sort((a, b) => b.createdAt - a.createdAt)
+    reviewAnswers.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) { 
+        return 0
+      }
+      return b.createdAt - a.createdAt
     })
-    .then(returned => resolve(returned))
-    .catch(err => reject(err))
-)
+    
+    const answerQuizIds = answers.map(answer => answer.quizId.toString());
+    const answererIds = _.uniq(answers.map(answer => answer.answererId))
+
+    const { 
+      answersForAnswerer, 
+      peerReviewsGivenForAnswerer, 
+      peerReviewsReceivedForAnswerer,
+      reviewAnswersForAnswerer } = 
+    initMaps({ answers, peerReviews, reviewAnswers })
+
+    const totalAnswers = _.sum(answererIds.map(answererId => 
+      answersForAnswerer.get(answererId).size))
+
+    console.log('In total, there are', answersForAnswerer.size, 'answerers and', totalAnswers, 'essays to check.')
+    //console.log('In total, there are', answererIds.length, 'answerers and', answerQuizIds.length, 'essays to check.')
+
+    const gradedEssays = answererIds.map(answererId => {
+      counter += 1
+  /*                 if (counter % 100 === 0) {
+        console.log('At answerer #', counter)
+      } 
+  */
+
+      const essaysForAnswerer = getEssaysForAnswerer({ 
+        answers: answersForAnswerer.get(answererId),
+        essayIds,
+        peerReviewsGiven: peerReviewsGivenForAnswerer.get(answererId),
+        peerReviewsReceived: peerReviewsReceivedForAnswerer.get(answererId),
+        reviewAnswers: reviewAnswersForAnswerer.get(answererId),
+        answererId
+      })
+    
+      return essaysForAnswerer
+    }).filter(v => !!v) //, essays => answererId) // groupBy
+                
+    const returned = {
+      passed: gradedEssays.filter(v => v.pass).map(essay => essay.pass),
+      failed: gradedEssays.filter(v => v.fail).map(essay => essay.fail),
+      review: gradedEssays.filter(v => v.review).map(essay => essay.review)
+    }
+
+    return Promise.resolve(returned)
+  } catch (err) {
+    console.error(err)
+    return Promise.reject(err)
+  }
+}
 
 updateEssays()
-  .then(returned => new Promise((resolve, reject) => 
-    updateConfirmations(returned)
-      .then(_ => resolve(returned))
-      .catch(err => reject(err))))
-  .then(returned => {
+  .then(async returned => {
+    await updateConfirmations(returned)
     //console.log(JSON.stringify(returned))
     console.log('\ntotal passed/failed/review', returned.passed.length, returned.failed.length, returned.review.length)
     //process.exit(0)
