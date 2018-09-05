@@ -376,7 +376,6 @@ const updateEssays = async () => {
       answersForAnswerer.get(answererId).size))
 
     console.log('In total, there are', answersForAnswerer.size, 'answerers and', totalAnswers, 'essays to check for', courseConfig.COURSE_ID)
-    //console.log('In total, there are', answererIds.length, 'answerers and', answerQuizIds.length, 'essays to check.')
 
     const gradedEssays = answererIds.map(answererId => {
       counter += 1

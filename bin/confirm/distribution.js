@@ -26,7 +26,7 @@ connect()
 
 var args = process.argv.slice(2)
 
-const courseConfig = selectConfig(args[0])
+const courseConfig = selectConfig(args[args.length - 1])
 
 const calculateDistribution = () => new Promise((resolve, reject) => 
   fetchQuizIds(courseConfig.COURSE_ID)

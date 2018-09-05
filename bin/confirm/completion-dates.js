@@ -28,7 +28,7 @@ connect()
 
 var args = process.argv.slice(2)
 
-const courseConfig = selectConfig(args[0])
+const courseConfig = selectConfig(args[args.length - 1])
 
 const main = async () => {
   const quizIds = await fetchQuizIds(courseConfig.COURSE_ID)
