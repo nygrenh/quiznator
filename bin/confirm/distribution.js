@@ -3,7 +3,8 @@ require('app-module-path').addPath(__dirname + '/../../');
 
 require('dotenv').config({ path: resolve('../..', '.env')}) // { silent: true };
 
-const { config } = require('app-modules/constants/course-config')
+const { config } = require('./constants/config')
+const { selectConfig } = require('app-modules/constants/course-config')
 const Promise = require('bluebird');
 const _ = require('lodash');
 const mongoose = require('mongoose');
@@ -14,30 +15,21 @@ const quizTypes = require('app-modules/constants/quiz-types')
 const CourseState = require('app-modules/models/course-state')
 const Quiz = require('app-modules/models/quiz')
 
-const { fetchQuizIds } = require('./utils/quiznator-tools')
+const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, calculatePercentage, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
 const sleep = require("sleep")
 
 sleep.sleep(5)
 
-mongoose.connect(config.DB_URI, err => {
-  if (err) {
-    console.log(err)
-    process.exit(1)
-  }
-})
+connect()
 
-let tags = []
+var args = process.argv.slice(2)
 
-_.map(_.range(1, config.PARTS + 1), (part) => {
-  _.map(_.range(1, config.SECTIONS_PER_PART + 1), (section) => {
-    tags.push(`${config.COURSE_SHORT_ID}_${part}_${section}`)
-  })
-})
+const courseConfig = selectConfig(args[0])
 
 const calculateDistribution = () => new Promise((resolve, reject) => 
-  fetchQuizIds(tags)
+  fetchQuizIds(courseConfig.COURSE_ID)
     .then(quizIds => {
       const quizIdsMap = quizIds.map(quizId => mongoose.Types.ObjectId(quizId))
       const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIdsMap }})

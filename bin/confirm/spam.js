@@ -5,7 +5,7 @@ require('app-module-path').addPath(__dirname + '/../../');
 
 require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
 
-const { config } = require('app-modules/constants/course-config')
+const { selectConfig } = require('app-modules/constants/course-config')
 const Promise = require('bluebird');
 const _ = require('lodash');
 const mongoose = require('mongoose');
@@ -14,31 +14,16 @@ mongoose.Promise = require('bluebird').Promise
 const QuizAnswerSpamFlag = require('app-modules/models/quiz-answer/quiz-answer-spam-flag')
 const QuizAnswer = require('app-modules/models/quiz-answer')
 
-const { fetchQuizIds } = require('./utils/quiznator-tools')
+const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 
-mongoose.connect(config.DB_URI, {
-  useMongoClient: true
-})
+connect()
 
-var db = mongoose.connection
+var args = process.argv.slice(2)
 
-db.on('error', err => {
-  if (err) {
-    console.log(err)
-    process.exit(1)
-  }
-})
-
-let tags = []
-
-_.map(_.range(1, config.PARTS + 1), (part) => {
-  _.map(_.range(1, config.SECTIONS_PER_PART + 1), (section) => {
-    tags.push(`${config.COURSE_SHORT_ID}_${part}_${section}`)
-  })
-})
+const courseConfig = selectConfig(args[0])
 
 const main = async () => {
-  const quizIds = await fetchQuizIds(tags)
+  const quizIds = await fetchQuizIds(courseConfig.COURSE_ID)
   const spamFlags = await QuizAnswerSpamFlag.find({})
   let answerMap = {}
   let answererMap = []

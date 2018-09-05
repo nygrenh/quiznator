@@ -5,14 +5,15 @@ require('app-module-path').addPath(__dirname + '/../../');
 
 require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
 
-const { config } = require('app-modules/constants/course-config')
+const { config } = require('./constants/config')
+const { selectConfig } = require('app-modules/constants/course-config')
 const Promise = require('bluebird');
 const _ = require('lodash');
 
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird').Promise
 
-const { fetchQuizIds } = require('./utils/quiznator-tools')
+const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 
 const Quiz = require('app-modules/models/quiz')
 const QuizAnswer = require('app-modules/models/quiz-answer')
@@ -23,29 +24,14 @@ const { precise_round } = require('app-modules/utils/math-utils')
 
 const sleep = require("sleep")
 
-mongoose.connect(config.DB_URI, {
-  useMongoClient: true
-})
+connect()
 
-var db = mongoose.connection
+var args = process.argv.slice(2)
 
-db.on('error', err => {
-  if (err) {
-    console.log(err)
-    process.exit(1)
-  }
-})
-
-let tags = []
-
-_.map(_.range(1, config.PARTS + 1), (part) => {
-  _.map(_.range(1, config.SECTIONS_PER_PART + 1), (section) => {
-    tags.push(`${config.COURSE_SHORT_ID}_${part}_${section}`)
-  })
-})
+const courseConfig = selectConfig(args[0])
 
 const main = async () => {
-  const quizIds = await fetchQuizIds(tags)
+  const quizIds = await fetchQuizIds(courseConfig.COURSE_ID)
 
   const countableQuizIds = await Promise.all(quizIds.map(async (quizId) => {
     const quiz = await Quiz.findOne({ _id: quizId })
@@ -107,8 +93,8 @@ const main = async () => {
       let progress = precise_round(completedAmount / maxNormalizedPoints * 100, 2)
       let score = precise_round(normalizedPoints / maxNormalizedPoints * 100, 2)
 
-      if (progress >= config.MINIMUM_PROGRESS_TO_PASS &&
-          score >= config.MINIMUM_SCORE_TO_PASS) {
+      if (progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS &&
+          score >= courseConfig.MINIMUM_SCORE_TO_PASS) {
           completionDate = entry.answer.createdAt
           completed = true
           count++

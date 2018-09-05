@@ -3,7 +3,8 @@ const resolve = require('path').resolve
 require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
 require('app-module-path').addPath(__dirname + '/../../');
 
-const { config, reasons } = require('app-modules/constants/course-config')
+const { config } = require('./constants/config')
+const { selectConfig, reasons } = require('app-modules/constants/course-config')
 const Promise = require('bluebird')
 const _ = require('lodash')
 const mongoose = require('mongoose')
@@ -15,7 +16,7 @@ const Quiz = require('app-modules/models/quiz');
 const QuizAnswer = require('app-modules/models/quiz-answer');
 const PeerReview = require('app-modules/models/peer-review');
 const QuizReviewAnswer = require('app-modules/models/quiz-review-answer')
-const { fetchQuizIds } = require('./utils/quiznator-tools')
+const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
 
@@ -23,26 +24,11 @@ const sleep = require("sleep")
 
 sleep.sleep(5)
 
-mongoose.connect(config.DB_URI, {
-  useMongoClient: true
-})
+connect()
 
-var db = mongoose.connection
+var args = process.argv.slice(2)
 
-db.on('error', err => {
-  if (err) {
-    console.log(err)
-    process.exit(1)
-  }
-})
-
-let tags = []
-
-_.map(_.range(1, config.PARTS + 1), (part) => {
-  _.map(_.range(1, config.SECTIONS_PER_PART + 1), (section) => {
-    tags.push(`${config.COURSE_SHORT_ID}_${part}_${section}`)
-  })
-})
+const courseConfig = selectConfig(args[0])
 
 // utility function to create multi-dimensional maps for answerers
 function initMaps({ answers, peerReviews, reviewAnswers }) {
@@ -224,9 +210,9 @@ function getEssaysForAnswerer(data) {
     let filteredAverageGrades = grades
     
     // no use calculating the median from less than three 
-    if (config.MINIMUM_PEER_REVIEWS_RECEIVED >= 3) {
+    if (courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED >= 3) {
       const medianGrade = median(grades.map(grade => grade.sum))
-      filteredAverageGrades = grades.filter(grade => grade.sum >= (config.GRADE_CUTOFF_POINT * medianGrade))
+      filteredAverageGrades = grades.filter(grade => grade.sum >= (courseConfig.GRADE_CUTOFF_POINT * medianGrade))
     }
 
     // hard coded: expects 4 questions on a scale of 1-5...
@@ -238,20 +224,20 @@ function getEssaysForAnswerer(data) {
         grade => grade.sum
       )) / 20 * 100 : 0 
 
-    let pass = given.length >= config.MINIMUM_PEER_REVIEWS_GIVEN && 
-                received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED && // averageGrade >= 12
-                sadFacePercentage < config.MAXIMUM_SADFACE_PERCENTAGE &&
-                spamFlags <= config.MAXIMUM_SPAM_FLAGS_TO_PASS
+    let pass = given.length >= courseConfig.MINIMUM_PEER_REVIEWS_GIVEN && 
+                received.length >= courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED && // averageGrade >= 12
+                sadFacePercentage < courseConfig.MAXIMUM_SADFACE_PERCENTAGE &&
+                spamFlags <= courseConfig.MAXIMUM_SPAM_FLAGS_TO_PASS
 
     let fail = false
     let reason = ''
 
-    if (received.length >= config.MINIMUM_PEER_REVIEWS_RECEIVED &&
-        sadFacePercentage >= config.MAXIMUM_SADFACE_PERCENTAGE) {
+    if (received.length >= courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED &&
+        sadFacePercentage >= courseConfig.MAXIMUM_SADFACE_PERCENTAGE) {
       fail = true
       reason = reasons.REJECT_TOO_MANY_SADFACES
     }
-    if (spamFlags >= config.MINIMUM_SPAM_FLAGS_TO_FAIL) {
+    if (spamFlags >= courseConfig.MINIMUM_SPAM_FLAGS_TO_FAIL) {
       fail = true
       reason = reasons.REJECT_FLAGGED_AS_SPAM
     }
@@ -262,8 +248,8 @@ function getEssaysForAnswerer(data) {
     // TODO: this means confirmed/rejected under limits
     // won't be updated - a corner case but a case nonetheless
     if (review && 
-      (given.length < config.MINIMUM_PEER_REVIEWS_GIVEN ||
-      received.length < config.MINIMUM_PEER_REVIEWS_RECEIVED)) {
+      (given.length < courseConfig.MINIMUM_PEER_REVIEWS_GIVEN ||
+      received.length < courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED)) {
       return
     }
 
@@ -337,7 +323,7 @@ function getEssaysForAnswerer(data) {
 
 const updateEssays = async () => {
   try {
-    const quizIds = await fetchQuizIds(tags) 
+    const quizIds = await fetchQuizIds(courseConfig.COURSE_ID) 
 
     if (quizIds.length === 0) { //} || answererIds.length === 0) {
       return Promise.reject(new Error('no quizids'))
@@ -356,8 +342,8 @@ const updateEssays = async () => {
     const answers = await QuizAnswer.find({
       quizId: { $in: essayIds },
       $or: [
-        { peerReviewCount: { $gte: config.MINIMUM_PEER_REVIEWS_RECEIVED } },
-        { spamFlags: { $gte: config.MINIMUM_SPAM_FLAGS_TO_FAIL } }
+        { peerReviewCount: { $gte: courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED } },
+        { spamFlags: { $gte: courseConfig.MINIMUM_SPAM_FLAGS_TO_FAIL } }
       ]
     }).exec()
 
@@ -389,7 +375,7 @@ const updateEssays = async () => {
     const totalAnswers = _.sum(answererIds.map(answererId => 
       answersForAnswerer.get(answererId).size))
 
-    console.log('In total, there are', answersForAnswerer.size, 'answerers and', totalAnswers, 'essays to check.')
+    console.log('In total, there are', answersForAnswerer.size, 'answerers and', totalAnswers, 'essays to check for', courseConfig.COURSE_ID)
     //console.log('In total, there are', answererIds.length, 'answerers and', answerQuizIds.length, 'essays to check.')
 
     const gradedEssays = answererIds.map(answererId => {

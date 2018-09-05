@@ -2,11 +2,28 @@ require('dotenv').config({ silent: true });
 
 const fetchPonyfill = require('fetch-ponyfill')
 const { fetch } = fetchPonyfill()
-const { config } = require('app-modules/constants/course-config')
+const { config } = require('../../constants/config')
+const mongoose = require('mongoose');
+mongoose.Promise = require('bluebird').Promise
 
 const API_URI = config.API_URI
 
-function fetchQuizIds(tags) { 
+function connect() {
+  mongoose.connect(config.DB_URI, {
+    useMongoClient: true
+  })
+  
+  var db = mongoose.connection
+  
+  db.on('error', err => {
+    if (err) {
+      console.log(err)
+      process.exit(1)
+    }
+  })
+}
+
+function fetchQuizIds(courseId) { 
   return new Promise((resolve, reject) => {
     let quizIds = []
 
@@ -15,12 +32,12 @@ function fetchQuizIds(tags) {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ tags })
+      body: JSON.stringify({ tags: [courseId] })
     })
     .then(res => res.json())
     .then(tagData => {
       tagData.forEach(data => {
-        if (~data.tags.indexOf(config.COURSE_ID)) {
+        if (~data.tags.indexOf(courseId)) {
           data.quizIds.forEach(quizId => quizIds.push(quizId))
         }
       })
@@ -31,4 +48,4 @@ function fetchQuizIds(tags) {
   })
 }
 
-module.exports = { fetchQuizIds }
+module.exports = { connect, fetchQuizIds }

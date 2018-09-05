@@ -5,7 +5,8 @@ require('app-module-path').addPath(__dirname + '/../../');
 
 require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
 
-const { config } = require('app-modules/constants/course-config')
+const { config } = require('./constants/config')
+const { selectConfig } = require('app-modules/constants/course-config')
 const Promise = require('bluebird');
 const _ = require('lodash');
 const mongoose = require('mongoose');
@@ -20,34 +21,18 @@ const QuizAnswer = require('app-modules/models/quiz-answer')
 const PeerReview = require('app-modules/models/peer-review')
 const CourseState = require('app-modules/models/course-state')
 
-const { fetchQuizIds } = require('./utils/quiznator-tools')
+const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, calculatePercentage, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
 const sleep = require("sleep")
 
 sleep.sleep(5)
 
+connect()
 
-mongoose.connect(config.DB_URI, {
-  useMongoClient: true
-})
+var args = process.argv.slice(2)
 
-var db = mongoose.connection
-
-db.on('error', err => {
-  if (err) {
-    console.log(err)
-    process.exit(1)
-  }
-})
-
-let tags = []
-
-_.map(_.range(1, config.PARTS + 1), (part) => {
-  _.map(_.range(1, config.SECTIONS_PER_PART + 1), (section) => {
-    tags.push(`${config.COURSE_SHORT_ID}_${part}_${section}`)
-  })
-})
+const courseConfig = selectConfig(args[0])
 
 /*
   - course completion status
@@ -118,8 +103,8 @@ function updateCompletion(data) {
     const { answererId, scoreObject, completionAnswersDate, partialCompleted } = data
 
     const completed = 
-      scoreObject.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
-      scoreObject.score >= config.MINIMUM_SCORE_TO_PASS
+      scoreObject.progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS && 
+      scoreObject.score >= courseConfig.MINIMUM_SCORE_TO_PASS
 
     if (partialCompleted !== completed) {
       console.log('Answerer', answererId, 'has differing states for completion')
@@ -127,7 +112,7 @@ function updateCompletion(data) {
 
     CourseState.findOne( // andupdate
       { answererId,
-        courseId: config.COURSE_ID
+        courseId: courseConfig.COURSE_ID
       }
     ).then(courseState => {
       let completionDate
@@ -151,7 +136,7 @@ function updateCompletion(data) {
       if (!courseState) {
         newCourseState = CourseState({ 
           answererId,
-          courseId: config.COURSE_ID,
+          courseId: courseConfig.COURSE_ID,
           completion: completionData
         })
         
@@ -210,7 +195,7 @@ const mapEntry = (entry) => ({
 })
 
 const getCompleted = async () => {
-  const quizIds = await fetchQuizIds(tags)
+  const quizIds = await fetchQuizIds(courseConfig.COURSE_ID)
 
   console.log('initing...')
 
@@ -248,7 +233,7 @@ const getCompleted = async () => {
       const answererIds = _.uniq(answers.map(answer => answer.answererId))
       //const quizIds = _.uniq(answers.map(answer => answer._doc.quizId.toString()))
 
-      console.log(answererIds.length + ' unique answerers, '+ answers.length + ' answers to trawl through...')
+      console.log(answererIds.length + ' unique answerers, '+ answers.length + ' answers to trawl through for ' + courseConfig.COURSE_ID)
 
       let answersForAnswerer = mapAnswers(answers)
 
@@ -292,7 +277,7 @@ const getCompleted = async () => {
 
         let prevDate = 0
 
-        if (score >= config.MINIMUM_SCORE_TO_PASS) {
+        if (score >= courseConfig.MINIMUM_SCORE_TO_PASS) {
           sortedAnswers.some((entry => {
             if (prevDate > entry.earliestCreatedAt) { // createdAt
               return Promise.reject(new Error('answer sorting is borked?'))
@@ -312,7 +297,7 @@ const getCompleted = async () => {
               return Promise.reject(new Error('your progress/score calculations are wrong', progress, partialProgress, partialScore))
             }
 
-            if (partialProgress >= config.MINIMUM_PROGRESS_TO_PASS) {
+            if (partialProgress >= courseConfig.MINIMUM_PROGRESS_TO_PASS) {
 //                partialScore >= config.MINIMUM_SCORE_TO_PASS) {
               completionAnswersDate = entry.earliestCreatedAt // createdAt
               partialCompleted = true
@@ -358,8 +343,8 @@ const getCompleted = async () => {
           throw err
         }
 
-        if (progress.validation.progress >= config.MINIMUM_PROGRESS_TO_PASS && 
-          score >= config.MINIMUM_SCORE_TO_PASS) {
+        if (progress.validation.progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS && 
+          score >= courseConfig.MINIMUM_SCORE_TO_PASS) {
           return scoreObject
         }
 
