@@ -83,7 +83,7 @@ function updateQuizReviewAnswerStatus() {
 
       return next()
     })
-    .catch(next)
+      .catch(next)
   }
 }
 

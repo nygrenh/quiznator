@@ -19,7 +19,7 @@ const QuizReviewAnswer = require('app-modules/models/quiz-review-answer')
 const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
-const sleep = require("sleep")
+const sleep = require('sleep')
 
 connect()
 
@@ -37,7 +37,7 @@ function timeConversion(millisec) {
 
   var days = (millisec / (1000 * 60 * 60 * 24)).toFixed(1);
 
-  return hours + " hrs"
+  return hours + ' hrs'
 }
 
 const main = async () => {
@@ -84,7 +84,7 @@ const main = async () => {
         )
 
       const avgAge = isNaN(avgDatePerAnswers) ? '' : timeConversion(avgDatePerAnswers)
-      console.log("%s: %s \t\t %s", ('' + count).padStart(2), ('' + answers.length).padStart(5), avgAge)
+      console.log('%s: %s \t\t %s', ('' + count).padStart(2), ('' + answers.length).padStart(5), avgAge)
       //console.log(today - avgAge)
     })
 

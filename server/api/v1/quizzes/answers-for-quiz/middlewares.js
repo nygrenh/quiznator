@@ -102,13 +102,13 @@ function createQuizAnswerWithValidation(options) {
             })
 
             const extendNewAnswer = Object.assign({}, newAnswer._doc, 
-            {
-              peerReviews: validatedAnswer.peerReviews,
-              validation: 
+              {
+                peerReviews: validatedAnswer.peerReviews,
+                validation: 
                 Object.assign({}, validatedAnswer.validation,
                   { rightAnswer: _.get(quiz, 'data.meta.rightAnswer', undefined) }
                 )
-            })
+              })
 
             req.newQuizAnswer = extendNewAnswer
             /*{ 

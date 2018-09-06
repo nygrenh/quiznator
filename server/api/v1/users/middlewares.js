@@ -20,13 +20,13 @@ function getUserById(getId) {
     const userId = getId(req);
 
     errors.withExistsOrError(new errors.NotFoundError(`Couldn't find user with id ${userId}`))
-      (User.findOne({ _id: userId }))
-        .then(user => {
-          req.user = user;
+    (User.findOne({ _id: userId }))
+      .then(user => {
+        req.user = user;
 
-          return next();
-        })
-        .catch(err => next(err));
+        return next();
+      })
+      .catch(err => next(err));
   }
 }
 

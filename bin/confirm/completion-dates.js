@@ -22,7 +22,7 @@ const CourseState = require('app-modules/models/course-state')
 const { precise_round } = require('app-modules/utils/math-utils')
 
 
-const sleep = require("sleep")
+const sleep = require('sleep')
 
 connect()
 
@@ -53,7 +53,7 @@ const main = async () => {
 
   return await Promise.all(courseStates.map(async (courseState) => {
     // reset completion date if user hasn't completed the course
-/*     if (!courseState.completion.completed) {
+    /*     if (!courseState.completion.completed) {
       courseState.completion.completionDate = null
       await courseState.save()
 
@@ -95,13 +95,13 @@ const main = async () => {
 
       if (progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS &&
           score >= courseConfig.MINIMUM_SCORE_TO_PASS) {
-          completionDate = entry.answer.createdAt
-          completed = true
-          count++
-          console.log(courseState.answererId)
+        completionDate = entry.answer.createdAt
+        completed = true
+        count++
+        console.log(courseState.answererId)
     
-          return true
-        }
+        return true
+      }
       
       return false
     })
@@ -112,8 +112,8 @@ const main = async () => {
 
     return Promise.resolve()
   }))
-  .then(() => console.log("DONE: " + count))
-  .catch(err => console.warn(err))
+    .then(() => console.log('DONE: ' + count))
+    .catch(err => console.warn(err))
 }
 
 main()

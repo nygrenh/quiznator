@@ -6,14 +6,14 @@ function getUsersTags(getUserId) {
     const userId = getUserId(req);
 
     errors.withExistsOrError(new errors.NotFoundError(`Couldn't find user with id ${userId}`))
-      (User.findById(userId))
-        .then(user => user.getTags())
-        .then(tags => {
-          req.tags = tags;
+    (User.findById(userId))
+      .then(user => user.getTags())
+      .then(tags => {
+        req.tags = tags;
 
-          return next();
-        })
-        .catch(next);
+        return next();
+      })
+      .catch(next);
   };
 }
 

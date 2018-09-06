@@ -31,7 +31,7 @@ function updateQuizAnswerConfirmation() {
 
       return next();
     })
-    .catch(next);
+      .catch(next);
   }
 }
 
@@ -55,7 +55,7 @@ function updateQuizAnswerRejection() {
 
       return next();
     })
-    .catch(next);
+      .catch(next);
   }
 }
 
@@ -102,7 +102,7 @@ function getQuizAnswers() {
 
       res.json(answers);
     })
-    .catch(next);
+      .catch(next);
   }
 }
 

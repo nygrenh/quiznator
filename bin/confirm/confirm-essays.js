@@ -20,7 +20,7 @@ const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
 
-const sleep = require("sleep")
+const sleep = require('sleep')
 
 sleep.sleep(5)
 
@@ -107,7 +107,7 @@ async function updateConfirmations(data) {
   let percentagesShown = []
 
   return await Promise.all(allData.map(async entry => {
-/*       const answer = entry.answer[0] */
+    /*       const answer = entry.answer[0] */
     const { quizId, answererId } = entry
 
     const answerId = entry.answer._id // [0]._id
@@ -145,7 +145,7 @@ async function updateConfirmations(data) {
 
     count += 1
     percentage = precise_round(count / allData.length * 100, 0)
-/*           if (!_.includes(percentagesShown, percentage)) {
+    /*           if (!_.includes(percentagesShown, percentage)) {
       percentagesShown.push(percentage)
       printProgress(percentage)
     } */
@@ -156,8 +156,8 @@ async function updateConfirmations(data) {
       { new: true, upsert: true}
     )
   }))
-  .then(() => Promise.resolve())
-  .catch(err => Promise.reject(err))
+    .then(() => Promise.resolve())
+    .catch(err => Promise.reject(err))
   //})
 }
 
@@ -184,7 +184,7 @@ function getEssaysForAnswerer(data) {
         } 
       })
 
-/*       console.log(answererId, `had ${answersForQuiz.length} answers for ${quizId}`)
+      /*       console.log(answererId, `had ${answersForQuiz.length} answers for ${quizId}`)
       answersForQuiz.forEach(a => console.log(a.createdAt))
       console.log('I was wise enough to pick', answer.createdAt) */
     }
@@ -195,11 +195,11 @@ function getEssaysForAnswerer(data) {
       return
     }
 
-    const given = !!peerReviewsGiven ? (peerReviewsGiven.get(quizId.toString()) || []) : []
+    const given = peerReviewsGiven ? (peerReviewsGiven.get(quizId.toString()) || []) : []
     // only specific quiz:
     //const received = !!peerReviewsReceived ? (peerReviewsReceived.get(quizId.toString()) || []) : []
     // specific answer:
-    const received = !!peerReviewsReceived ? (peerReviewsReceived.get(answer._id.toString()) || []) : []
+    const received = peerReviewsReceived ? (peerReviewsReceived.get(answer._id.toString()) || []) : []
 
     const spamFlags = answer.spamFlags // [0].spamFlags
     
@@ -270,8 +270,8 @@ function getEssaysForAnswerer(data) {
     if (reviewAnswerForAnswer) {
       // ignore if 
       //   passing and confirmed equal
-        if ((status.pass === pass && status.pass === answer.confirmed) && 
-        //   review statuses equal
+      if ((status.pass === pass && status.pass === answer.confirmed) && 
+      //   review statuses equal
           (status.review === review && 
             // if review is true, neither confirmed nor rejected is set
             ((status.review && !answer.confirmed && !answer.rejected) ||
@@ -281,11 +281,11 @@ function getEssaysForAnswerer(data) {
               (!answer.confirmed && answer.rejected)
             )))
           ) && 
-            //   rejected and fail equal
+      //   rejected and fail equal
           (status.rejected === fail && status.rejected === answer.rejected)) {
-          // let's not update if not anything to update
-          return
-        }
+        // let's not update if not anything to update
+        return
+      }
     }
 
     const reviewObject = {
@@ -314,7 +314,7 @@ function getEssaysForAnswerer(data) {
     if (entry.fail) { return 'fail' }
     return 'review'
   })
-/*     entry.pass ? 'pass'
+  /*     entry.pass ? 'pass'
       : (entry.review ? 'review' : 'fail')) */  
 
   return essaysForAnswerer
@@ -379,7 +379,7 @@ const updateEssays = async () => {
 
     const gradedEssays = answererIds.map(answererId => {
       counter += 1
-  /*                 if (counter % 100 === 0) {
+      /*                 if (counter % 100 === 0) {
         console.log('At answerer #', counter)
       } 
   */

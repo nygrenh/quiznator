@@ -19,7 +19,7 @@ function getCourseState(options) {
     const allInfo = options.getAllInfo(req)
     const filter = !allInfo ? {
       answererId: true,
-      "completion.completed": true
+      'completion.completed': true
     } : undefined
 
     const getState = CourseState.find(query, filter).exec()
@@ -34,7 +34,7 @@ function getCourseState(options) {
             req.state = state
           }
         }
-        
+
         return next()
       })
       .catch(next)
@@ -45,7 +45,7 @@ function updateCourseStateAnswer(options) {
   return (req, res, next) => {
     const body = options.getBody(req)
 
-    const { answererId, courseId, answerId, confirmed, rejected } = body
+    const { answererId, courseId, answerId, confirmed, rejected } = body
 
     if (confirmed && rejected) {
       return next(new errors.InvalidRequestError('cannot be both confirmed and rejected'))
@@ -58,25 +58,25 @@ function updateCourseStateAnswer(options) {
     CourseState.findOneAndUpdate({
       answererId,
       courseId,
-      "completion.data.answerValidation": {
+      'completion.data.answerValidation': {
         $elemMatch: {
           answerId: mongoose.Types.ObjectId(answerId)
         }
       }
-      }, {
-        $set: { 
-          'completion.data.answerValidation.$.confirmed': confirmed,
-          'completion.data.answerValidation.$.rejected': rejected,
-        }
-      }, {
-        new: true
-      }).exec()
+    }, {
+      $set: {
+        'completion.data.answerValidation.$.confirmed': confirmed,
+        'completion.data.answerValidation.$.rejected': rejected,
+      }
+    }, {
+      new: true
+    }).exec()
       .then(answerValidation => {
         req.answerValidation = answerValidation
 
         return next()
       })
-      
+
   }
 }
 
@@ -85,15 +85,15 @@ function getDistribution(options) {
     const quizId = options.getQuizId(req)
 
     CourseState.find({
-      "completion.data.answerValidation": {
-        $elemMatch: { 
-          quizId: mongoose.Types.ObjectId(quizId) 
+      'completion.data.answerValidation': {
+        $elemMatch: {
+          quizId: mongoose.Types.ObjectId(quizId)
         }
       }
     },
     {
       answererId: 1,
-      "completion.data.answerValidation.$": 1
+      'completion.data.answerValidation.$': 1
     })
       .then(distribution => {
         req.distribution = distribution
@@ -103,4 +103,4 @@ function getDistribution(options) {
   }
 }
 
-module.exports = { getCourseState, getDistribution, updateCourseStateAnswer }
+module.exports = { getCourseState, getDistribution, updateCourseStateAnswer }

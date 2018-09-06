@@ -79,13 +79,13 @@ function getQuizById(getId) {
     const id = getId(req);
 
     errors.withExistsOrError(new errors.NotFoundError(`Couldn't find quiz with id ${id}`))
-      (Quiz.findOne({ _id: id }))
-        .then(quiz => {
-          req.quiz = quiz;
+    (Quiz.findOne({ _id: id }))
+      .then(quiz => {
+        req.quiz = quiz;
 
-          return next();
-        })
-        .catch(err => next(err));
+        return next();
+      })
+      .catch(err => next(err));
   }
 }
 
@@ -113,7 +113,7 @@ function getStrippedQuizzesById(options) {
           })
  
           return returnObj // fix around spread 
-/*           {
+          /*           {
             ...quiz._doc,
             data: {
               meta: {
@@ -142,14 +142,14 @@ function getQuizStatsById(getId) {
     const id = getId(req);
 
     errors.withExistsOrError(new errors.NotFoundError(`Couldn't find quiz with id ${id}`))
-      (Quiz.findOne({ _id: id }))
-        .then(quiz => quiz.getStats())
-        .then(stats => {
-          req.stats = stats;
+    (Quiz.findOne({ _id: id }))
+      .then(quiz => quiz.getStats())
+      .then(stats => {
+        req.stats = stats;
 
-          return next();
-        })
-        .catch(err => next(err));
+        return next();
+      })
+      .catch(err => next(err));
   }
 }
 
@@ -172,12 +172,12 @@ function removeQuiz(options) {
     const id = options.getId(req);
 
     errors.withExistsOrError(new errors.NotFoundError(`Couldn't find quiz with id ${id}`))
-      (Quiz.findOne({ _id: id }))
-        .then(quiz => {
-          return quiz.remove();
-        })
-        .then(() => next())
-        .catch(err => next(err));
+    (Quiz.findOne({ _id: id }))
+      .then(quiz => {
+        return quiz.remove();
+      })
+      .then(() => next())
+      .catch(err => next(err));
   }
 }
 

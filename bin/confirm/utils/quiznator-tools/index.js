@@ -34,17 +34,17 @@ function fetchQuizIds(courseId) {
       },
       body: JSON.stringify({ tags: [courseId] })
     })
-    .then(res => res.json())
-    .then(tagData => {
-      tagData.forEach(data => {
-        if (~data.tags.indexOf(courseId)) {
-          data.quizIds.forEach(quizId => quizIds.push(quizId))
-        }
-      })
+      .then(res => res.json())
+      .then(tagData => {
+        tagData.forEach(data => {
+          if (~data.tags.indexOf(courseId)) {
+            data.quizIds.forEach(quizId => quizIds.push(quizId))
+          }
+        })
 
-      resolve(quizIds)
-    })
-    .catch(err => (console.error(err), reject(new Error(err))))
+        resolve(quizIds)
+      })
+      .catch(err => (console.error(err), reject(new Error(err))))
   })
 }
 

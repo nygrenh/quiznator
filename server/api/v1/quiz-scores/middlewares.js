@@ -59,12 +59,12 @@ function createQuizScore(options) {
         upsert: true
       }
     )
-    .then(newScore => {
-      req.newScore = newScore
+      .then(newScore => {
+        req.newScore = newScore
 
-      return next()
-    })
-    .catch(err => next(err))
+        return next()
+      })
+      .catch(err => next(err))
   }
 }
 
