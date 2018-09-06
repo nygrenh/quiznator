@@ -21,6 +21,7 @@ router.get('/:answererId',
   middlewares.getPeerReviewsForAnswerer({
     getAnswererId: req => req.params.answererId,
     getQuizId: req => req.params.id,
+    getQuery: req => req.query,
   }),
   (req, res, next) => {
     res.json(req.peerReviews);
@@ -31,6 +32,7 @@ router.get('/:answererId/v2',
   middlewares.getPeerReviewsForAnswerer({
     getAnswererId: req => req.params.answererId,
     getQuizId: req => req.params.id,
+    getQuery: req => req.query,
     filter: true
   }),
   (req, res, next) => {
@@ -42,6 +44,7 @@ router.get('/:answererId/v3',
   middlewares.getFairPeerReviewsForAnswerer({
     getAnswererId: req => req.params.answererId,
     getQuizId: req => req.params.id,
+    getQuery: req => req.query
   }),
   (req, res, next) => {
     res.json(req.peerReviews);

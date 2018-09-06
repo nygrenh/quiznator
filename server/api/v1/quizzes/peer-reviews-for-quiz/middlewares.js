@@ -1,9 +1,10 @@
+const _ = require('lodash')
 const Promise = require('bluebird');
 
 const PeerReview = require('app-modules/models/peer-review');
 const Quiz = require('app-modules/models/quiz');
 
-const { config } = require('app-modules/constants/course-config')
+const { selectConfig } = require('app-modules/constants/course-config')
 
 function createPeerReviewForQuiz(options) {
   return (req, res, next) => {
@@ -74,6 +75,10 @@ function getPeerReviewsForAnswerer(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
     const answererId = options.getAnswererId(req);
+    const query = options.getQuery(req); 
+    const courseId = _.get(query, 'courseId')    
+
+    const courseConfig = selectConfig(courseId)
 
     let findPeerReviews = Promise.resolve({})
 
@@ -84,8 +89,8 @@ function getPeerReviewsForAnswerer(options) {
         limit: 2, 
         skip: 0,
         poolSize: 60,
-        minimumPeerReviews: config.MINIMUM_PEER_REVIEWS_RECEIVED,
-        maxSpam: config.MINIMUM_SPAM_FLAGS_TO_FAIL - 1
+        minimumPeerReviews: courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED,
+        maxSpam: courseConfig.MINIMUM_SPAM_FLAGS_TO_FAIL - 1
       })
     } else {
       findPeerReviews = PeerReview.findPeerReviewsForAnswerer({ 
@@ -115,6 +120,10 @@ function getFairPeerReviewsForAnswerer(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req);
     const answererId = options.getAnswererId(req);
+    const query = options.getQuery(req); 
+    const courseId = _.get(query, 'courseId')    
+
+    const courseConfig = selectConfig(courseId)
 
     let findPeerReviews = Promise.resolve({})
 
@@ -124,8 +133,8 @@ function getFairPeerReviewsForAnswerer(options) {
       limit: 2, 
       skip: 0,
       poolSize: 60,
-      minimumPeerReviews: config.MINIMUM_PEER_REVIEWS_RECEIVED,
-      maxSpam: config.MINIMUM_SPAM_FLAGS_TO_FAIL - 1,
+      minimumPeerReviews: courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED,
+      maxSpam: courseConfig.MINIMUM_SPAM_FLAGS_TO_FAIL - 1,
       quizIdSwapped: true
     })
 

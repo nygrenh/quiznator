@@ -28,7 +28,7 @@ connect()
 
 var args = process.argv.slice(2)
 
-const courseConfig = selectConfig(args[0])
+const courseConfig = selectConfig(args[args.length - 1])
 
 // utility function to create multi-dimensional maps for answerers
 function initMaps({ answers, peerReviews, reviewAnswers }) {
