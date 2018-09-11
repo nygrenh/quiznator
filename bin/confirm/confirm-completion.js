@@ -49,6 +49,10 @@ function getProgressWithValidation(data) {
 
   const answerQuizIds = Array.from(answers.keys()) // map(answer => answer.quizId.toString());
 
+  const isAnswered = (entry) => ~answerQuizIds.indexOf(entry.quiz._id.toString())
+  const isDeprecated = (entry) => _.get(entry, 'answer[0].deprecated', false)
+  const isRejected = (entry) => _.get(entry, 'answer[0].rejected', false)
+
   const progress = _.groupBy(quizzes.map(quiz => {
     let answersForQuiz = answers.get(quiz._id.toString()) || []
     let answer = answersForQuiz //answers[quiz._id] || []
@@ -76,7 +80,10 @@ function getProgressWithValidation(data) {
 
     return returnObject
   }), entry => {
-    return ~answerQuizIds.indexOf(entry.quiz._id.toString()) ? 'answered' : 'notAnswered'
+    if (isRejected(entry) && !isDeprecated(entry)) { return 'rejected' }
+    if (isAnswered(entry) && !isDeprecated(entry)) { return 'answered' }
+
+    return 'notAnswered'
     // had: _.get(entry, 'answer[0].rejected') ? 'rejected' :
   })
 
@@ -134,7 +141,7 @@ function updateCompletion(data) {
 
 
       if (!courseState) {
-        newCourseState = CourseState({ 
+        const newCourseState = CourseState({ 
           answererId,
           courseId: courseConfig.COURSE_ID,
           completion: completionData
@@ -186,6 +193,7 @@ const mapEntry = (entry) => ({
   normalizedPoints: entry.validation.normalizedPoints,
   confirmed: entry.answer[0].confirmed,
   rejected: entry.answer[0].rejected,
+  deprecated: entry.answer[0].deprecated,
   peerReviewCount: entry.answer[0].peerReviewCount,
   spamFlags: entry.answer[0].spamFlags,
   type: entry.quiz.type,
@@ -205,27 +213,8 @@ const getCompleted = async () => {
     .find({ quizId: { $in: quizIdsMap }})
     .sort({ createdAt: -1 })
     .exec() 
-  /*    const getAnswers = QuizAnswer.aggregate([{ 
-    $match: { 
-      quizId: { $in: quizIdsMap }, 
-//        spamFlags: { $lte: config.MAXIMUM_SPAM_FLAGS_TO_PASS } 
-    }
-  }, {
-    $sort: {
-      createdAt: -1
-    }
-  }, 
-  //{ $sample: { size: 10000 } }
-  ]).exec()*/
 
   const quizzes = await Quiz.findAnswerable({ _id: { $in: quizIdsMap }}).exec()
-  // ...check for existing confirmations
-  
-  /*   const quizzes = await getQuizzes
-  const answers = await getAnswers */
-
-  /*   return Promise.all([getQuizzes, getAnswers])
-    .spread(async (quizzes, answers) => { */
   const countableQuizIds = quizzes.filter(quiz => !_.includes(quiz.tags, 'ignore')).map(quiz => quiz._id.toString())
       
   const maxCountableNormalizedPoints = countableQuizIds.length
@@ -251,9 +240,8 @@ const getCompleted = async () => {
       quizzes
     })
 
-    //console.log(progress)
     count += 1
-    percentage = precise_round(count / answererIds.length * 100, 0)
+    const percentage = precise_round(count / answererIds.length * 100, 0)
     /*           if (!_.includes(percentagesShown, percentage)) {
           percentagesShown.push(percentage)
           printProgress(percentage)
@@ -262,7 +250,6 @@ const getCompleted = async () => {
     const score = calculatePercentage(progress.validation.normalizedPoints, progress.validation.maxNormalizedPoints)
     const pointsPercentage = calculatePercentage(progress.validation.points, progress.validation.maxPoints)
                 
-
     // go through answers in submission order and determine the date when the answerer
     // could have been potentially have completed  
 

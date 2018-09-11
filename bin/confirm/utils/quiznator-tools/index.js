@@ -37,7 +37,8 @@ function fetchQuizIds(courseId) {
       .then(res => res.json())
       .then(tagData => {
         tagData.forEach(data => {
-          if (~data.tags.indexOf(courseId)) {
+          // only count quiz if attached to part/section
+          if (~data.tags.indexOf(courseId) && data.tags.length > 1) {
             data.quizIds.forEach(quizId => quizIds.push(quizId))
           }
         })

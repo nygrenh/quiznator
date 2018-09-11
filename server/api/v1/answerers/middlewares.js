@@ -113,9 +113,9 @@ function getProgressWithValidation(options) {
     let quizIds = body.quizIds
     
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
-    const getAnswers = fetchAnswers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).sort({ createdAt: - 1 }).exec() : new Promise((resolve) => resolve([]))
-    const getPeerReviewsGiven = fetchPeerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
-    const getPeerReviewsReceived = fetchPeerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() : new Promise((resolve) => resolve([]))
+    const getAnswers = fetchAnswers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).sort({ createdAt: - 1 }).exec() : Promise.resolve([])
+    const getPeerReviewsGiven = fetchPeerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, giverAnswererId: answererId }).exec() : Promise.resolve([])
+    const getPeerReviewsReceived = fetchPeerReviews ? PeerReview.find({ sourceQuizId: { $in: quizIds }, targetAnswererId: answererId }).exec() : Promise.resolve([])
 
     let essaysAwaitingPeerReviewsGiven = []
     let essaysAwaitingConfirmation = []
@@ -124,8 +124,10 @@ function getProgressWithValidation(options) {
     return Promise.all([getQuizzes, getAnswers, getPeerReviewsGiven, getPeerReviewsReceived])
       .spread((quizzes, answers, peerReviewsGiven, peerReviewsReceived) => {
         const answerQuizIds = answers.map(answer => answer.quizId.toString());
-        
+
         const isAnswered = (quizId) => ~answerQuizIds.indexOf(quizId)
+        const isDeprecated = (answer) => _.get(answer, '[0].deprecated', false)
+        const isRejected = (answer) => _.get(answer, '[0].rejected', false) 
 
         const progress = _.groupBy(quizzes.map(quiz => {
           const answer = answers.filter(answer => answer.quizId.equals(quiz._id))
@@ -134,12 +136,15 @@ function getProgressWithValidation(options) {
           let peerReviewsReturned = {}
           
           if (quiz.type === quizTypes.ESSAY) { 
-            if (fetchPeerReviews){
-              const given = peerReviewsGiven.filter(pr => pr.sourceQuizId.equals(quiz._id))
+            if (fetchPeerReviews && !isDeprecated(answer)) {
+              const given = peerReviewsGiven.filter(pr => 
+                pr.sourceQuizId.equals(quiz._id)/* &&
+              pr.giverAnswererId === answererId*/)
               const received = answer.length > 0 
                 ? peerReviewsReceived.filter(pr => 
-                    pr.sourceQuizId.equals(quiz._id) &&
-                    pr.chosenQuizAnswerId.equals(answer[0]._id)) 
+                  pr.sourceQuizId.equals(quiz._id) &&
+                    pr.chosenQuizAnswerId.equals(answer[0]._id)/* &&
+                pr.targetAnswererId === answererId*/)
                 : []
               
               peerReviewsReturned = {
@@ -153,7 +158,7 @@ function getProgressWithValidation(options) {
             }
 
             if (answer.length > 0) {
-              if (answer[0].rejected) {
+              if (isRejected(answer) && !isDeprecated(answer)) {
                 rejected.push({
                   quizId: quiz._id,
                   answer: answer[0]
@@ -173,11 +178,11 @@ function getProgressWithValidation(options) {
             // for answered?
             const newQuizMeta = _.omit(quiz._doc.data.meta, 
               ['errors', 
-              'successes', 
-              'error', 
-              'success', 
-              'rightAnswer', 
-              'submitMessage'
+                'successes', 
+                'error', 
+                'success', 
+                'rightAnswer', 
+                'submitMessage'
               ])
 
             const newQuiz = Object.assign({}, quiz._doc, 
@@ -198,8 +203,10 @@ function getProgressWithValidation(options) {
 
           return returnObject
         }), entry => {
-          return entry.answer && entry.answer[0].rejected ? 'rejected' :
-                isAnswered(entry.quiz._id.toString()) ? 'answered' : 'notAnswered'
+          if (isRejected(entry.answer) && !isDeprecated(entry.answer)) { return 'rejected' }
+          if (isAnswered(entry.quiz._id.toString()) && !isDeprecated(entry.answer)) { return 'answered' }
+
+          return 'notAnswered'
         })
 
         return CourseState.findOne({ answererId, courseId })
@@ -240,6 +247,7 @@ function getProgressWithValidation(options) {
                 - answered/not answered/rejected as arrays of quizids (like the essay ones now)
                 - update validateprogress and others that are reliant on this structure
             */
+
             req.validation = returnObject
 
             return next()

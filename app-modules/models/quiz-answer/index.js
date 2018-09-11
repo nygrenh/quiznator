@@ -11,7 +11,8 @@ const schema = new mongoose.Schema({
   spamFlags: { type: Number, default: 0 },
   peerReviewCount: { type: Number, default: 0 },
   confirmed: { type: Boolean, default: false },
-  rejected: { type: Boolean, default: false }
+  rejected: { type: Boolean, default: false },
+  deprecated: { type: Boolean, default: false }
 }, { timestamps: true });
 
 require('./methods')(schema);
