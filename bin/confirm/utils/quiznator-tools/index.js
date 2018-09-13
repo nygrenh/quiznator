@@ -21,6 +21,8 @@ function connect() {
       process.exit(1)
     }
   })
+
+  return db
 }
 
 function fetchQuizIds(courseId) { 
