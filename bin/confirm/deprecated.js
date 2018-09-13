@@ -48,6 +48,8 @@ const main = async () => {
       }, {}
     )
 
+  var answererData = {}
+
   await Object.entries(answersPerAnswererPerQuiz).forEach(async ([answererId, answers]) => {
     await Promise.all(
       Object.entries(answers).map(async ([quizId, answersPerQuizId]) => {
@@ -63,6 +65,12 @@ const main = async () => {
 
         // console.log('%s: %d answers for %s', answererId, answersPerQuizId.length, quizId.toString())
 
+        if (!answererData[answererId]) {
+          answererData[answererId] = {}
+        }
+
+        answererData[answererId][quizId.toString()] = answersPerQuizId.map(a => a._id.toString())
+
         return await QuizAnswer
           .updateMany(
             { _id: { $in: deprecatedIds } },
@@ -71,6 +79,9 @@ const main = async () => {
       })
     )
   })
+
+  return Promise.resolve(answererData)
 }
 
 main()
+  .then(res => console.log(res))
