@@ -49,27 +49,30 @@ const main = async () => {
     )
 
   var answererData = {}
+  var deprecatedNewest = {}
 
   await Object.entries(answersPerAnswererPerQuiz).forEach(async ([answererId, answers]) => {
+
     await Promise.all(
       Object.entries(answers).map(async ([quizId, answersPerQuizId]) => {
+        if (answersPerQuizId[0].deprecated) {
+          deprecatedNewest[answererId] = [ ...(deprecatedNewest[answererId] || []), answersPerQuizId[0]._id ]
+        }
+
         if (!answersPerQuizId || answersPerQuizId.length <= 1) {
           return Promise.resolve()
         }
 
-        if (answersPerQuizId[0].deprecated) {
-          console.warn('Newest answer for %s: %s is deprecated!', answererId, quizId.toString())
+        if (answersPerQuizId[0].createdAt < answersPerQuizId[1].createdAt) {
+          throw new Error('the sorting is borked', answersPerQuizId)
         }
 
         const deprecatedIds = answersPerQuizId.slice(1).map(a => mongoose.Types.ObjectId(a._id))
 
-        // console.log('%s: %d answers for %s', answererId, answersPerQuizId.length, quizId.toString())
-
-        if (!answererData[answererId]) {
-          answererData[answererId] = {}
+        answererData[answererId] = { 
+          ...answererData[answererId], 
+          [quizId.toString()]: deprecatedIds 
         }
-
-        answererData[answererId][quizId.toString()] = answersPerQuizId.map(a => a._id.toString())
 
         return await QuizAnswer
           .updateMany(
@@ -78,10 +81,14 @@ const main = async () => {
           )
       })
     )
+
   })
 
-  return Promise.resolve(answererData)
+  return Promise.resolve({ deprecated: answererData, deprecatedNewest: deprecatedNewest })
 }
 
 main()
-  .then(res => console.log(res))
+  .then(res => { 
+    console.log(JSON.stringify(res, null, 2))
+    process.exit(0)
+  })

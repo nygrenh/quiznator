@@ -42,7 +42,7 @@ const main = async () => {
   })).filter(v => !!v)
 
   const courseStates = await CourseState
-    .find({})
+    .find({ courseId: courseConfig.COURSE_ID })
     .exec()
 
   const maxNormalizedPoints = countableQuizIds.length
@@ -59,6 +59,12 @@ const main = async () => {
 
       return Promise.resolve()
     } */
+
+    /* eslint no-constant-condition: 0 */
+    if (true) {
+      console.warn('Don\'t run this unless you are absolutely sure you want to reset the completion dates! (You most certainly aren\'t.)')
+      throw new Error('Comment this out')
+    }
 
     // group users answer validation and answers 
     const answers = await Promise.all(courseState.completion.data.answerValidation.map(async (entry) => {
