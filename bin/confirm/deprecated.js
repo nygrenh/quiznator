@@ -58,7 +58,7 @@ const main = async () => {
         }
 
         if (answersPerQuizId[0].deprecated) {
-          console.log('Newest answer for %s: %s is deprecated!', answererId, quizId.toString())
+          console.warn('Newest answer for %s: %s is deprecated!', answererId, quizId.toString())
         }
 
         const deprecatedIds = answersPerQuizId.slice(1).map(a => mongoose.Types.ObjectId(a._id))
