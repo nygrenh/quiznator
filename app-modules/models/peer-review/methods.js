@@ -136,7 +136,6 @@ module.exports = schema => {
         reviews: { $sum: 1 } } 
       },
       { $sort: { reviews: -1 } },
-      { $limit: poolSize }
     ])
       .exec()
 
