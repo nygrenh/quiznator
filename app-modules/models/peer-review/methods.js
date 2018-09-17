@@ -129,28 +129,42 @@ module.exports = schema => {
       quizIdSwapped 
         ? { $match: { sourceQuizId: mongoose.Types.ObjectId(quizId) } }
         : { $match: { quizId: mongoose.Types.ObjectId(quizId) } },
+      { $match: { giverAnswererId: { $ne: answererId } } },
       { $group: { 
         _id: '$giverAnswererId', 
         answerIds: { $addToSet: '$chosenQuizAnswerId' }, 
         reviews: { $sum: 1 } } 
       },
-      { $sort: { reviews: -1 } }
-    ]).exec()
+      { $sort: { reviews: -1 } },
+      { $limit: poolSize }
+    ])
+      .exec()
 
-    const chosenQuizAnswerIds = _.get(peerReviewsPerAnswerer.filter(entry => entry._id === answererId), '[0].answerIds', [])
-      .map(id => mongoose.Types.ObjectId(id))
+      
+    const chosenQuizAnswerIds = await this.aggregate([
+      quizIdSwapped
+        ? { $match: { sourceQuizId: mongoose.Types.ObjectId(quizId) } }
+        : { $match: { quizId: mongoose.Types.ObjectId(quizId) } },
+      { $match: { giverAnswererId: answererId } },
+      { $project: { chosenQuizAnswerId: 1 } }
+    ])
+      .exec()
+
+    //const chosenQuizAnswerIds = _.get(peerReviewsPerAnswerer.filter(entry => entry._id === answererId), '[0].answerIds', [])
+    //  .map(id => mongoose.Types.ObjectId(id))
+
     const peerReviewAnswererIds = peerReviewsPerAnswerer
       .map(entry => entry._id)
-      .filter(id => id !== answererId)
+      // .filter(id => id !== answererId)
 
     // get answers with not enough peer reviews, not spam and not already peer reviewed by this answerer 
     // added: do not get deprecated answers
     const query = {
+      _id: { $nin: chosenQuizAnswerIds },
       quizId: mongoose.Types.ObjectId(quizId.toString()),
       answererId: { $in: peerReviewAnswererIds },
       deprecated: { $ne: true },
       spamFlags: { $lte: maxSpam },
-      _id: { $nin: chosenQuizAnswerIds },
       peerReviewCount: { $lt: minimumReceivedPeerReviews }
     }
 
