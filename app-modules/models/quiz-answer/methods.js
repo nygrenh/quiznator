@@ -46,6 +46,7 @@ module.exports = schema => {
         createdAt: { $first: '$createdAt' }, 
         confirmed: { $first: '$confirmed' }, //
         rejected: { $first: '$rejected' },  //
+        deprecated: { $first: '$deprecated'},
         peerReviewCount: { $first: '$peerReviewCount' },
         spamFlags: { $first: '$spamFlags' }
       } },
@@ -76,9 +77,10 @@ module.exports = schema => {
           },
           { 
             $group: {
-              _id: "$answererId",
+              _id: '$answererId',
               confirmed: { $first: '$confirmed' },
               rejected: { $first: '$rejected' },
+              deprecated: { $first: '$deprecated' },
               peerReviewCount: { $first: '$peerReviewCount' },
               spamFlags: { $first: '$spamFlags' },
               createdAt: { $first: '$createdAt' }
@@ -107,7 +109,7 @@ module.exports = schema => {
 
             return Promise.resolve(ret)
           })
-        })      
+      })      
       .then(data => {
         return data
           .map(doc => ({ 
@@ -132,7 +134,7 @@ module.exports = schema => {
         $match: { $or: 
           [ { confirmed: true }, 
             { quizId: { $in: essayQuizIds } } ]
-          }  
+        }  
       } : null,
       { $sort: { createdAt: - 1 } },
       { $group: { 
@@ -144,6 +146,7 @@ module.exports = schema => {
         createdAt: { $first: '$createdAt' },
         confirmed: { $first: '$confirmed' },
         rejected: { $first: '$rejected' },
+        deprecated: { $first: '$deprecated' },
         peerReviewCount: { $first: '$peerReviewCount' }
       }},
     ].filter(p => !!p);
@@ -158,6 +161,7 @@ module.exports = schema => {
           createdAt: doc.createdAt,
           confirmed: doc.confirmed,
           rejected: doc.rejected,
+          deprecated: doc.deprecated,
           peerReviewCount: doc.peerReviewCount 
         }));
       })
@@ -191,11 +195,11 @@ module.exports = schema => {
           id: answererId,
           tags: uniqueTags,
           answered: data.map(quiz => ({ 
-              [quiz._id]: { 
-                answerIds: quiz.answered,
-                tries: quiz.tries
-              } 
-            })
+            [quiz._id]: { 
+              answerIds: quiz.answered,
+              tries: quiz.tries
+            } 
+          })
           ) || [],
           onlyConfirmed: options.onlyConfirmed || false,
           count: data.length || 0,
@@ -222,6 +226,7 @@ module.exports = schema => {
         createdAt: { $first: '$createdAt' },
         confirmed: { $first: '$confirmed' },
         rejected: { $first: '$rejected' },
+        deprecated: { $first: '$deprecated' },
         peerReviewCount: { $first: '$peerReviewCount' } } }
     ].filter(p => !!p)
 
@@ -235,6 +240,7 @@ module.exports = schema => {
           createdAt: doc.createdAt,
           confirmed: doc.confirmed,
           rejected: doc.rejected,
+          deprecated: doc.deprecated,
           peerReviewCount: doc.peerReviewCount 
         }));
       })

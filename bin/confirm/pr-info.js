@@ -44,7 +44,13 @@ const main = async () => {
   const quizIds = await fetchQuizIds(courseConfig.COURSE_ID)
   const essayQuizzes = await Quiz.find({ _id: { $in: quizIds }, type: 'ESSAY' })
   const essayQuizIds = essayQuizzes.map(quiz => quiz._id)
-  const essayAnswers = await QuizAnswer.find({ quizId: { $in: essayQuizIds }}).sort({ createdAt: - 1 })
+  const essayAnswers = await QuizAnswer.find({ 
+    quizId: { $in: essayQuizIds }, 
+    deprecated: { $ne: true }
+  })
+    .sort(
+      { createdAt: - 1 }
+    )
   const peerReviews = await PeerReview.find({ sourceQuizId: { $in: essayQuizIds }})
 
   const today = new Date()

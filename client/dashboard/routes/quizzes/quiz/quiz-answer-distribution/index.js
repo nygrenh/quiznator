@@ -60,7 +60,8 @@ class QuizAnswerDistribution extends React.Component {
     
     const confirmed = data.filter(answer => answer.completion.data.answerValidation[0].confirmed).length
     const rejected = data.filter(answer => answer.completion.data.answerValidation[0].rejected).length
-
+    // TODO: do we need to know of deprecated?
+  
     return (
       <div>
         <span>{confirmed} confirmed, {rejected} rejected, {data.length - confirmed - rejected} awaiting</span>
@@ -79,7 +80,7 @@ class QuizAnswerDistribution extends React.Component {
             data={this.state.graphData}
           />
           <PieChart
-          data={this.state.graphData}
+            data={this.state.graphData}
           />
         <div>
           <span>Total {this.props.quizAnswerDistribution.answers.length} answers<br /></span>

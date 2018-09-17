@@ -8,6 +8,7 @@ import {
   FETCH_QUIZ_ANSWERS_SUCCESS, 
   UPDATE_QUIZ_ANSWER_CONFIRMATION_SUCCESS,
   UPDATE_QUIZ_ANSWER_REJECTION_SUCCESS,
+  UPDATE_QUIZ_ANSWER_DEPRECATION_SUCCESS,
 } from './actions';
 
 const initialState = {
@@ -41,6 +42,15 @@ export default createReducer(initialState, {
       .value;
   },
   [UPDATE_QUIZ_ANSWER_REJECTION_SUCCESS](state, action) {
+    const updatedAnswer = action.payload.data;
+
+    return scour(state)
+      .go('answers', updatedAnswer._id)
+      .extend(updatedAnswer)
+      .root
+      .value;
+  },
+  [UPDATE_QUIZ_ANSWER_DEPRECATION_SUCCESS](state, action) {
     const updatedAnswer = action.payload.data;
 
     return scour(state)

@@ -25,6 +25,14 @@ router.put('/:id/rejected',
     res.json(req.answer);
   });
 
+
+router.put('/:id/deprecated',
+  authenticationMiddlewares.authorize(),
+  middlewares.updateQuizAnswerDeprecation(),
+  (req, res, next) => {
+    res.json(req.answer);
+  });
+  
 router.post('/batch',
   TMCMiddlewares.getProfile(),
   middlewares.getQuizsAnswersBatch({

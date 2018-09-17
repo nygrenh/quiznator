@@ -9,6 +9,7 @@ const middlewares = {
   getQuizsAnswersBatch,
   updateQuizAnswerConfirmation,
   updateQuizAnswerRejection,
+  updateQuizAnswerDeprecation
 };
 
 function updateQuizAnswerConfirmation() {
@@ -48,6 +49,30 @@ function updateQuizAnswerRejection() {
       }
 
       answer.rejected = !!rejected;
+
+      yield answer.save();
+
+      req.answer = answer;
+
+      return next();
+    })
+      .catch(next);
+  }
+}
+
+function updateQuizAnswerDeprecation() {
+  return (req, res, next) => {
+    co(function* () {
+      const { deprecated } = req.body;
+      const { id } = req.params;
+
+      const answer = yield QuizAnswer.findById(id);
+
+      if (!answer) {
+        return Promise.reject('Couldn\'t find the quiz answer');
+      }
+
+      answer.deprecated = !!deprecated;
 
       yield answer.save();
 

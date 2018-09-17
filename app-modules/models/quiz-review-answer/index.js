@@ -5,7 +5,7 @@ const schema = new mongoose.Schema({
   answerId: { type: String, required: true, ref: 'QuizAnswer' },
   answererId: { type: String, required: true },
   status: {
-    pass: { type: mongoose.Schema.Types.Boolean, reqdocuired: false }, 
+    pass: { type: mongoose.Schema.Types.Boolean, required: false },
     review: { type: mongoose.Schema.Types.Boolean, required: false },
     rejected: { type: mongoose.Schema.Types.Boolean, required: false },
     reason: { type: String, required: false }

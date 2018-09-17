@@ -309,13 +309,11 @@ function getEssaysForAnswerer(data) {
     return reviewObject
 
   }).filter(v => !!v), entry => {
-    // just to make sure 
+    // just to make sure
     if (entry.pass) { return 'pass' }
     if (entry.fail) { return 'fail' }
-    return 'review'
+    if (entry.review) { return 'review' }
   })
-  /*     entry.pass ? 'pass'
-      : (entry.review ? 'review' : 'fail')) */  
 
   return essaysForAnswerer
 }
@@ -341,6 +339,7 @@ const updateEssays = async () => {
 
     const answers = await QuizAnswer.find({
       quizId: { $in: essayIds },
+      deprecated: { $ne: true },
       $or: [
         { peerReviewCount: { $gte: courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED } },
         { spamFlags: { $gte: courseConfig.MINIMUM_SPAM_FLAGS_TO_FAIL } }
@@ -399,7 +398,7 @@ const updateEssays = async () => {
     const returned = {
       passed: gradedEssays.filter(v => v.pass).map(essay => essay.pass),
       failed: gradedEssays.filter(v => v.fail).map(essay => essay.fail),
-      review: gradedEssays.filter(v => v.review).map(essay => essay.review)
+      review: gradedEssays.filter(v => v.review).map(essay => essay.review),
     }
 
     return Promise.resolve(returned)

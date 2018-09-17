@@ -84,7 +84,6 @@ function getProgressWithValidation(data) {
     if (isAnswered(entry) && !isDeprecated(entry)) { return 'answered' }
 
     return 'notAnswered'
-    // had: _.get(entry, 'answer[0].rejected') ? 'rejected' :
   })
 
   if (isNaN(latestAnswerDate)) { // hmm

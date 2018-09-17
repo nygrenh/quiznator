@@ -25,7 +25,7 @@ module.exports = schema => {
           quizId: mongoose.Types.ObjectId(options.quizId.toString()), 
           answererId: { $ne: options.answererId }, 
           _id: { $nin: chosenQuizAnswerIds }, 
-/*           rejected: false,
+          /*           rejected: false,
           confirmed: false */
         };
 
@@ -76,6 +76,7 @@ module.exports = schema => {
           Object.assign({}, basicQuery, {
             confirmed: false,
             rejected: false,
+            deprecated: { $ne: true }, // TODO: set to false when db updated to have this field on every answer
             peerReviewCount: { $lt: minimumPeerReviews },
           }), {
             sort: { peerReviewCount: -1 }, // createdAt: 1
@@ -86,7 +87,8 @@ module.exports = schema => {
         const aboveAnswers = QuizAnswer.findDistinctlyByAnswerer(
           Object.assign({}, basicQuery, {
             peerReviewCount: { $gte: minimumPeerReviews },
-            rejected: false
+            rejected: false,
+            deprecated: { $ne: true }, // TODO: ditto
           }), {
             sort: { peerReviewCount: 1 }, // createdAt: 1
             limit: limit + poolSize,
@@ -102,7 +104,7 @@ module.exports = schema => {
               reviews = reviews.concat(aboveReviews)
             }
 
-/*             console.log(reviews.map(r => ({ id: r._id, peerReviewCount: r.peerReviewCount }))) */
+            /*             console.log(reviews.map(r => ({ id: r._id, peerReviewCount: r.peerReviewCount }))) */
 
             return _.sampleSize(reviews, limit)
           })
@@ -128,20 +130,25 @@ module.exports = schema => {
         ? { $match: { sourceQuizId: mongoose.Types.ObjectId(quizId) } }
         : { $match: { quizId: mongoose.Types.ObjectId(quizId) } },
       { $group: { 
-        _id: "$giverAnswererId", 
-        answerIds: { $addToSet: "$chosenQuizAnswerId" }, 
+        _id: '$giverAnswererId', 
+        answerIds: { $addToSet: '$chosenQuizAnswerId' }, 
         reviews: { $sum: 1 } } 
       },
       { $sort: { reviews: -1 } }
     ]).exec()
-    const peerReviewsGroupedPerAnswerer = _.groupBy(peerReviewsPerAnswerer, '_id')
-    const chosenQuizAnswerIds = _.get(peerReviewsGroupedPerAnswerer[answererId], 'answerIds', []).map(id => mongoose.Types.ObjectId(id))
-    const peerReviewAnswererIds = Object.keys(peerReviewsGroupedPerAnswerer).filter(id => id !== answererId)
+
+    const chosenQuizAnswerIds = _.get(peerReviewsPerAnswerer.filter(entry => entry._id === answererId), '[0].answerIds', [])
+      .map(id => mongoose.Types.ObjectId(id))  
+    const peerReviewAnswererIds = peerReviewsPerAnswerer
+      .map(entry => entry._id)
+      .filter(id => id !== answererId)
 
     // get answers with not enough peer reviews, not spam and not already peer reviewed by this answerer 
+    // added: do not get deprecated answers
     const query = {
       quizId: mongoose.Types.ObjectId(quizId.toString()),
-      answererId: { $in: peerReviewAnswererIds },
+      answererId: { $in: peerReviewAnswererIds },
+      deprecated: { $ne: true },
       spamFlags: { $lte: maxSpam },
       _id: { $nin: chosenQuizAnswerIds },
       peerReviewCount: { $lt: minimumReceivedPeerReviews }
@@ -197,12 +204,12 @@ module.exports = schema => {
     }
 
     errors.withExistsOrError(new errors.NotFoundError(`Couldn't find quiz answer with id ${this.chosenQuizAnswerId}`))
-      (mongoose.models.QuizAnswer.findOne({ _id: this.chosenQuizAnswerId }))
-        .then(chosenAnswer => {
-          this.targetAnswererId = chosenAnswer.answererId;
+    (mongoose.models.QuizAnswer.findOne({ _id: this.chosenQuizAnswerId }))
+      .then(chosenAnswer => {
+        this.targetAnswererId = chosenAnswer.answererId;
 
-          next();
-        })
-        .catch(next);
+        next();
+      })
+      .catch(next);
   });
 }

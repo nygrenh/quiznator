@@ -4,6 +4,8 @@ export const UPDATE_QUIZ_ANSWER_CONFIRMATION = 'QUIZ_ANSWERS_UPDATE_QUIZ_ANSWER_
 export const UPDATE_QUIZ_ANSWER_CONFIRMATION_SUCCESS = 'QUIZ_ANSWERS_UPDATE_QUIZ_ANSWER_CONFIRMATION_SUCCESS';
 export const UPDATE_QUIZ_ANSWER_REJECTION = 'QUIZ_ANSWERS_UPDATE_QUIZ_ANSWER_REJECTION';
 export const UPDATE_QUIZ_ANSWER_REJECTION_SUCCESS = 'QUIZ_ANSWERS_UPDATE_QUIZ_ANSWER_REJECTION_SUCCESS';
+export const UPDATE_QUIZ_ANSWER_DEPRECATION = 'QUIZ_ANSWERS_UPDATE_QUIZ_ANSWER_DEPRECATION';
+export const UPDATE_QUIZ_ANSWER_DEPRECATION_SUCCESS = 'QUIZ_ANSWERS_UPDATE_QUIZ_ANSWER_DEPRECATION_SUCCESS';
 
 export function fetchQuizAnswers(quizId) {
   return (dispatch, getState) => {
@@ -37,6 +39,21 @@ export function updateRejection({ answerId, rejected }) {
         url: `/quiz-answers/${answerId}/rejected`,
         data: {
           rejected,
+        }
+      },
+    },
+  };
+}
+
+export function updateDeprecation({ answerId, deprecated }) {
+  return {
+    type: UPDATE_QUIZ_ANSWER_DEPRECATION,
+    payload: {
+      request: {
+        method: 'PUT',
+        url: `/quiz-answers/${answerId}/deprecated`,
+        data: {
+          deprecated,
         }
       },
     },

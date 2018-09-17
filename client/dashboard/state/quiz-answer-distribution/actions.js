@@ -31,6 +31,7 @@ export function updateCourseStateAnswerStatus({ answerId, courseId, answererId, 
   }
 }
 
+// TODO: if deprecated, remove answer from state?
 export function updateCourseStateAnswerStatusRequest({ answerId, courseId, answererId, confirmed, rejected }) {
   return {
     type: UPDATE_COURSE_STATE_ANSWER_STATUS,
