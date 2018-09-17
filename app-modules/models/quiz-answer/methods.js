@@ -62,7 +62,6 @@ module.exports = schema => {
         }
         // find and group all answers  
 
-
         return this.aggregate([
           {
             $match: { 

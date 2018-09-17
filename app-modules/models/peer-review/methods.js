@@ -138,7 +138,7 @@ module.exports = schema => {
     ]).exec()
 
     const chosenQuizAnswerIds = _.get(peerReviewsPerAnswerer.filter(entry => entry._id === answererId), '[0].answerIds', [])
-      .map(id => mongoose.Types.ObjectId(id))  
+      .map(id => mongoose.Types.ObjectId(id))
     const peerReviewAnswererIds = peerReviewsPerAnswerer
       .map(entry => entry._id)
       .filter(id => id !== answererId)
@@ -162,15 +162,15 @@ module.exports = schema => {
     const answersPerAnswerer = _.groupBy(answers, 'answererId')
     const answererIds = Object.keys(answersPerAnswerer)
 
-    const reviews = peerReviewsPerAnswerer
-      .reduce((obj, entry) => {
-        if (_.includes(answererIds, entry._id) && entry.reviews >= minimumGivenPeerReviews) {
-          obj.push(answersPerAnswerer[entry._id][0])
-        }
+    let reviews = []
+    
+    peerReviewsPerAnswerer.some(entry => {
+      if (_.includes(answererIds, entry._id) && entry.reviews >= minimumGivenPeerReviews) {
+        reviews.push(answersPerAnswerer[entry._id][0])
+      }
 
-        return obj
-      }, [])
-      .slice(0, limit + poolSize)
+      return reviews.length >= limit + poolSize
+    })
 
     if (reviews.length < limit) {
       return this.findPeerReviewsForAnswerer(options)
