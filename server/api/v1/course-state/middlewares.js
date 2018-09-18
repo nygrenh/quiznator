@@ -91,7 +91,7 @@ function getDistribution(options) {
         }
       }
     },
-    {
+    { // TODO: this to muuuuch leaner one
       answererId: 1,
       'completion.data.answerValidation.$': 1
     })

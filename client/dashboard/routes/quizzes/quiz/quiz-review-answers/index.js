@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
-import { FormGroup } from 'reactstrap'
+import { Tag, FormGroup } from 'reactstrap'
 import { Input, Label, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
 import { updateConfirmation, updateRejection } from 'state/quiz-answers'
@@ -203,7 +203,16 @@ class QuizReviewAnswers extends React.Component {
               columns: [
               {
                 Header: 'Answerer',
+                id: 'answererId',
                 accessor: 'answererId',
+                Cell: props => {
+                  return (
+                    <div>
+                      <div>{props.value}</div>
+                      {props.row.data.deprecated ? <Tag>deprecated</Tag> : null}
+                    </div>
+                  )
+                },
                 maxWidth: 100
               },
               {
@@ -317,7 +326,7 @@ class QuizReviewAnswers extends React.Component {
           getTrProps={( state, rowInfo, column ) => {
             return {
               style: {
-                background: rowInfo.row.data.deprecated ? 'maroon' : null
+                background: rowInfo.row.data.deprecated ? 'darkgray' : null
               }
             }
           }}
