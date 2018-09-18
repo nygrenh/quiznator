@@ -28,7 +28,8 @@ class QuizReviewAnswers extends React.Component {
       options: ["review"],
       dropdownOptions: ["review", "rejected", "pass"],
       isDropdownOpen: false,
-      dataLoading: true
+      dataLoading: true,
+      showDeprecated: false
     }
   }
 
@@ -136,6 +137,10 @@ class QuizReviewAnswers extends React.Component {
       .then(_ => this.setState({ dataLoading: false }))
   }
 
+  deprecatedToggle(e) {
+    this.setState({ showDeprecated: !this.state.showDeprecated })
+  }
+
   renderDropdown() {
     return (
       <Dropdown
@@ -159,6 +164,16 @@ class QuizReviewAnswers extends React.Component {
           <Label for={option}>{option}</Label>
         </DropdownItem>
       ))}
+        <DropdownItem key={`item-deprecated`}>
+          <Input
+            type="checkbox"
+            id={'showDeprecated'}
+            key={'showDeprecated'}
+            checked={this.state.showDeprecated}
+            onChange={this.deprecatedToggle.bind(this)}
+          />
+          <Label for='deprecated'>show deprecated</Label>
+        </DropdownItem>
       </DropdownMenu>
       </Dropdown>
     )
@@ -168,8 +183,15 @@ class QuizReviewAnswers extends React.Component {
     if (this.props.reviewAnswers.loading || this.state.dataLoading) {
       return <div><Loader /></div>
     }
-    const data = this.props.reviewAnswers.statuses
- 
+
+    var data
+
+    if (this.state.showDeprecated) {
+      data = this.props.reviewAnswers.statuses
+    } else {
+      data = this.props.reviewAnswers.statuses.filter(s => !s.answer.deprecated)
+    }
+
     return (
       <div>
         <span>{this.props.quiz.title}</span>{this.renderDropdown()}
@@ -187,8 +209,10 @@ class QuizReviewAnswers extends React.Component {
               {
                 Header: 'Answer',
                 id: 'data',
-                accessor: s => s.answer.data,
-                Cell: row => <div style={{ width: '100%' }}><Truncator content={row.value} length={200} /></div>,
+                accessor: s => s.answer,
+                Cell: row => {
+                  return <div style={{ width: '100%' }}><Truncator content={row.value.data} length={200} /></div>
+                },
                 width: 500,
               }]
             },
@@ -290,6 +314,13 @@ class QuizReviewAnswers extends React.Component {
               },
             }
         ]}
+          getTrProps={( state, rowInfo, column ) => {
+            return {
+              style: {
+                background: rowInfo.row.data.deprecated ? 'maroon' : null
+              }
+            }
+          }}
           resolveData={data => data.map(row => row)}
           className="-striped -highlight"
         />
