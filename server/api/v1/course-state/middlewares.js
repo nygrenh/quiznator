@@ -84,17 +84,29 @@ function getDistribution(options) {
   return (req, res, next) => {
     const quizId = options.getQuizId(req)
 
-    CourseState.find({
-      'completion.data.answerValidation': {
-        $elemMatch: {
-          quizId: mongoose.Types.ObjectId(quizId)
+    CourseState.aggregate([
+      { $project: {
+        answererId: 1,
+        validation: {
+          $filter: {
+            input: '$completion.data.answerValidation',
+            as: 'answerValidation',
+            cond: { $eq: ['$$answerValidation.quizId', mongoose.Types.ObjectId(quizId) ] }
+          },
         }
-      }
-    },
-    { // TODO: this to muuuuch leaner one
-      answererId: 1,
-      'completion.data.answerValidation.$': 1
-    })
+      }},
+      { $match: {
+        'validation.0': { $exists: true }
+      }},
+      { $project: {
+        answererId: 1,
+        'validation.confirmed': 1,
+        'validation.rejected': 1,
+        'validation.deprecated': 1,
+        'validation.type': 1,
+        'validation.normalizedPoints': 1,
+      }}
+    ])
       .then(distribution => {
         req.distribution = distribution
 

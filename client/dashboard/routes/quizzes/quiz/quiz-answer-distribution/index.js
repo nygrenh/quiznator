@@ -35,7 +35,7 @@ class QuizAnswerDistribution extends React.Component {
           filter = point => (point >= points[idx])  
         }
 
-        const amount = data.filter(answer => filter(answer.completion.data.answerValidation[0].normalizedPoints)).length
+        const amount = data.filter(answer => filter(answer.validation[0].normalizedPoints)).length
 
         graphData.push([points[idx] * 100 + '%', amount])
       }
@@ -54,17 +54,20 @@ class QuizAnswerDistribution extends React.Component {
       return null
     }
 
-    if (data[0].completion.data.answerValidation[0].type !== ESSAY) {
+    if (data[0].validation[0].type !== ESSAY) {
       return null
     }
-    
-    const confirmed = data.filter(answer => answer.completion.data.answerValidation[0].confirmed).length
-    const rejected = data.filter(answer => answer.completion.data.answerValidation[0].rejected).length
+
+    const confirmed = data.filter(answer => answer.validation[0].confirmed).length
+    const rejected = data.filter(answer => answer.validation[0].rejected).length
     // TODO: do we need to know of deprecated?
   
     return (
       <div>
-        <span>{confirmed} confirmed, {rejected} rejected, {data.length - confirmed - rejected} awaiting</span>
+        <p>
+          {confirmed} confirmed, {rejected} rejected, {data.length - confirmed - rejected} awaiting <br />
+          <small>NB: amount of rejected is small since they do not (generally) appear in course state!</small>
+        </p>
       </div>
     )
   }

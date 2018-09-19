@@ -240,7 +240,7 @@ function groupProgress({
 
     let peerReviewsReturned = {}
     
-    if (quiz.type === quizTypes.ESSAY) { 
+    if (quiz.type === quizTypes.ESSAY && answer.length > 0) { 
       if (fetchPeerReviews && !isDeprecated(answer)) {
         const given = peerReviewsGiven.filter(pr => 
           pr.sourceQuizId.equals(quiz._id)/* &&
@@ -262,16 +262,15 @@ function groupProgress({
         }
       }
 
-      if (answer.length > 0) {
-        if (isRejected(answer) && !isDeprecated(answer)) {
-          rejected.push({
-            quizId: quiz._id,
-            answer: answer[0]
-          })
-        }
-        if (awaitingConfirmation) {
-          essaysAwaitingConfirmation.push(quiz._id)
-        }
+      if (isRejected(answer) && !isDeprecated(answer)) {
+        rejected.push({
+          quizId: quiz._id,
+          answer: answer[0]
+        })
+      }
+
+      if (awaitingConfirmation) {
+        essaysAwaitingConfirmation.push(quiz._id)
       }
     }
 
