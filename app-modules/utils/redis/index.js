@@ -9,10 +9,10 @@ const redisClient = redis.createClient({ 
   url: REDIS_URL
 })
 
-redisClient.on('connect', () => console.log('Redis client connected'))
-redisClient.on('reconnecting', (attr) => console.log('Redis client reconnect attempt #%d', attr.attempt)) 
+redisClient.on('connect', () => {}/*console.log('Redis client connected')*/)
+redisClient.on('reconnecting', (attr) => console.error('Redis client reconnect attempt #%d', attr.attempt)) 
 redisClient.on('error', (err) => console.error('Redis error:', err.message))
-redisClient.on('end', () => console.log('Redis connection closed'))
+redisClient.on('end', () => {}/*console.log('Redis connection closed')*/)
 
 function redisify(fn, options) {
   if (!redisClient || (redisClient && !redisClient.connected)) {
@@ -35,7 +35,7 @@ function redisify(fn, options) {
           return results
         })
     })
-    .catch(_ => fn) // fail with the original query/whatever 
+    .catch(() => fn) // fail with the original query/whatever 
 }
 
 module.exports = { redisClient, redisify }

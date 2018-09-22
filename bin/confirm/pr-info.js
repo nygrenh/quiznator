@@ -20,7 +20,7 @@ const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
 const sleep = require('sleep')
-
+const util = require('util')
 connect()
 
 var args = process.argv.slice(2)
@@ -28,16 +28,9 @@ var args = process.argv.slice(2)
 const courseConfig = selectConfig(args[args.length - 1])
 
 function timeConversion(millisec) {
-
-  var seconds = (millisec / 1000).toFixed(1);
-
-  var minutes = (millisec / (1000 * 60)).toFixed(1);
-
   var hours = (millisec / (1000 * 60 * 60)).toFixed(1);
 
-  var days = (millisec / (1000 * 60 * 60 * 24)).toFixed(1);
-
-  return hours + ' hrs'
+  return parseFloat(hours)
 }
 
 const main = async () => {
@@ -46,7 +39,7 @@ const main = async () => {
   const essayQuizIds = essayQuizzes.map(quiz => quiz._id)
   const essayAnswers = await QuizAnswer.find({ 
     quizId: { $in: essayQuizIds }, 
-    deprecated: { $ne: true }
+    //deprecated: { $ne: true }
   })
     .sort(
       { createdAt: - 1 }
@@ -57,45 +50,60 @@ const main = async () => {
 
   const peerReviewsPerAnswer = _.groupBy(peerReviews, 'chosenQuizAnswerId')
 
-  essayQuizzes.map(quiz => {
-    console.log(quiz.title)
+  
+  const quizData = _(essayQuizzes)
+    .orderBy(a => parseInt(a.title.match(/(\d+)/g)[0])) // eh
+    .value()
+    .map(quiz => {
+      const answersPerQuiz = essayAnswers.filter(answer => answer.quizId.toString() === quiz._id.toString())
+      const answerers = _.uniq(answersPerQuiz.map(p => p.answererId))
+      const answersPerAnswerer = _.groupBy(answersPerQuiz, 'answererId')
+      const newestAnswers = Object.values(answersPerAnswerer).map(a => a[0].deprecated ? null : a[0]).filter(v => !!v)
+      const answersPerPrCount = _.groupBy(newestAnswers, 'peerReviewCount')
+      const peerReviewsPerQuiz = peerReviews.filter(pr => pr.sourceQuizId.toString() === quiz._id.toString())
 
-    const answersPerQuiz = essayAnswers.filter(answer => answer.quizId.toString() === quiz._id.toString())
-    const answerers = _.uniq(answersPerQuiz.map(p => p.answererId))
-    const answersPerAnswerer = _.groupBy(answersPerQuiz, 'answererId')
-    const newestAnswers = Object.values(answersPerAnswerer).map(a => a[0])
-    const answersPerPrCount = _.groupBy(newestAnswers, 'peerReviewCount')
-    const peerReviewsPerQuiz = peerReviews.filter(pr => pr.sourceQuizId.toString() === quiz._id.toString())
-
-    Object.entries(answersPerPrCount).forEach(([count, answers]) => {
+      const answerData = Object.entries(answersPerPrCount).map(([count, answers]) => {
       //console.log(answers.map(answer => _.get(_.get(peerReviewsPerAnswer, answer._id.toString(), []), "createdAt")))
-      const avgDatePerAnswers = count === 0 
-        ? NaN 
-        : _.mean(
-          answers.map(answer => {
-            const prs = _.get(peerReviewsPerAnswer, answer._id.toString(), []) 
+        const avgDatePerAnswers = count === 0 
+          ? NaN 
+          : _.mean(
+            answers.map(answer => {
+              const prs = _.get(peerReviewsPerAnswer, answer._id.toString(), []) 
             
-            if (prs.length === 0) {
-              return 0
-            }
+              if (prs.length === 0) {
+                return 0
+              }
 
-            const prsSorted = _.orderBy(
-              prs,
-              ['createdAt'],
-              ['desc']
-            )
+              const prsSorted = _.orderBy(
+                prs,
+                ['createdAt'],
+                ['desc']
+              )
 
-            return prsSorted[0].createdAt.getTime() - answer.createdAt.getTime()
-          })
-        )
+              return prsSorted[0].createdAt.getTime() - answer.createdAt.getTime()
+            })
+          )
 
-      const avgAge = isNaN(avgDatePerAnswers) ? '' : timeConversion(avgDatePerAnswers)
-      console.log('%s: %s \t\t %s', ('' + count).padStart(2), ('' + answers.length).padStart(5), avgAge)
-      //console.log(today - avgAge)
+
+        const avgAge = isNaN(avgDatePerAnswers) ? '' : timeConversion(avgDatePerAnswers)
+        // console.log('%s: %s \t\t %s', ('' + count).padStart(2), ('' + answers.length).padStart(5), avgAge)
+        //console.log(today - avgAge)
+        return { count: parseInt(count), answers: answers.length, avgAge }
+      })
+
+      return { 
+        quizId: quiz._id, 
+        quizTitle: quiz.title, 
+        distinctAnswerers: answerers.length, 
+        totalAnswers: answersPerQuiz.length, 
+        totalPeerReviews: peerReviewsPerQuiz.length,
+        data: answerData }
     })
 
-    console.log('')
-  })
+  return { date: Date(Date.now()), data: quizData }
 }
 
-main().then(() => process.exit(0))
+main().then((res) => {
+  console.log(util.inspect(res, { showHidden: false, depth: null }))
+  process.exit(0)
+})

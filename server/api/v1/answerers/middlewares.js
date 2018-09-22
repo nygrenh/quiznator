@@ -96,7 +96,7 @@ function getAnswerers() {
 
 
 function getProgressWithValidation(options) {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     const answererId = options.getAnswererId(req)
 
     if (!answererId || (!!answererId && answererId === '')) {
@@ -114,8 +114,23 @@ function getProgressWithValidation(options) {
       stripAnswers,
       peerReviewsRequiredGiven = 0,
       courseId = '',
-      quizIds
+      quizIds: _quizIds,
     } = body
+
+    let quizIds = _quizIds
+
+    // if quizIds not given as parameter, get ids of quizzes with given courseId in tag AND at least one other tag 
+    if (!_.get(_quizIds, 0, null) && courseId) {
+      const idsByTags = await Quiz.getIdsByTags([courseId])
+
+      quizIds = _.flatten(
+        idsByTags.map(entry => 
+          entry.tags.filter(t => t !== courseId).length > 0 
+            ? entry.quizIds 
+            : []
+        )
+      )
+    }
 
     const getQuizzes = Quiz.findAnswerable({ _id: { $in: quizIds }})
     const getAnswers = fetchAnswers ? QuizAnswer.find({ answererId, quizId: { $in: quizIds } }).sort({ createdAt: - 1 }).exec() : Promise.resolve([])
