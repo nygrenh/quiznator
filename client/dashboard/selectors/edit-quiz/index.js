@@ -21,10 +21,10 @@ export const quizItemsSelector = createSelector(
   quizSelector,
   itemsSelector,
   (quiz, items) => {
-    if(!_get(quiz, 'data.items')) {
+    if(!_get(quiz, 'data.items') || !items) {
       return undefined;
     } else {
-      return quiz.data.items.map(id => items[id]);
+      return quiz.data.items.map(id => id ? items[id] : null).filter(v => !!v);
     }
   }
 );
