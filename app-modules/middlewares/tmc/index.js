@@ -26,7 +26,7 @@ function isUser(getUsername) {
   return flow.series(
     getProfile(),
     (req, res, next) => {
-      if(req.TMCProfile.username === getUsername(req)) {
+      if(req.TMCProfile.username === getUsername(req)) { // getUsername isn't declared anywhere?
         return next();
       } else {
         return next(new errors.ForbiddenError(`You aren't allowed to access this TMC user's resources`));

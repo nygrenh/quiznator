@@ -78,18 +78,6 @@ function getQuizIdsByTag(options = {}) {
         return next()
       })
       .catch(err => next(err))
-
-    /*         let query = { tags: { $all: queryTags }}
-                
-                Quiz
-                    .find(query)
-                    .distinct('_id')
-                    .then(quizIds => {
-                        req.quizIds = quizIds
-                        
-                        return next()
-                    })
-                    .catch(err => next(err)) */
   }
 }
 

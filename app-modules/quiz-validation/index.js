@@ -83,13 +83,17 @@ function validateRadioMatrixData(quiz, data) {
   const { items, meta } = quiz.data
   const rightAnswer = meta.rightAnswer
 
-  if (!data) {
+  if (!data || !items) {
     return {}
   }
 
   let messages = {}
 
   items.forEach(item => {
+    if (!item) {
+      return
+    }
+
     let message = ''
     let error = false
     let correct = false
@@ -110,6 +114,7 @@ function validateRadioMatrixData(quiz, data) {
       message = _.get(meta, `errors[${item.id}]`) || WRONG_ANSWER
       error = true
     }
+
     if (!!message) {
       messages = {
         ...messages,
