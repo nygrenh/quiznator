@@ -26,6 +26,7 @@ function getCourseState(options) {
 
     getState
       .then(state => {
+        req.state = {}
 
         if (!!state && typeof state === 'object' && state.length > 0) {
           if (answererId) {
