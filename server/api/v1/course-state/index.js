@@ -17,6 +17,16 @@ router.post('/state/:courseid',
   }
 )
 
+router.get('/completed',
+  authenticationMiddlewares.authorize(),
+  middlewares.getCompleted({
+    getCourseIds: req => req.query.courseIds
+  }),
+  (req, res, next) => {
+    res.json(req.answererIds)
+  }
+)
+
 router.post('/all/:courseid',
   authenticationMiddlewares.authorize(),
   middlewares.getCourseState({

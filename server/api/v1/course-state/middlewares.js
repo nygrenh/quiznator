@@ -42,6 +42,31 @@ function getCourseState(options) {
   }
 }
 
+function getCompleted(options) {
+  return (req, res, next) => {
+    const courseIds = (options.getCourseIds(req) || '').split(',').filter(courseId => !!courseId) 
+
+    req.answererIds = []
+
+    if (courseIds.length === 0) {
+      return next()  
+    }
+
+    const query = {
+      courseId: { $in: courseIds },
+      'completion.completed': true
+    }
+
+    CourseState.distinct('answererId', query)
+      .then(answererIds => {
+        req.answererIds = answererIds
+
+        return next()
+      })
+      .catch(next)
+  }
+}
+
 function updateCourseStateAnswer(options) {
   return (req, res, next) => {
     const body = options.getBody(req)
@@ -116,4 +141,4 @@ function getDistribution(options) {
   }
 }
 
-module.exports = { getCourseState, getDistribution, updateCourseStateAnswer }
+module.exports = { getCompleted, getCourseState, getDistribution, updateCourseStateAnswer }
