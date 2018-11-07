@@ -20,6 +20,7 @@ import Truncator from 'components/truncator'
 import ReactTable from 'react-table'
 import "react-table/react-table.css"
 import { reasons } from 'common-constants/reasons'
+import _ from 'lodash'
 
 class QuizReviewAnswers extends React.Component {
   constructor(props) {
@@ -326,7 +327,7 @@ class QuizReviewAnswers extends React.Component {
           getTrProps={( state, rowInfo, column ) => {
             return {
               style: {
-                background: rowInfo.row.data.deprecated ? 'darkgray' : null
+                background: _.get(rowInfo, "row.data.deprecated") ? 'darkgray' : null
               }
             }
           }}
