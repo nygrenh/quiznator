@@ -60,4 +60,14 @@ router.post('/distribution',
   }
 )
 
+router.get('/stats',
+  authenticationMiddlewares.authorize(),
+  middlewares.getStats({
+    getCourseId: req => req.query.courseId
+  }),
+  (req, res, next) => {
+    res.json(req.stats)
+  }
+)
+
 module.exports = router

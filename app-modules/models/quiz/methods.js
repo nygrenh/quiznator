@@ -129,6 +129,10 @@ module.exports = schema => {
       })
   }
 
+  schema.statics.getIdsByTag = function(tag) {
+    return this.distinct('_id', { tags: { $in: [tag] } })
+  }
+
   schema.statics.whereTags = function(tags) {
     return this.where('tags').in(tags);
   }

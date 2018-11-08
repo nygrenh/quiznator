@@ -2,8 +2,11 @@ const Promise = require('bluebird')
 const mongoose = require('mongoose')
 const errors = require('app-modules/errors');
 
+const Quiz = require('app-modules/models/quiz')
 const CourseState = require('app-modules/models/course-state')
 const QuizAnswer = require('app-modules/models/quiz-answer')
+
+const _ = require('lodash')
 
 function getCourseState(options) {
   return (req, res, next) => {
@@ -64,6 +67,63 @@ function getCompleted(options) {
         return next()
       })
       .catch(next)
+  }
+}
+
+function getStats(options) {
+  return (req, res, next) => {
+    const courseId = options.getCourseId(req)
+
+    req.stats = {}
+
+    if (!courseId) {
+      return next()
+    }
+
+    let quizzes = []
+
+    const getQuizzes = Quiz.find({ tags: { $in: [courseId] } }, { _id: 1, title: 1 })
+
+    getQuizzes
+      .then(quizResult => {
+        quizzes = quizResult
+
+        const getAnswers = QuizAnswer.find({ quizId: { $in: quizzes.map(q => q._id) }}, { _id: 1, quizId: 1, answererId: 1 })
+        const getCompleted = CourseState.distinct('answererId', { courseId, 'completion.completed': true })
+            
+        return Promise.all([getAnswers, getCompleted])
+      })
+      .spread((answers, completed) => {
+        const answersByQuizId = _.groupBy(answers, 'quizId')
+
+        const answerersByQuizId = _.reduce(
+          answersByQuizId,
+          (obj, value, key) => {
+            obj[key] = _.uniq((value || []).map(v => v.answererId))        
+            
+            return obj
+          },
+          {}
+        )
+
+        const quizStats = _(quizzes)
+          .sortBy(q => (q.title.match(/\d+/) || []).map(Number)[0])
+          .values() 
+          .map(q => ({
+            quiz: q.title,
+            answerCount: _.get(answersByQuizId, q._id, []).length,
+            answererCount: _.get(answerersByQuizId, q._id, []).length, 
+          }))
+
+        req.stats = {
+          quizzes: quizStats,
+          answerers: _.uniq(answers.map(a => a.answererId)).length,
+          completed: completed.length,
+        }
+
+        return next()
+      })
+      .catch(() => next())
   }
 }
 
@@ -141,4 +201,4 @@ function getDistribution(options) {
   }
 }
 
-module.exports = { getCompleted, getCourseState, getDistribution, updateCourseStateAnswer }
+module.exports = { getCompleted, getStats, getCourseState, getDistribution, updateCourseStateAnswer }
