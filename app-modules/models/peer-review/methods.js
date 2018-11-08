@@ -185,8 +185,11 @@ module.exports = schema => {
       return reviews.length >= limit + poolSize
     })
 
+    /*disabled fallback to see if it prevents users fulfilling their
+      peer review duties by reviewing answers already above the limit 
+    */ 
     if (reviews.length < limit) {
-      return this.findPeerReviewsForAnswerer(options)
+      return Promise.resolve([]) // this.findPeerReviewsForAnswerer(options)
     }
 
     return Promise.resolve(_.sampleSize(reviews, limit)) 
