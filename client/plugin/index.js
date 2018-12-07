@@ -16,22 +16,26 @@ import syncQuiznatorWithStore from "utils/sync-quiznator-with-store";
 
 window.Quiznator = syncQuiznatorWithStore(store);
 
+window.loadQuiz = function(quiz) {
+  render(
+    <Provider store={store}>
+      <QuizLoader
+        id={quiz.getAttribute("quiz-id") || quiz.getAttribute("data-quiz-id")}
+      />
+    </Provider>,
+    quiz
+  );
+};
+
 window.loadQuizzes = function() {
   Array.from(
     document.querySelectorAll(`.${withClassPrefix("plugin")}`)
   ).forEach(quiz => {
-    render(
-      <Provider store={store}>
-        <QuizLoader
-          id={quiz.getAttribute("quiz-id") || quiz.getAttribute("data-quiz-id")}
-        />
-      </Provider>,
-      quiz
-    );
+    window.loadQuiz(quiz);
   });
 };
 
-window.loadQuizzes()
+window.loadQuizzes();
 
 const dashboardContainer = document.querySelector(
   `.${withClassPrefix("dashboard")}`
