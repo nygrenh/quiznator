@@ -3,7 +3,6 @@ const resolve = require('path').resolve
 require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
 require('app-module-path').addPath(__dirname + '/../../');
 
-const { config } = require('./constants/config')
 const { selectConfig } = require('app-modules/constants/course-config')
 const Promise = require('bluebird')
 const _ = require('lodash')
@@ -15,12 +14,9 @@ const quizTypes = require('app-modules/constants/quiz-types');
 const Quiz = require('app-modules/models/quiz');
 const QuizAnswer = require('app-modules/models/quiz-answer');
 const PeerReview = require('app-modules/models/peer-review');
-const QuizReviewAnswer = require('app-modules/models/quiz-review-answer')
 const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
-const { median, printProgress } = require('./utils/mathutils')
-const { precise_round } = require('app-modules/utils/math-utils')
-const sleep = require('sleep')
 const util = require('util')
+
 connect()
 
 var args = process.argv.slice(2)

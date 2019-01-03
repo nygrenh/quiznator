@@ -217,7 +217,7 @@ function addValidation({ progress, returnObject, onlyUpdate = false }) {
         ...entry,
         quiz: _.pick(entry.quiz, ['_id']),
         answer: entry.answer.map(answer => _.omit(answer, ['updatedAt', 'createdAt'])),
-        validation: undefined,
+        validation: undefined
       }
     })
     newReturnObject.notAnswered = _.get(newReturnObject, 'notAnswered', []).map(entry => ({ quiz: { _id: entry.quiz._id.toString() } }))

@@ -75,7 +75,8 @@ module.exports = schema => {
   schema.statics.findAnswerable = function(query) {
     const answerableTypes = [quizTypes.MULTIPLE_CHOICE, quizTypes.CHECKBOX, 
                             quizTypes.ESSAY, quizTypes.MULTIPLE_OPEN, 
-                            quizTypes.RADIO_MATRIX, quizTypes.OPEN];
+                            quizTypes.RADIO_MATRIX, quizTypes.OPEN,
+                            quizTypes.SCALE];
 
     const modifiedQuery = Object.assign({}, { type: { $in: answerableTypes } }, query);
 

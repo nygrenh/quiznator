@@ -5,8 +5,13 @@ const errors = require('app-modules/errors');
 const Quiz = require('app-modules/models/quiz')
 const CourseState = require('app-modules/models/course-state')
 const QuizAnswer = require('app-modules/models/quiz-answer')
+const PeerReview = require('app-modules/models/peer-review')
+
+const quizTypes = require('app-modules/constants/quiz-types');
 
 const _ = require('lodash')
+
+const util = require('util')
 
 function getCourseState(options) {
   return (req, res, next) => {
@@ -81,19 +86,32 @@ function getStats(options) {
     }
 
     let quizzes = []
+    let essayQuizzes = []
 
-    const getQuizzes = Quiz.find({ tags: { $in: [courseId] } }, { _id: 1, title: 1 })
+    const getQuizzes = Quiz.find({ tags: { $in: [courseId] } }, { _id: 1, title: 1, type: 1 })
 
     getQuizzes
       .then(quizResult => {
         quizzes = quizResult
 
-        const getAnswers = QuizAnswer.find({ quizId: { $in: quizzes.map(q => q._id) }}, { _id: 1, quizId: 1, answererId: 1 })
-        const getCompleted = CourseState.distinct('answererId', { courseId, 'completion.completed': true })
-            
-        return Promise.all([getAnswers, getCompleted])
+        const getAnswers = QuizAnswer.find(
+          { quizId: { $in: quizzes.map(q => q._id) }}, 
+          { _id: 1, quizId: 1, answererId: 1 },
+        ).sort(
+          { createdAt: - 1 } 
+        )
+        const getCompleted = CourseState.distinct('answererId', 
+          { courseId, 'completion.completed': true })
+        let essayQuizzes = quizzes.filter(q => q.type === quizTypes.ESSAY)
+        const essayQuizIds = essayQuizzes.map(q => q._id)
+        const getPeerReviews = PeerReview.find(
+          { sourceQuizId: { $in: essayQuizIds } },
+          // todo: don't return unneeded
+        )
+
+        return Promise.all([getAnswers, getCompleted, getPeerReviews])
       })
-      .spread((answers, completed) => {
+      .spread((answers, completed, peerReviews) => {
         const answersByQuizId = _.groupBy(answers, 'quizId')
 
         const answerersByQuizId = _.reduce(
@@ -106,11 +124,27 @@ function getStats(options) {
           {}
         )
 
+        const isEssay = id => _.includes(essayQuizIds, id)
+
+        const essayQuizzes = quizzes.filter(q => q.type === quizTypes.ESSAY)
+        const essayQuizIds = quizzes.map(q => q._id)
+        const essayAnswers = answers.filter(a => isEssay(a.quizId))
+
+        const essayStats = getEssayStats({
+          essayQuizzes,
+          essayAnswers,
+          peerReviews
+        })  
+
+        console.log(essayStats)
         const quizStats = _(quizzes)
           .sortBy(q => (q.title.match(/\d+/) || []).map(Number)[0])
           .values() 
           .map(q => ({
             quiz: q.title,
+            peerReviews: isEssay(q._id.toString()) ? {
+              received: essayStats.filter(e => e.quizId === q._id) 
+            } : null,
             answerCount: _.get(answersByQuizId, q._id, []).length,
             answererCount: _.get(answerersByQuizId, q._id, []).length, 
           }))
@@ -125,6 +159,67 @@ function getStats(options) {
       })
       .catch(() => next())
   }
+}
+
+function getEssayStats(data) {
+  const { essayQuizzes, essayAnswers, peerReviews } = data
+
+  const peerReviewsPerAnswer = _.groupBy(peerReviews, 'chosenQuizAnswerId')
+
+  return _(essayQuizzes)
+    .orderBy(a => parseInt(a.title.match(/(\d+)/g)[0])) // eh
+    .value()
+    .map(quiz => {
+      const answersPerQuiz = essayAnswers.filter(answer => answer.quizId.toString() === quiz._id.toString())
+      const answerers = _.uniq(answersPerQuiz.map(p => p.answererId))
+      const answersPerAnswerer = _.groupBy(answersPerQuiz, 'answererId')
+      const newestAnswers = Object.values(answersPerAnswerer).map(a => a[0].deprecated ? null : a[0]).filter(v => !!v)
+      const answersPerPrCount = _.groupBy(newestAnswers, 'peerReviewCount')
+      const peerReviewsPerQuiz = peerReviews.filter(pr => pr.sourceQuizId.toString() === quiz._id.toString())
+
+      const answerData = Object.entries(answersPerPrCount).map(([count, answers]) => {
+      //console.log(answers.map(answer => _.get(_.get(peerReviewsPerAnswer, answer._id.toString(), []), "createdAt")))
+        const avgDatePerAnswers = count === 0 
+          ? NaN 
+          : _.mean(
+            answers.map(answer => {
+              const prs = _.get(peerReviewsPerAnswer, answer._id.toString(), []) 
+            
+              if (prs.length === 0) {
+                return 0
+              }
+
+              const prsSorted = _.orderBy(
+                prs,
+                ['createdAt'],
+                ['desc']
+              )
+
+              return prsSorted[0].createdAt.getTime() - answer.createdAt.getTime()
+            })
+          )
+
+
+        const avgAge = isNaN(avgDatePerAnswers) ? '' : timeConversion(avgDatePerAnswers)
+
+        return { count: parseInt(count), answers: answers.length, avgAge }
+      })
+
+      return { 
+        quizId: quiz._id, 
+        quizTitle: quiz.title, 
+        distinctAnswerers: answerers.length, 
+        totalAnswers: answersPerQuiz.length, 
+        totalPeerReviews: peerReviewsPerQuiz.length,
+        data: answerData }
+    })
+
+}
+
+function timeConversion(millisec) {
+  var hours = (millisec / (1000 * 60 * 60)).toFixed(1);
+
+  return parseFloat(hours)
 }
 
 function updateCourseStateAnswer(options) {
