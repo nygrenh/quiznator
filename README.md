@@ -1,6 +1,6 @@
 # Quiznator
 
-:point_right: [Dashboard](http://quiznator.herokuapp.com/dashboard)
+:point_right: [Dashboard](https://quiznator.mooc.fi/dashboard)
 
 ## Usage
 
@@ -12,12 +12,12 @@ Add quiz placement snippet to the your HTML page, like so:
 <div class="quiznator-plugin" data-quiz-id="myQuizId">
 ```
 
-Replace "myQuizId" with the id of your quiz. You can get this snippet from your [quizzes](http://quiznator.herokuapp.com/dashboard/quizzes) page in the Quiznator dashboard.
+Replace "myQuizId" with the id of your quiz. You can get this snippet from your [quizzes](https://quiznator.mooc.fi/dashboard/quizzes) page in the Quiznator dashboard.
 
 Add Quiznator snippet, like so:
 
 ```html
-<script src="http://quiznator.herokuapp.com/javascripts/plugin-loader.min.js"></script>
+<script src="https://quiznator.mooc.fi/javascripts/plugin-loader.min.js"></script>
 ```
 
 You only need one of these for each page.
