@@ -14,6 +14,7 @@ function getProfile(getAccessToken) {
 
     TMCApi.getProfile(accessToken)
       .then(response => {
+        console.log(response)
         req.TMCProfile = response;
 
         return next();

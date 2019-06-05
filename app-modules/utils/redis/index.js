@@ -21,7 +21,7 @@ function redisify(fn, options) {
 
   const { prefix, expireTime, key } = options
   const prefixedKey = `${prefix}:${key}`
-  
+
   return redisClient.getAsync(prefixedKey)
     .then(async res => {
       if (res) {

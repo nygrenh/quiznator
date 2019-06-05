@@ -9,5 +9,6 @@ router.use('/answerers', require('./answerers'));
 router.use('/tags', require('./tags'))
 router.use('/quiz-scores', require('./quiz-scores'))
 router.use('/course-state', require('./course-state'))
+router.use('/migration', require('./migration'))
 
 module.exports = router;
