@@ -8,7 +8,7 @@ router.get('/:date',
     TMCMiddlewares.getProfile(),
     middlewares.getData({
         getAdminStatus: req => req.TMCProfile.administrator,
-        getDate: req => req.params.date
+        getDate: req => decodeURIComponent(req.params.date)
     }),
     (req, res, next) => {
         res.json(req.data);
