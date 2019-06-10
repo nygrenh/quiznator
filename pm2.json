@@ -2,7 +2,8 @@
   "apps" : [{
     "script"    : "bin/www",
     "instances" : "max",
-    "exec_mode" : "cluster"
+    "exec_mode" : "cluster",
+    "node_args" : "--max-old-space-size=2048"
   },
   {
     "script"          : "bin/confirm/confirm-essays.js",
