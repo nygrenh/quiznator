@@ -47,7 +47,7 @@ function getData(options) {
         ))
         const peerReviews = PeerReview.find(query)
         const quizAnswers = QuizAnswer.find(query)
-        const usernames = QuizAnswer.distinct('answererId', query)
+        const usernames = QuizAnswer.distinct('answererId')
         const spamFlags = QuizAnswerSpamFlag.find()
 
         Promise.all([quizzes, peerReviewQuizzes, peerReviews, quizAnswers, usernames, spamFlags])
