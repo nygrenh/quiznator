@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt-as-promised');
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 
 const validators = require('app-modules/utils/validators');
