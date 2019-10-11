@@ -37,7 +37,7 @@ const courseConfig = selectConfig(args[args.length - 1])
 /*
   - course completion status
   - peer reviews pending? not updated here
-  - 
+  -
 */
 function getProgressWithValidation(data) {
   const { answererId, answers, quizzes } = data
@@ -59,7 +59,7 @@ function getProgressWithValidation(data) {
 
     if (answersForQuiz.length > 0) {
       let newestDate = 0
-  
+
       newestDate = answer[0].createdAt
 
       // answers now come sorted by date from backend
@@ -68,7 +68,7 @@ function getProgressWithValidation(data) {
         if (answerForQuiz.updatedAt > newestDate) {
           answer = [answerForQuiz] // expecting [0]...
           newestDate = answerForQuiz.updatedAt
-        } 
+        }
       }) */
       latestAnswerDate = Math.max(newestDate, latestAnswerDate)
     }
@@ -76,7 +76,7 @@ function getProgressWithValidation(data) {
     let returnObject = {
       quiz,
       answer: answers && answer.length > 0 ? answer : [],
-    } 
+    }
 
     return returnObject
   }), entry => {
@@ -97,19 +97,19 @@ function getProgressWithValidation(data) {
   }
 
   returnObject = Object.assign(
-    {}, 
-    returnObject, 
+    {},
+    returnObject,
     validateProgress(progress))
 
-  return returnObject 
+  return returnObject
 }
 
 function updateCompletion(data) {
   return new Promise((resolve, reject) => {
     const { answererId, scoreObject, completionAnswersDate, partialCompleted } = data
 
-    const completed = 
-      scoreObject.progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS && 
+    const completed =
+      scoreObject.progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS &&
       scoreObject.score >= courseConfig.MINIMUM_SCORE_TO_PASS
 
     if (partialCompleted !== completed) {
@@ -127,7 +127,7 @@ function updateCompletion(data) {
         // either new coursestate or hadn't previously completed but has now
         completionDate = Date.now()
       } else {
-        completionDate = _.get(courseState, 'completion.completionDate', null)        
+        completionDate = _.get(courseState, 'completion.completionDate', null)
       }
 
       let completionData = {
@@ -140,15 +140,15 @@ function updateCompletion(data) {
 
 
       if (!courseState) {
-        const newCourseState = CourseState({ 
+        const newCourseState = CourseState({
           answererId,
           courseId: courseConfig.COURSE_ID,
           completion: completionData
         })
-        
+
         return newCourseState.save()
       }
-      
+
       if (!_.get(courseState, 'completion.confirmationSent')) {
         // don't change data if confirmation already sent
         courseState.completion = completionData
@@ -209,15 +209,15 @@ const getCompleted = async () => {
   const quizIdsMap = quizIds.map(quizId => mongoose.Types.ObjectId(quizId))
 
   const answers = await QuizAnswer
-    .find({ quizId: { $in: quizIdsMap }})
+    .find({ quizId: { $in: quizIdsMap }, createdAt: { $gte: new Date(new Date() - 2592000000 * 1)}})
     .sort({ createdAt: -1 })
-    .exec() 
+    .exec()
 
   const quizzes = await Quiz.findAnswerable({ _id: { $in: quizIdsMap }}).exec()
   const countableQuizIds = quizzes.filter(quiz => !_.includes(quiz.tags, 'ignore')).map(quiz => quiz._id.toString())
-      
+
   const maxCountableNormalizedPoints = countableQuizIds.length
-    
+
   const answererIds = _.uniq(answers.map(answer => answer.answererId))
   //const quizIds = _.uniq(answers.map(answer => answer._doc.quizId.toString()))
 
@@ -225,7 +225,7 @@ const getCompleted = async () => {
 
   let answersForAnswerer = mapAnswers(answers)
 
-  console.log('Ready initing, start crunching')    
+  console.log('Ready initing, start crunching')
 
   let count = 0
 
@@ -234,8 +234,8 @@ const getCompleted = async () => {
     const currentAnswers = answersForAnswerer.get(answererId)
 
     const progress = getProgressWithValidation({
-      answererId, 
-      answers: currentAnswers, 
+      answererId,
+      answers: currentAnswers,
       quizzes
     })
 
@@ -248,9 +248,9 @@ const getCompleted = async () => {
 
     const score = calculatePercentage(progress.validation.normalizedPoints, progress.validation.maxNormalizedPoints)
     const pointsPercentage = calculatePercentage(progress.validation.points, progress.validation.maxPoints)
-                
+
     // go through answers in submission order and determine the date when the answerer
-    // could have been potentially have completed  
+    // could have been potentially have completed
 
     const answerValidation = progress.answered.map(entry => mapEntry(entry))
 
@@ -287,7 +287,7 @@ const getCompleted = async () => {
           //                partialScore >= config.MINIMUM_SCORE_TO_PASS) {
           completionAnswersDate = entry.earliestCreatedAt // createdAt
           partialCompleted = true
-              
+
           if (partialProgress > progress.validation.progress || partialScore > score) {
             console.log('%s official p/s %d/%d partial p/s %d/%d', answererId, progress.validation.progress, score, partialProgress, partialScore)
           }
@@ -329,7 +329,7 @@ const getCompleted = async () => {
       throw err
     }
 
-    if (progress.validation.progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS && 
+    if (progress.validation.progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS &&
           score >= courseConfig.MINIMUM_SCORE_TO_PASS) {
       return scoreObject
     }
@@ -360,4 +360,3 @@ setTimeout(() => {
 
 
 setInterval(() => {}, 1000)
-
