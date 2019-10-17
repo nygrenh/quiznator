@@ -6,7 +6,7 @@
     "node": "6.3.0"
   },
   "scripts": {
-    "start": "node --max-old-space-size=16384 ./bin/www",
+    "start": "node --max-old-space-size=2048 ./bin/www",
     "serve": "./node_modules/.bin/pm2 start --no-daemon pm2.json",
     "reload-serve": "./node_modules/.bin/pm2 reload --no-daemon pm2.json",
     "test": "node ./node_modules/gulp/bin/gulp tests.server",
