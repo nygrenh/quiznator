@@ -223,7 +223,12 @@ const getCompleted = async () => {
 
   console.log(answererIds.length + ' unique answerers, '+ answers.length + ' answers to trawl through for ' + courseConfig.COURSE_ID)
 
-  let answersForAnswerer = mapAnswers(answers)
+  const answersForSelectedAnswerers = await QuizAnswer
+  .find({ quizId: { $in: quizIdsMap }, answererId: { $in: answererIds }})
+  .sort({ createdAt: -1 })
+  .exec()
+
+  let answersForAnswerer = mapAnswers(answersForSelectedAnswerers)
 
   console.log('Ready initing, start crunching')
 
