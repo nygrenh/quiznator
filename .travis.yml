@@ -9,4 +9,6 @@ addons:
     - gcc-4.8
     - g++-4.8
 env:
-  - TRAVIS=travis CXX=g++-4.8
+  - TRAVIS=travis CXX=g++-4.8 MONGO_URI=127.0.0.1:27017
+services:
+  - mongodb
