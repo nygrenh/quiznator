@@ -59,7 +59,7 @@
     "json-loader": "^0.5.4",
     "keymirror": "^0.1.1",
     "likert-react": "0.0.0-beta5",
-    "lodash": "^4.15.0",
+    "lodash": "^4.17.13",
     "lodash.delay": "^4.1.1",
     "lodash.get": "^4.4.2",
     "lodash.omit": "^4.5.0",
