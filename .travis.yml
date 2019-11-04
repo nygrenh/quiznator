@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "8.9.4"
+  - "9.11.2"
 addons:
   apt:
     sources:
@@ -9,4 +9,7 @@ addons:
     - gcc-4.8
     - g++-4.8
 env:
-  - TRAVIS=travis CXX=g++-4.8
+  - TRAVIS=travis CXX=g++-4.8 MONGO_URI=127.0.0.1:27017
+services:
+  - mongodb
+  - redis-server
