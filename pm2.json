@@ -11,7 +11,7 @@
     "exec_mode"       : "cluster",
     "instances"       : "1",
     "autorestart"     : true,
-    "cron_restart"    : "15 */2 * * *",
+    "cron_restart"    : "0 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
     "node_args"       : "--max-old-space-size=8192"
   },
@@ -21,7 +21,7 @@
     "exec_mode"       : "cluster",
     "instances"       : "1",
     "autorestart"     : true,
-    "cron_restart"    : "30 1/2 * * *",
+    "cron_restart"    : "5 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
     "node_args"       : "--max-old-space-size=10192"
   },
@@ -31,7 +31,7 @@
     "exec_mode"       : "cluster",
     "instances"       : "1",
     "autorestart"     : true,
-    "cron_restart"    : "2 * * * *",
+    "cron_restart"    : "10 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
     "args"            : "elements-of-ai-fi",
     "node_args"       : "--max-old-space-size=8192"
@@ -42,7 +42,7 @@
     "exec_mode"       : "cluster",
     "instances"       : "1",
     "autorestart"     : true,
-    "cron_restart"    : "40 * * * *",
+    "cron_restart"    : "15 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
     "args"            : "elements-of-ai-fi",
     "node_args"       : "--max-old-space-size=8192"
@@ -64,9 +64,53 @@
     "exec_mode"       : "cluster",
     "instances"       : "1",
     "autorestart"     : true,
-    "cron_restart"    : "50 * * * *",
+    "cron_restart"    : "25 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
     "args"            : "elements-of-ai-se",
+    "node_args"       : "--max-old-space-size=8192"
+  },
+  {
+    "script"          : "bin/confirm/confirm-essays.js",
+    "name"            : "essays-ee",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : true,
+    "cron_restart"    : "30 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z",
+    "args"            : "elements-of-ai-ee",
+    "node_args"       : "--max-old-space-size=8192"
+  },
+  {
+    "script"          : "bin/confirm/confirm-completion.js",
+    "name"            : "completion-ee",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : true,
+    "cron_restart"    : "35 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z",
+    "args"            : "elements-of-ai-ee",
+    "node_args"       : "--max-old-space-size=8192"
+  },
+  {
+    "script"          : "bin/confirm/confirm-essays.js",
+    "name"            : "essays-de",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : true,
+    "cron_restart"    : "40 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z",
+    "args"            : "elements-of-ai-de",
+    "node_args"       : "--max-old-space-size=8192"
+  },
+  {
+    "script"          : "bin/confirm/confirm-completion.js",
+    "name"            : "completion-de",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : true,
+    "cron_restart"    : "45 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z",
+    "args"            : "elements-of-ai-de",
     "node_args"       : "--max-old-space-size=8192"
   }]
 }
