@@ -30,6 +30,14 @@ const courseVariants = {
   'elements-of-ai-se': {
     ...defaultConfig,
     COURSE_ID: 'elements-of-ai-se'
+  },
+  'elements-of-ai-ee': {
+    ...defaultConfig,
+    COURSE_ID: 'elements-of-ai-ee'
+  },
+  'elements-of-ai-de': {
+    ...defaultConfig,
+    COURSE_ID: 'elements-of-ai-de'
   }
 }
 
