@@ -149,7 +149,7 @@ function updateCompletion(data) {
         return newCourseState.save()
       }
 
-      if (!_.get(courseState, 'completion.confirmationSent')) {
+      if (!_.get(courseState, 'completion.completed')) {
         // don't change data if confirmation already sent
         courseState.completion = completionData
 
