@@ -227,6 +227,7 @@ const parseTime = str => {
   const factors = {
     y: 2592000000 * 12,
     m: 2592000000,
+    w: 604800000
   }
 
   if (!Object.keys(factors).some(s => s === factor)) {
