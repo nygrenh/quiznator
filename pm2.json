@@ -49,16 +49,6 @@
     "node_args"       : "--max-old-space-size=10192"
   },
   {
-    "script"          : "bin/confirm/confirm-completion.js",
-    "name"            : "completion",
-    "exec_mode"       : "cluster",
-    "instances"       : "1",
-    "autorestart"     : true,
-    "cron_restart"    : "55 * * * *",
-    "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "node_args"       : "--max-old-space-size=10192"
-  },
-  {
     "script"          : "bin/confirm/confirm-essays.js",
     "name"            : "essays-fi",
     "exec_mode"       : "cluster",
