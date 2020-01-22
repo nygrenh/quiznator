@@ -17,6 +17,39 @@
   },
   {
     "script"          : "bin/confirm/confirm-completion.js",
+    "name"            : "completion-en-newer-than-1m",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : true,
+    "cron_restart"    : "5 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z",
+    "args"            : "elements-of-ai 1m",
+    "node_args"       : "--max-old-space-size=8192"
+  },
+  {
+    "script"          : "bin/confirm/confirm-completion.js",
+    "name"            : "completion-en-1m-to-6m",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : true,
+    "cron_restart"    : "25 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z",
+    "args"            : "elements-of-ai 6m 1m",
+    "node_args"       : "--max-old-space-size=10192"
+  },
+  {
+    "script"          : "bin/confirm/confirm-completion.js",
+    "name"            : "completion-en-older-than-6m",
+    "exec_mode"       : "cluster",
+    "instances"       : "1",
+    "autorestart"     : true,
+    "cron_restart"    : "50 * * * *",
+    "log_date_format" : "YYYY-MM-DD HH:mm Z",
+    "args"            : "elements-of-ai 10y 6m",
+    "node_args"       : "--max-old-space-size=10192"
+  },
+  {
+    "script"          : "bin/confirm/confirm-completion.js",
     "name"            : "completion",
     "exec_mode"       : "cluster",
     "instances"       : "1",
