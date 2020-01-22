@@ -21,7 +21,7 @@
     "exec_mode"       : "cluster",
     "instances"       : "1",
     "autorestart"     : true,
-    "cron_restart"    : "5 * * * *",
+    "cron_restart"    : "7 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
     "args"            : "elements-of-ai 1m",
     "node_args"       : "--max-old-space-size=8192"
@@ -43,10 +43,10 @@
     "exec_mode"       : "cluster",
     "instances"       : "1",
     "autorestart"     : true,
-    "cron_restart"    : "50 * * * *",
+    "cron_restart"    : "50 23 * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
     "args"            : "elements-of-ai 10y 6m",
-    "node_args"       : "--max-old-space-size=10192"
+    "node_args"       : "--max-old-space-size=18192"
   },
   {
     "script"          : "bin/confirm/confirm-essays.js",
