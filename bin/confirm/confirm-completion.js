@@ -250,7 +250,10 @@ const getCompleted = async () => {
     $gte: startTime
       ? new Date(currentDate - parseTime(startTime))
       : new Date(currentDate - DEFAULT_NEWER_THAN),
-    $lte: endTime ? new Date(currentDate - parseTime(endTime)) : undefined,
+  }
+
+  if (endTime) {
+    createdAt['$lte'] = new Date(currentDate - parseTime(endTime))
   }
 
   const answers = await QuizAnswer.find({
