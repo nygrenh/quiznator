@@ -1,29 +1,25 @@
 #!/usr/bin/env node
 
-const resolve = require('path').resolve
-require('app-module-path').addPath(__dirname + '/../../')
+const resolve = require("path").resolve
+require("app-module-path").addPath(__dirname + "/../../")
 
-require('dotenv').config({ path: resolve('../..', '.env'), silent: true })
+require("dotenv").config({ path: resolve("../..", ".env"), silent: true })
 
-const { selectConfig } = require('app-modules/constants/course-config')
-const Promise = require('bluebird')
-const _ = require('lodash')
-const mongoose = require('mongoose')
-mongoose.Promise = require('bluebird').Promise
+const { selectConfig } = require("app-modules/constants/course-config")
+const Promise = require("bluebird")
+const _ = require("lodash")
+const mongoose = require("mongoose")
+mongoose.Promise = require("bluebird").Promise
 
-const {
-  validateProgress,
-} = require('app-modules/quiz-validation')
+const { validateProgress } = require("app-modules/quiz-validation")
 
-const Quiz = require('app-modules/models/quiz')
-const QuizAnswer = require('app-modules/models/quiz-answer')
-const CourseState = require('app-modules/models/course-state')
+const Quiz = require("app-modules/models/quiz")
+const QuizAnswer = require("app-modules/models/quiz-answer")
+const CourseState = require("app-modules/models/course-state")
 
-const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
-const {
-  calculatePercentage,
-} = require('./utils/mathutils')
-const sleep = require('sleep')
+const { connect, fetchQuizIds } = require("./utils/quiznator-tools")
+const { calculatePercentage } = require("./utils/mathutils")
+const sleep = require("sleep")
 
 sleep.sleep(5)
 
@@ -35,7 +31,7 @@ const courseConfig = selectConfig(args[0])
 const startTime = args[1]
 const endTime = args[2]
 
-const DEFAULT_NEWER_THAN = 2592000000 * 6 // 6 months 
+const DEFAULT_NEWER_THAN = 2592000000 * 6 // 6 months
 
 /*
   - course completion status
@@ -53,8 +49,8 @@ function getProgressWithValidation(data) {
   const answerQuizIds = Array.from(answers.keys()) // map(answer => answer.quizId.toString());
 
   const isAnswered = entry => ~answerQuizIds.indexOf(entry.quiz._id.toString())
-  const isDeprecated = entry => _.get(entry, 'answer[0].deprecated', false)
-  const isRejected = entry => _.get(entry, 'answer[0].rejected', false)
+  const isDeprecated = entry => _.get(entry, "answer[0].deprecated", false)
+  const isRejected = entry => _.get(entry, "answer[0].rejected", false)
 
   const progress = _.groupBy(
     quizzes.map(quiz => {
@@ -86,13 +82,13 @@ function getProgressWithValidation(data) {
     }),
     entry => {
       if (isRejected(entry) && !isDeprecated(entry)) {
-        return 'rejected'
+        return "rejected"
       }
       if (isAnswered(entry) && !isDeprecated(entry)) {
-        return 'answered'
+        return "answered"
       }
 
-      return 'notAnswered'
+      return "notAnswered"
     },
   )
 
@@ -126,7 +122,7 @@ function updateCompletion(data) {
       scoreObject.score >= courseConfig.MINIMUM_SCORE_TO_PASS
 
     if (partialCompleted !== completed) {
-      console.log('Answerer', answererId, 'has differing states for completion')
+      console.log("Answerer", answererId, "has differing states for completion")
     }
 
     CourseState.findOne(
@@ -136,11 +132,11 @@ function updateCompletion(data) {
       .then(courseState => {
         let completionDate
 
-        if (!_.get(courseState, 'completion.completed') && completed) {
+        if (!_.get(courseState, "completion.completed") && completed) {
           // either new coursestate or hadn't previously completed but has now
           completionDate = Date.now()
         } else {
-          completionDate = _.get(courseState, 'completion.completionDate', null)
+          completionDate = _.get(courseState, "completion.completionDate", null)
         }
 
         let completionData = {
@@ -161,7 +157,7 @@ function updateCompletion(data) {
           return newCourseState.save()
         }
 
-        if (!_.get(courseState, 'completion.completed')) {
+        if (!_.get(courseState, "completion.completed")) {
           // don't change data if confirmation already sent
           courseState.completion = completionData
 
@@ -221,20 +217,22 @@ const mapEntry = entry => ({
   earliestCreatedAt: entry.answer[entry.answer.length - 1].createdAt,
 })
 
-const parseTime = (str) => {
-  if (!str || typeof str !== 'string') {
-    return 
+const parseTime = str => {
+  if (!str || typeof str !== "string") {
+    return
   }
 
   const time = parseInt(str.slice(0, -1))
-  const factor = (str.slice(-1) || '').toLowerCase()
+  const factor = (str.slice(-1) || "").toLowerCase()
   const factors = {
-    'y': 2592000000 * 12,
-    'm': 2592000000,
+    y: 2592000000 * 12,
+    m: 2592000000,
   }
 
   if (!Object.keys(factors).some(s => s === factor)) {
-    throw new Error(`invalid time! factor must be one of ${Object.keys(factors).join(', ')}`)
+    throw new Error(
+      `invalid time! factor must be one of ${Object.keys(factors).join(", ")}`,
+    )
   }
 
   return time * factors[factor]
@@ -243,26 +241,28 @@ const parseTime = (str) => {
 const getCompleted = async () => {
   const quizIds = await fetchQuizIds(courseConfig.COURSE_ID)
 
-  console.log('initing...')
+  console.log("initing...")
 
   const quizIdsMap = quizIds.map(quizId => mongoose.Types.ObjectId(quizId))
   const currentDate = new Date()
   const createdAt = {
-    $gte: startTime ? new Date(currentDate - parseTime(startTime)) : DEFAULT_NEWER_THAN,
-    $lte: endTime ? new Date(currentDate - parseTime(endTime)) : undefined
+    $gte: startTime
+      ? new Date(currentDate - parseTime(startTime))
+      : new Date(currentDate - DEFAULT_NEWER_THAN),
+    $lte: endTime ? new Date(currentDate - parseTime(endTime)) : undefined,
   }
 
   const answers = await QuizAnswer.find({
     quizId: { $in: quizIdsMap },
-    createdAt
-/*     createdAt: { $gte: new Date(new Date() - 2592000000 * 6) }, */
+    createdAt,
+    /*     createdAt: { $gte: new Date(new Date() - 2592000000 * 6) }, */
   })
     .sort({ createdAt: -1 })
     .exec()
 
   const quizzes = await Quiz.findAnswerable({ _id: { $in: quizIdsMap } }).exec()
   const countableQuizIds = quizzes
-    .filter(quiz => !_.includes(quiz.tags, 'ignore'))
+    .filter(quiz => !_.includes(quiz.tags, "ignore"))
     .map(quiz => quiz._id.toString())
 
   const maxCountableNormalizedPoints = countableQuizIds.length
@@ -272,9 +272,9 @@ const getCompleted = async () => {
 
   console.log(
     answererIds.length +
-      ' unique answerers, ' +
+      " unique answerers, " +
       answers.length +
-      ' answers to trawl through for ' +
+      " answers to trawl through for " +
       courseConfig.COURSE_ID,
   )
 
@@ -287,7 +287,7 @@ const getCompleted = async () => {
 
   let answersForAnswerer = mapAnswers(answersForSelectedAnswerers)
 
-  console.log('Ready initing, start crunching')
+  console.log("Ready initing, start crunching")
 
   let count = 0
 
@@ -322,7 +322,7 @@ const getCompleted = async () => {
 
       const answerValidation = progress.answered.map(entry => mapEntry(entry))
 
-      const sortedAnswers = _.sortBy(answerValidation, 'earliestCreatedAt') //createdAt
+      const sortedAnswers = _.sortBy(answerValidation, "earliestCreatedAt") //createdAt
 
       let partialNormalizedPoints = 0
       let partialConfirmedAmount = 0
@@ -335,7 +335,7 @@ const getCompleted = async () => {
         sortedAnswers.some(entry => {
           if (prevDate > entry.earliestCreatedAt) {
             // createdAt
-            return Promise.reject(new Error('answer sorting is borked?'))
+            return Promise.reject(new Error("answer sorting is borked?"))
           }
 
           prevDate = entry.earliestCreatedAt // createdAt
@@ -357,7 +357,7 @@ const getCompleted = async () => {
           if (partialProgress > 100 || partialScore > 100) {
             return Promise.reject(
               new Error(
-                'your progress/score calculations are wrong',
+                "your progress/score calculations are wrong",
                 progress,
                 partialProgress,
                 partialScore,
@@ -375,7 +375,7 @@ const getCompleted = async () => {
               partialScore > score
             ) {
               console.log(
-                '%s official p/s %d/%d partial p/s %d/%d',
+                "%s official p/s %d/%d partial p/s %d/%d",
                 answererId,
                 progress.validation.progress,
                 score,
@@ -444,11 +444,11 @@ setTimeout(() => {
   getCompleted()
     .then(response => {
       /*   console.log('\n', JSON.stringify(response)) */
-      console.log(response.length + ' completed')
+      console.log(response.length + " completed")
       // process.exit(0)
     })
     .catch(err => {
-      console.error('error', err)
+      console.error("error", err)
       process.exit(1)
     })
 }, 2000)
