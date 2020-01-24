@@ -22,7 +22,7 @@ const { calculatePercentage } = require("./utils/mathutils")
 
 const sleep = require("./utils/sleep")
 
-// sleep.sleep(5)
+sleep.sleep(5)
 
 connect()
 
@@ -257,7 +257,6 @@ const getCompleted = async () => {
     createdAt['$lte'] = new Date(currentDate - parseTime(endTime))
   }
 
-  console.log("createdAt", createdAt, "experimental", experimentalMode)
   const answers = await QuizAnswer.find({
     quizId: { $in: quizIdsMap },
     createdAt,
