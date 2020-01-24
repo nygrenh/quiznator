@@ -436,32 +436,26 @@ const getCompleted = async () => {
     return
   }
 
-  let completed
-
-  if(experimentalMode){
-    completed = []
-    for (const answererId of answererIds){
-      await updateSingleCourseState(answererId).then(result => completed.push(result))
+  let completed = 0
+  console.log("Handling", answererIds.length, "answerers")
+  for (const answererId of answererIds){
+    await updateSingleCourseState(answererId)
+    completed = completed + 1;
+    if (completed % 1000 === 0) {
+      console.log("Handled", completed, "answerers...")
     }
-  } else {
-    completed = await Promise.all(
-      answererIds.map(updateSingleCourseState),
-    )
-      .then(results => (results || []).filter(v => !!v))
-      .catch(err => Promise.reject(err))
   }
 
+
   return completed
-  /*     })
-    .then(completed => Promise.resolve(completed))
-    .catch(err => Promise.reject(err)) */
+
 }
 
 setTimeout(() => {
   getCompleted()
-    .then(response => {
+    .then(length => {
       /*   console.log('\n', JSON.stringify(response)) */
-      console.log(response.length + " completed")
+      console.log(length + " completed")
       // process.exit(0)
     })
     .catch(err => {
