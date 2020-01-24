@@ -10,7 +10,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird').Promise
-const sleep = require('sleep').sleep
+const sleep = require('./utils/sleep').sleep
 const QuizAnswer = require('app-modules/models/quiz-answer')
 
 const { connect, fetchQuizIds } = require('./utils/quiznator-tools')

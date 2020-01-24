@@ -23,7 +23,7 @@
     "autorestart"     : true,
     "cron_restart"    : "*/5 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai 1m",
+    "args"            : "elements-of-ai --startTime 1m",
     "node_args"       : "--max-old-space-size=8192"
   },
   {
@@ -34,7 +34,7 @@
     "autorestart"     : true,
     "cron_restart"    : "25 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai 1w 1m",
+    "args"            : "elements-of-ai --startTime 6m --endTime 1w",
     "node_args"       : "--max-old-space-size=10192"
   },
   {
@@ -45,7 +45,7 @@
     "autorestart"     : true,
     "cron_restart"    : "50 23 * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai 10y 6m",
+    "args"            : "elements-of-ai --startTime 10y --endTime 6m",
     "node_args"       : "--max-old-space-size=18192"
   },
   {
@@ -56,7 +56,7 @@
     "autorestart"     : true,
     "cron_restart"    : "10 12 * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai 10y 6m experimental",
+    "args"            : "elements-of-ai --startTime 10y --endTime 6m --experimental",
     "node_args"       : "--max-old-space-size=18192"
   },
   {

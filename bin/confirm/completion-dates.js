@@ -22,7 +22,7 @@ const CourseState = require('app-modules/models/course-state')
 const { precise_round } = require('app-modules/utils/math-utils')
 
 
-const sleep = require('sleep')
+const sleep = require('./utils/sleep')
 
 connect()
 

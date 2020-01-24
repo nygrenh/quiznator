@@ -19,18 +19,18 @@ const CourseState = require("app-modules/models/course-state")
 
 const { connect, fetchQuizIds } = require("./utils/quiznator-tools")
 const { calculatePercentage } = require("./utils/mathutils")
-const sleep = require("sleep")
+
+const sleep = require("./utils/sleep")
 
 sleep.sleep(5)
 
 connect()
 
-var args = process.argv.slice(2)
-
-const courseConfig = selectConfig(args[0])
-const startTime = args[1]
-const endTime = args[2]
-const experimentalMode = args[3] === 'experimental'
+const argv = require("yargs").argv
+const courseConfig = selectConfig(argv._[0])
+const startTime = argv.startTime
+const endTime = argv.endTime
+const experimentalMode = argv.experimental
 
 const DEFAULT_NEWER_THAN = 2592000000 * 6 // 6 months
 
