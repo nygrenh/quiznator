@@ -30,6 +30,7 @@ var args = process.argv.slice(2)
 const courseConfig = selectConfig(args[0])
 const startTime = args[1]
 const endTime = args[2]
+const experimentalMode = args[3] === 'experimental'
 
 const DEFAULT_NEWER_THAN = 2592000000 * 6 // 6 months
 
@@ -295,148 +296,160 @@ const getCompleted = async () => {
 
   let count = 0
 
-  const completed = await Promise.all(
-    answererIds.map(async answererId => {
-      //console.log(answererId)
-      const currentAnswers = answersForAnswerer.get(answererId)
 
-      const progress = getProgressWithValidation({
-        answererId,
-        answers: currentAnswers,
-        quizzes,
-      })
+  const updateSingleCourseState = async (answererId) => {
+    //console.log(answererId)
+    const currentAnswers = answersForAnswerer.get(answererId)
 
-      count += 1
-      /*           if (!_.includes(percentagesShown, percentage)) {
-          percentagesShown.push(percentage)
-          printProgress(percentage)
-        } */
+    const progress = getProgressWithValidation({
+      answererId,
+      answers: currentAnswers,
+      quizzes,
+    })
 
-      const score = calculatePercentage(
-        progress.validation.normalizedPoints,
-        progress.validation.maxNormalizedPoints,
-      )
-      const pointsPercentage = calculatePercentage(
-        progress.validation.points,
-        progress.validation.maxPoints,
-      )
+    count += 1
+    /*           if (!_.includes(percentagesShown, percentage)) {
+        percentagesShown.push(percentage)
+        printProgress(percentage)
+      } */
 
-      // go through answers in submission order and determine the date when the answerer
-      // could have been potentially have completed
+    const score = calculatePercentage(
+      progress.validation.normalizedPoints,
+      progress.validation.maxNormalizedPoints,
+    )
+    const pointsPercentage = calculatePercentage(
+      progress.validation.points,
+      progress.validation.maxPoints,
+    )
 
-      const answerValidation = progress.answered.map(entry => mapEntry(entry))
+    // go through answers in submission order and determine the date when the answerer
+    // could have been potentially have completed
 
-      const sortedAnswers = _.sortBy(answerValidation, "earliestCreatedAt") //createdAt
+    const answerValidation = progress.answered.map(entry => mapEntry(entry))
 
-      let partialNormalizedPoints = 0
-      let partialConfirmedAmount = 0
-      let partialCompleted = false
-      let completionAnswersDate = null
+    const sortedAnswers = _.sortBy(answerValidation, "earliestCreatedAt") //createdAt
 
-      let prevDate = 0
+    let partialNormalizedPoints = 0
+    let partialConfirmedAmount = 0
+    let partialCompleted = false
+    let completionAnswersDate = null
 
-      if (score >= courseConfig.MINIMUM_SCORE_TO_PASS) {
-        sortedAnswers.some(entry => {
-          if (prevDate > entry.earliestCreatedAt) {
-            // createdAt
-            return Promise.reject(new Error("answer sorting is borked?"))
-          }
+    let prevDate = 0
 
-          prevDate = entry.earliestCreatedAt // createdAt
+    if (score >= courseConfig.MINIMUM_SCORE_TO_PASS) {
+      sortedAnswers.some(entry => {
+        if (prevDate > entry.earliestCreatedAt) {
+          // createdAt
+          return Promise.reject(new Error("answer sorting is borked?"))
+        }
 
-          if (_.includes(countableQuizIds, entry.quizId.toString())) {
-            partialNormalizedPoints += entry.normalizedPoints
-            partialConfirmedAmount += entry.confirmed ? 1 : 0
-          }
+        prevDate = entry.earliestCreatedAt // createdAt
 
-          let partialProgress = calculatePercentage(
-            partialConfirmedAmount,
-            maxCountableNormalizedPoints,
+        if (_.includes(countableQuizIds, entry.quizId.toString())) {
+          partialNormalizedPoints += entry.normalizedPoints
+          partialConfirmedAmount += entry.confirmed ? 1 : 0
+        }
+
+        let partialProgress = calculatePercentage(
+          partialConfirmedAmount,
+          maxCountableNormalizedPoints,
+        )
+        let partialScore = calculatePercentage(
+          partialNormalizedPoints,
+          maxCountableNormalizedPoints,
+        )
+
+        if (partialProgress > 100 || partialScore > 100) {
+          return Promise.reject(
+            new Error(
+              "your progress/score calculations are wrong",
+              progress,
+              partialProgress,
+              partialScore,
+            ),
           )
-          let partialScore = calculatePercentage(
-            partialNormalizedPoints,
-            maxCountableNormalizedPoints,
-          )
+        }
 
-          if (partialProgress > 100 || partialScore > 100) {
-            return Promise.reject(
-              new Error(
-                "your progress/score calculations are wrong",
-                progress,
-                partialProgress,
-                partialScore,
-              ),
+        if (partialProgress >= courseConfig.MINIMUM_PROGRESS_TO_PASS) {
+          //                partialScore >= config.MINIMUM_SCORE_TO_PASS) {
+          completionAnswersDate = entry.earliestCreatedAt // createdAt
+          partialCompleted = true
+
+          if (
+            partialProgress > progress.validation.progress ||
+            partialScore > score
+          ) {
+            console.log(
+              "%s official p/s %d/%d partial p/s %d/%d",
+              answererId,
+              progress.validation.progress,
+              score,
+              partialProgress,
+              partialScore,
             )
           }
 
-          if (partialProgress >= courseConfig.MINIMUM_PROGRESS_TO_PASS) {
-            //                partialScore >= config.MINIMUM_SCORE_TO_PASS) {
-            completionAnswersDate = entry.earliestCreatedAt // createdAt
-            partialCompleted = true
+          return true
+        }
 
-            if (
-              partialProgress > progress.validation.progress ||
-              partialScore > score
-            ) {
-              console.log(
-                "%s official p/s %d/%d partial p/s %d/%d",
-                answererId,
-                progress.validation.progress,
-                score,
-                partialProgress,
-                partialScore,
-              )
-            }
+        return false
+      })
+    }
 
-            return true
-          }
+    const scoreObject = {
+      answererId,
+      answerValidation,
+      points: progress.validation.points,
+      maxPoints: progress.validation.maxPoints,
+      normalizedPoints: progress.validation.normalizedPoints,
+      maxNormalizedPoints: progress.validation.maxNormalizedPoints,
+      maxCompletedPoints: progress.validation.maxCompletedPoints,
+      maxCompletedNormalizedPoints:
+        progress.validation.maxCompletedNormalizedPoints,
+      progress: progress.validation.progress,
+      score,
+      pointsPercentage,
+      date: Date.now(),
+      latestAnswerDate: progress.latestAnswerDate,
+    }
 
-          return false
-        })
-      }
+    //console.log('completion:', answererId)
 
-      const scoreObject = {
+    try {
+      await updateCompletion({
         answererId,
-        answerValidation,
-        points: progress.validation.points,
-        maxPoints: progress.validation.maxPoints,
-        normalizedPoints: progress.validation.normalizedPoints,
-        maxNormalizedPoints: progress.validation.maxNormalizedPoints,
-        maxCompletedPoints: progress.validation.maxCompletedPoints,
-        maxCompletedNormalizedPoints:
-          progress.validation.maxCompletedNormalizedPoints,
-        progress: progress.validation.progress,
-        score,
-        pointsPercentage,
-        date: Date.now(),
-        latestAnswerDate: progress.latestAnswerDate,
-      }
+        scoreObject,
+        completionAnswersDate,
+        partialCompleted,
+      })
+    } catch (err) {
+      throw err
+    }
 
-      //console.log('completion:', answererId)
+    if (
+      progress.validation.progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS &&
+      score >= courseConfig.MINIMUM_SCORE_TO_PASS
+    ) {
+      return scoreObject
+    }
 
-      try {
-        await updateCompletion({
-          answererId,
-          scoreObject,
-          completionAnswersDate,
-          partialCompleted,
-        })
-      } catch (err) {
-        throw err
-      }
+    return
+  }
 
-      if (
-        progress.validation.progress >= courseConfig.MINIMUM_PROGRESS_TO_PASS &&
-        score >= courseConfig.MINIMUM_SCORE_TO_PASS
-      ) {
-        return scoreObject
-      }
+  let completed
 
-      return
-    }),
-  )
-    .then(results => (results || []).filter(v => !!v))
-    .catch(err => Promise.reject(err))
+  if(experimentalMode){
+    completed = []
+    for (const answererId of answererIds){
+      await updateSingleCourseState(answererId).then(result => completed.push(result))
+    }
+  } else {
+    completed = await Promise.all(
+      answererIds.map(updateSingleCourseState),
+    )
+      .then(results => (results || []).filter(v => !!v))
+      .catch(err => Promise.reject(err))
+  }
 
   return completed
   /*     })
