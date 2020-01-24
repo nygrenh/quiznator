@@ -23,7 +23,7 @@
     "autorestart"     : true,
     "cron_restart"    : "*/5 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai --startTime 1m",
+    "args"            : "elements-of-ai --startTime 1w",
     "node_args"       : "--max-old-space-size=8192"
   },
   {
