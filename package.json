@@ -37,7 +37,7 @@
     "copy-to-clipboard": "^3.0.5",
     "cors": "^2.8.0",
     "css-loader": "^0.28.11",
-    "debug": "~2.2.0",
+    "debug": "~2.6.9",
     "dotenv": "^2.0.0",
     "eslint": "^5.5.0",
     "eslint-plugin-flowtype": "^2.50.0",
