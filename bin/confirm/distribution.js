@@ -18,7 +18,7 @@ const Quiz = require('app-modules/models/quiz')
 const { connect, fetchQuizIds } = require('./utils/quiznator-tools')
 const { median, calculatePercentage, printProgress } = require('./utils/mathutils')
 const { precise_round } = require('app-modules/utils/math-utils')
-const sleep = require('sleep')
+const sleep = require('./utils/sleep')
 
 sleep.sleep(5)
 
