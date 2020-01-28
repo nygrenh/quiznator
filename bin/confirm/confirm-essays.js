@@ -22,6 +22,8 @@ const { precise_round } = require('app-modules/utils/math-utils')
 
 const sleep = require('./utils/sleep')
 
+const DEFAULT_NEWER_THAN = 2592000000 * 6 // 6 months
+
 sleep.sleep(5)
 
 connect()
@@ -47,9 +49,9 @@ function initMaps({ answers, peerReviews, reviewAnswers }) {
   let answersForAnswerer = new Map()
 
   answers.forEach(answer => {
-    setValue({ 
-      outerMap: answersForAnswerer, 
-      outerMapKey: answer.answererId, 
+    setValue({
+      outerMap: answersForAnswerer,
+      outerMapKey: answer.answererId,
       innerMapKey: answer.quizId.toString(),
       value: answer
     })
@@ -60,15 +62,15 @@ function initMaps({ answers, peerReviews, reviewAnswers }) {
 
   // NOTE: sourcequizid/quizid flipped!
   peerReviews.forEach(review => {
-    setValue({ 
-      outerMap: peerReviewsGivenForAnswerer, 
-      outerMapKey: review.giverAnswererId, 
+    setValue({
+      outerMap: peerReviewsGivenForAnswerer,
+      outerMapKey: review.giverAnswererId,
       innerMapKey: review.sourceQuizId.toString(),
       value: review
     })
-    setValue({ 
-      outerMap: peerReviewsReceivedForAnswerer, 
-      outerMapKey: review.targetAnswererId, 
+    setValue({
+      outerMap: peerReviewsReceivedForAnswerer,
+      outerMapKey: review.targetAnswererId,
       // specific quiz:
       //innerMapKey: review.sourceQuizId.toString(),
       // specific answer:
@@ -101,21 +103,20 @@ function initMaps({ answers, peerReviews, reviewAnswers }) {
 async function updateConfirmations(data) {
 /*   return new Promise((resolve, reject) => { */
   const allData = _.flatten(_.concat(data.passed, data.failed, data.review))
-  
+
   let count = 0
   let percentage = 0
   let percentagesShown = []
 
-  return await Promise.all(allData.map(async entry => {
-    /*       const answer = entry.answer[0] */
+  for (const entry of allData) {
     const { quizId, answererId } = entry
 
     const answerId = entry.answer._id // [0]._id
 
     const answer = await QuizAnswer.findById(answerId)
 
-    if (!answer) {
-      return
+    if (!answer || answer.confirmed || answer.rejected) {
+      continue
     }
 
     answer.confirmed = entry.pass ? true : false
@@ -155,9 +156,7 @@ async function updateConfirmations(data) {
       { $set: data },
       { new: true, upsert: true}
     )
-  }))
-    .then(() => Promise.resolve())
-    .catch(err => Promise.reject(err))
+  }
   //})
 }
 
@@ -181,7 +180,7 @@ function getEssaysForAnswerer(data) {
         if (answerForQuiz.createdAt > newestDate) {
           answer = answerForQuiz // [] ? // expecting [0]...
           newestDate = answerForQuiz.createdAt
-        } 
+        }
       })
 
       /*       console.log(answererId, `had ${answersForQuiz.length} answers for ${quizId}`)
@@ -202,29 +201,29 @@ function getEssaysForAnswerer(data) {
     const received = peerReviewsReceived ? (peerReviewsReceived.get(answer._id.toString()) || []) : []
 
     const spamFlags = answer.spamFlags // [0].spamFlags
-    
+
     // don't take sad faces into account if the review is < GRADE_CUTOFF_POINT times average grade
     // (or, as it is now, median)
 
-    const grades = _.sortBy(received.map(review => ({ sum: _.sum(_.values(review.grading)), grading: review.grading })), ['sum'])    
+    const grades = _.sortBy(received.map(review => ({ sum: _.sum(_.values(review.grading)), grading: review.grading })), ['sum'])
     let filteredAverageGrades = grades
-    
-    // no use calculating the median from less than three 
+
+    // no use calculating the median from less than three
     if (courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED >= 3) {
       const medianGrade = median(grades.map(grade => grade.sum))
       filteredAverageGrades = grades.filter(grade => grade.sum >= (courseConfig.GRADE_CUTOFF_POINT * medianGrade))
     }
 
     // hard coded: expects 4 questions on a scale of 1-5...
-    const sadFacePercentage = _.mean(filteredAverageGrades.map(grade => 
+    const sadFacePercentage = _.mean(filteredAverageGrades.map(grade =>
       _.values(grade.grading)
         .filter(v => v === 1).length)) / 4 * 100 || 0
     const gradePercentage = filteredAverageGrades.length > 0 ?
       _.mean(filteredAverageGrades.map(
         grade => grade.sum
-      )) / 20 * 100 : 0 
+      )) / 20 * 100 : 0
 
-    let pass = given.length >= courseConfig.MINIMUM_PEER_REVIEWS_GIVEN && 
+    let pass = given.length >= courseConfig.MINIMUM_PEER_REVIEWS_GIVEN &&
                 received.length >= courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED && // averageGrade >= 12
                 sadFacePercentage < courseConfig.MAXIMUM_SADFACE_PERCENTAGE &&
                 spamFlags <= courseConfig.MAXIMUM_SPAM_FLAGS_TO_PASS
@@ -242,18 +241,18 @@ function getEssaysForAnswerer(data) {
       reason = reasons.REJECT_FLAGGED_AS_SPAM
     }
 
-    let review = !pass && !fail 
+    let review = !pass && !fail
 
     // not spam but not enough reviews? let's ignore it
     // TODO: this means confirmed/rejected under limits
     // won't be updated - a corner case but a case nonetheless
-    if (review && 
+    if (review &&
       (given.length < courseConfig.MINIMUM_PEER_REVIEWS_GIVEN ||
       received.length < courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED)) {
       return
     }
 
-    const reviewAnswerForAnswer = reviewAnswers ? 
+    const reviewAnswerForAnswer = reviewAnswers ?
       _.get((reviewAnswers.get(quizId.toString()) || []).filter(r => r.answerId === answer._id.toString()), 0, null)
       : null
     const status = _.get(reviewAnswerForAnswer, 'status', {})
@@ -265,14 +264,14 @@ function getEssaysForAnswerer(data) {
     } else if ((answer.rejected || status.fail) && !fail) {
       [pass, review, fail] = [false, false, true]
       reason = reasons.REJECT_BY_REVIEWER
-    } 
+    }
 
     if (reviewAnswerForAnswer) {
-      // ignore if 
+      // ignore if
       //   passing and confirmed equal
-      if ((status.pass === pass && status.pass === answer.confirmed) && 
+      if ((status.pass === pass && status.pass === answer.confirmed) &&
       //   review statuses equal
-          (status.review === review && 
+          (status.review === review &&
             // if review is true, neither confirmed nor rejected is set
             ((status.review && !answer.confirmed && !answer.rejected) ||
             // if review is false, exactly one of confirmed and rejected are set
@@ -280,7 +279,7 @@ function getEssaysForAnswerer(data) {
               (answer.confirmed && !answer.rejected) ||
               (!answer.confirmed && answer.rejected)
             )))
-          ) && 
+          ) &&
       //   rejected and fail equal
           (status.rejected === fail && status.rejected === answer.rejected)) {
         // let's not update if not anything to update
@@ -321,57 +320,64 @@ function getEssaysForAnswerer(data) {
 
 const updateEssays = async () => {
   try {
-    const quizIds = await fetchQuizIds(courseConfig.COURSE_ID) 
+    const quizIds = await fetchQuizIds(courseConfig.COURSE_ID)
 
     if (quizIds.length === 0) { //} || answererIds.length === 0) {
       return Promise.reject(new Error('no quizids'))
     }
 
-        
+
     console.log('initing...')
 
     let counter = 0
-        
+
+    const currentDate = new Date()
+    const createdAt = {
+      $gte: new Date(currentDate - DEFAULT_NEWER_THAN),
+    }
+
     const quizzes = await Quiz.findAnswerable({ _id: { $in: quizIds }})
 
     const essays = quizzes.filter(quiz => quiz.type === quizTypes.ESSAY)
     const essayIds = essays.map(quiz => quiz._id)
 
     const answers = await QuizAnswer.find({
-      quizId: { $in: essayIds },
-      deprecated: { $ne: true },
+      quizId: { $in: essayIds },
+      deprecated: { $ne: true },
+      createdAt,
       $or: [
         { peerReviewCount: { $gte: courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED } },
         { spamFlags: { $gte: courseConfig.MINIMUM_SPAM_FLAGS_TO_FAIL } }
       ]
     }).exec()
 
-    const reviewAnswers = await QuizReviewAnswer.find({}).exec()
+    const reviewAnswers = await QuizReviewAnswer.find({ createdAt }).exec()
 
-    const peerReviews = await PeerReview.find({ 
-      sourceQuizId: { $in: essayIds }, 
-    }).exec() 
-      
+    const peerReviews = await PeerReview.find({
+      sourceQuizId: { $in: essayIds },
+      createdAt,
+    }).exec()
+
     // newest first
     answers.sort((a, b) => b.createdAt - a.createdAt)
     reviewAnswers.sort((a, b) => {
-      if (!a.createdAt || !b.createdAt) { 
+      if (!a.createdAt || !b.createdAt) {
         return 0
       }
       return b.createdAt - a.createdAt
     })
-    
+
     const answerQuizIds = answers.map(answer => answer.quizId.toString());
     const answererIds = _.uniq(answers.map(answer => answer.answererId))
 
-    const { 
-      answersForAnswerer, 
-      peerReviewsGivenForAnswerer, 
+    const {
+      answersForAnswerer,
+      peerReviewsGivenForAnswerer,
       peerReviewsReceivedForAnswerer,
-      reviewAnswersForAnswerer } = 
+      reviewAnswersForAnswerer } =
     initMaps({ answers, peerReviews, reviewAnswers })
 
-    const totalAnswers = _.sum(answererIds.map(answererId => 
+    const totalAnswers = _.sum(answererIds.map(answererId =>
       answersForAnswerer.get(answererId).size))
 
     console.log('In total, there are', answersForAnswerer.size, 'answerers and', totalAnswers, 'essays to check for', courseConfig.COURSE_ID)
@@ -380,10 +386,10 @@ const updateEssays = async () => {
       counter += 1
       /*                 if (counter % 100 === 0) {
         console.log('At answerer #', counter)
-      } 
+      }
   */
 
-      const essaysForAnswerer = getEssaysForAnswerer({ 
+      const essaysForAnswerer = getEssaysForAnswerer({
         answers: answersForAnswerer.get(answererId),
         essayIds,
         peerReviewsGiven: peerReviewsGivenForAnswerer.get(answererId),
@@ -391,10 +397,10 @@ const updateEssays = async () => {
         reviewAnswers: reviewAnswersForAnswerer.get(answererId),
         answererId
       })
-    
+
       return essaysForAnswerer
     }).filter(v => !!v) //, essays => answererId) // groupBy
-                
+
     const returned = {
       passed: gradedEssays.filter(v => v.pass).map(essay => essay.pass),
       failed: gradedEssays.filter(v => v.fail).map(essay => essay.fail),
@@ -423,4 +429,3 @@ updateEssays()
   })
 
 setInterval(() => {}, 1000)
-
