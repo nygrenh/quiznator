@@ -27,7 +27,8 @@ sleep.sleep(5)
 connect()
 
 const argv = require("yargs").argv
-const courseConfig = selectConfig(argv._[0])
+const args = argv._
+const courseConfig = selectConfig(args[args.length - 1])
 const startTime = argv.startTime
 const endTime = argv.endTime
 const experimentalMode = argv.experimental
