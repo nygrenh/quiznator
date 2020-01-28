@@ -17,47 +17,14 @@
   },
   {
     "script"          : "bin/confirm/confirm-completion.js",
-    "name"            : "completion-en-newer-than-1w",
+    "name"            : "completion-en",
     "exec_mode"       : "cluster",
     "instances"       : "1",
     "autorestart"     : true,
-    "cron_restart"    : "*/5 * * * *",
+    "cron_restart"    : "11 * * * *",
     "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai --startTime 1w",
+    "args"            : "elements-of-ai",
     "node_args"       : "--max-old-space-size=8192"
-  },
-  {
-    "script"          : "bin/confirm/confirm-completion.js",
-    "name"            : "completion-en-1w-to-6m",
-    "exec_mode"       : "cluster",
-    "instances"       : "1",
-    "autorestart"     : true,
-    "cron_restart"    : "25 * * * *",
-    "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai --startTime 6m --endTime 1w",
-    "node_args"       : "--max-old-space-size=10192"
-  },
-  {
-    "script"          : "bin/confirm/confirm-completion.js",
-    "name"            : "completion-en-older-than-6m",
-    "exec_mode"       : "cluster",
-    "instances"       : "1",
-    "autorestart"     : true,
-    "cron_restart"    : "50 23 * * *",
-    "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai --startTime 10y --endTime 6m",
-    "node_args"       : "--max-old-space-size=18192"
-  },
-  {
-    "script"          : "bin/confirm/confirm-completion.js",
-    "name"            : "completion-en-older-than-6m-experimental",
-    "exec_mode"       : "cluster",
-    "instances"       : "1",
-    "autorestart"     : true,
-    "cron_restart"    : "10 12 * * *",
-    "log_date_format" : "YYYY-MM-DD HH:mm Z",
-    "args"            : "elements-of-ai --startTime 10y --endTime 6m --experimental",
-    "node_args"       : "--max-old-space-size=18192"
   },
   {
     "script"          : "bin/confirm/confirm-essays.js",
