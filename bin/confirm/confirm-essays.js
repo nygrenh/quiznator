@@ -351,7 +351,7 @@ const updateEssays = async () => {
       ]
     }).limit(100).exec()
 
-    console.log(`Processing ${answerers.length} answers.`)
+    console.log(`Processing ${answers.length} answers.`)
 
     const reviewAnswers = await QuizReviewAnswer.find({ createdAt }).exec()
 
