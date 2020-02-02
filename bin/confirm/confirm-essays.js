@@ -349,7 +349,9 @@ const updateEssays = async () => {
         { peerReviewCount: { $gte: courseConfig.MINIMUM_PEER_REVIEWS_RECEIVED } },
         { spamFlags: { $gte: courseConfig.MINIMUM_SPAM_FLAGS_TO_FAIL } }
       ]
-    }).exec()
+    }).limit(100).exec()
+
+    console.log(`Processing ${answerers.length} answers.`)
 
     const reviewAnswers = await QuizReviewAnswer.find({ createdAt }).exec()
 
@@ -357,6 +359,8 @@ const updateEssays = async () => {
       sourceQuizId: { $in: essayIds },
       createdAt,
     }).exec()
+
+    console.log(`Found ${peerReviews.length} peer reviews`)
 
     // newest first
     answers.sort((a, b) => b.createdAt - a.createdAt)
