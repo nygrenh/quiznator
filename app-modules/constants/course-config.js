@@ -2,7 +2,7 @@ const defaultConfig = {
   MINIMUM_PEER_REVIEWS_GIVEN: 3,
   MINIMUM_PEER_REVIEWS_RECEIVED: 2,
   MINIMUM_SPAM_FLAGS_TO_FAIL: 3,
-  MAXIMUM_SPAM_FLAGS_TO_PASS: 0,
+  MAXIMUM_SPAM_FLAGS_TO_PASS: 2,
   MINIMUM_PROGRESS_TO_PASS: 90,
   MINIMUM_SCORE_TO_PASS: 50,
   MAXIMUM_SADFACE_PERCENTAGE: 35,
@@ -10,7 +10,7 @@ const defaultConfig = {
   COURSE_SHORT_ID: 'ai',
   PARTS: 6,
   SECTIONS_PER_PART: 3,
-}  
+}
 
 const courseVariants = {
   'elements-of-ai': {
@@ -19,7 +19,7 @@ const courseVariants = {
     IGNORE_LIST: [ // these are now handled by quiz tags
       '5aec479606ee0000047c5967', // ex 3
       //'5aec5e7c06ee0000047c5995', // 8
-      '5aec626406ee0000047c599e', // 17 
+      '5aec626406ee0000047c599e', // 17
       '5aec60b006ee0000047c599a', // 20
     ]
   },
